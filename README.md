@@ -47,3 +47,4 @@ https://<tuo-utente>.gitlab.io/taschino/
 
 Apri l'URL del tool specifico (es. `.../lettore-vocale/`) da Chrome → menu (⋮) → **"Installa app"** (o "Aggiungi a schermata Home" se non compare l'opzione diretta). Su iPhone/Safari: pulsante Condividi → **"Aggiungi a Home"**. Con il manifest configurato, l'icona sarà quella personalizzata e l'app si aprirà a schermo intero, senza barra degli indirizzi.
 # Taschino
+# Taschino
