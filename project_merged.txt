@@ -1,0 +1,1081 @@
+# Struttura del progetto: .
+# Generato il: 2026-09-18 08:31:06
+
+## Albero file (esclusi: .git node_modules dist build .venv __pycache__ .idea .vscode)
+```
+.gitlab-ci.yml
+icon-192.png
+icon-512.png
+index.html
+lettore-vocale/icon-192.png
+lettore-vocale/icon-512.png
+lettore-vocale/index.html
+lettore-vocale/manifest.json
+manifest.json
+merge_project.sh
+project_merged.txt
+README.md
+```
+
+---
+
+=== FILE: .gitlab-ci.yml ===
+# righe: 11 — dimensione: 224 byte
+
+pages:
+  stage: deploy
+  script:
+    - mkdir -p public
+    - cp -r * public/ 2>/dev/null || true
+    - rm -rf public/public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+=== FINE FILE: .gitlab-ci.yml ===
+
+=== FILE: index.html ===
+# righe: 62 — dimensione: 1897 byte
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taschino</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#b5563c">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Taschino">
+<style>
+  :root {
+    --bg: #faf9f7;
+    --card: #ffffff;
+    --ink: #1f1d1a;
+    --muted: #6b6560;
+    --accent: #b5563c;
+    --accent-soft: #f2e2dc;
+    --border: #e6e1da;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 24px 16px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  p.sub { color: var(--muted); margin-top: 0; margin-bottom: 24px; }
+  .tool-card {
+    display: block;
+    text-decoration: none;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .tool-card:active { background: var(--accent-soft); }
+  .tool-title { font-weight: 600; font-size: 1.05rem; }
+  .tool-desc { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+</style>
+</head>
+<body>
+  <h1>🗃️ Taschino</h1>
+  <p class="sub">I tuoi mini-strumenti personali, sempre a portata di browser.</p>
+
+  <a class="tool-card" href="lettore-vocale/">
+    <div class="tool-title">🔊 Lettore Vocale</div>
+    <div class="tool-desc">Incolla testo o un link e fattelo leggere ad alta voce.</div>
+  </a>
+
+  <!-- Aggiungi qui nuove card man mano che aggiungi tool -->
+</body>
+</html>
+
+=== FINE FILE: index.html ===
+
+=== FILE: lettore-vocale/index.html ===
+# righe: 788 — dimensione: 28253 byte
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lettore Vocale</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#b5563c">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lettore Vocale">
+<style>
+  :root {
+    --bg: #faf9f7;
+    --card: #ffffff;
+    --ink: #1f1d1a;
+    --muted: #6b6560;
+    --accent: #b5563c;
+    --accent-soft: #f2e2dc;
+    --border: #e6e1da;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 16px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 4px 0 16px;
+  }
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  .tab.active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  textarea, input[type=text] {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: var(--card);
+    color: var(--ink);
+    resize: vertical;
+  }
+  textarea { min-height: 160px; line-height: 1.5; }
+  button {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--ink); border: 1px solid var(--border); }
+  .row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .row button { flex: 1; min-width: 90px; }
+  .controls-row { display: flex; gap: 12px; margin-top: 14px; align-items: center; }
+  .controls-row label { font-size: 0.85rem; color: var(--muted); white-space: nowrap; }
+  select, input[type=range] { flex: 1; }
+  .status {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    min-height: 18px;
+  }
+  .reading-box {
+    margin-top: 16px;
+    padding: 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-height: 260px;
+    overflow-y: auto;
+    display: none;
+  }
+  .reading-box.visible { display: block; }
+  mark {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 0 2px;
+  }
+  .note {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+  .save-row { margin-top: 10px; }
+
+  .driving-mode {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #17140f;
+    color: #ffffff;
+    z-index: 1000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    gap: 40px;
+  }
+  .driving-mode.active { display: flex; }
+  .driving-progress {
+    font-size: 1.4rem;
+    font-weight: 600;
+    text-align: center;
+    opacity: 0.9;
+  }
+  .driving-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+  }
+  .drive-btn {
+    background: rgba(255,255,255,0.12);
+    color: #ffffff;
+    border: 2px solid rgba(255,255,255,0.28);
+    border-radius: 50%;
+    width: 88px;
+    height: 88px;
+    font-size: 1.9rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.15;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .drive-btn:active { background: rgba(255,255,255,0.26); }
+  .drive-btn .drive-label { font-size: 0.68rem; opacity: 0.85; margin-top: 2px; }
+  .drive-btn-primary {
+    width: 116px;
+    height: 116px;
+    font-size: 2.8rem;
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .drive-btn-primary:active { background: #9a4831; }
+  .drive-exit {
+    background: transparent;
+    color: rgba(255,255,255,0.8);
+    border: 2px solid rgba(255,255,255,0.35);
+    border-radius: 12px;
+    padding: 14px 32px;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  .drive-exit:active { background: rgba(255,255,255,0.1); }
+</style>
+</head>
+<body>
+
+<h1>🔊 Lettore Vocale</h1>
+
+<div class="tabs">
+  <div class="tab active" data-tab="testo">Testo</div>
+  <div class="tab" data-tab="link">Link</div>
+  <div class="tab" data-tab="file">File</div>
+</div>
+
+<div class="panel active" id="panel-testo">
+  <textarea id="textInput" placeholder="Incolla qui il testo da leggere..."></textarea>
+</div>
+
+<div class="panel" id="panel-link">
+  <input type="text" id="urlInput" placeholder="https://esempio.com/articolo">
+  <div class="row">
+    <button class="btn-secondary" id="fetchBtn">Estrai testo dalla pagina</button>
+  </div>
+  <div class="note">Il contenuto della pagina viene estratto tramite un servizio di lettura esterno (r.jina.ai) prima di arrivare qui — non usarlo per pagine con contenuti riservati o privati.</div>
+  <div class="status" id="fetchStatus"></div>
+</div>
+
+<div class="panel" id="panel-file">
+  <input type="file" id="fileInput" accept=".md,.markdown,.txt,text/markdown,text/plain">
+  <div class="note">Si apre il selettore file di Android — Google Drive compare tra le fonti disponibili se hai l'app installata.</div>
+  <div class="status" id="fileStatus"></div>
+</div>
+
+<div class="panel active" id="panel-deepseek" style="margin-top: 4px;">
+  <details>
+    <summary style="cursor:pointer; font-size:0.9rem; color: var(--muted); padding: 4px 0;">🧹 Pulisci testo con DeepSeek (opzionale)</summary>
+    <div style="margin-top: 10px;">
+      <input type="text" id="dsKeyInput" placeholder="API key DeepSeek (sk-...)" autocomplete="off">
+      <div class="note">La key resta solo in questa sessione del browser, non viene salvata da nessuna parte. Va reinserita ogni volta che riapri la pagina.</div>
+      <div class="row">
+        <button class="btn-secondary" id="dsCleanBtn">Pulisci e formatta in Markdown</button>
+      </div>
+      <div class="note">Se il browser blocca la chiamata diretta all'API (errore CORS), te lo segnalo qui sotto — in quel caso serve un piccolo proxy, non è un limite risolvibile solo lato pagina.</div>
+      <div class="status" id="dsStatus"></div>
+    </div>
+  </details>
+</div>
+
+<div class="controls-row">
+  <label for="voiceSelect">Voce</label>
+  <select id="voiceSelect"></select>
+</div>
+<div class="note" id="langNote"></div>
+<div class="controls-row">
+  <label for="rateRange">Velocità</label>
+  <input type="range" id="rateRange" min="0.5" max="1.8" step="0.1" value="1">
+  <span id="rateValue">1.0x</span>
+</div>
+
+<div class="row">
+  <button class="btn-primary" id="playBtn">▶ Leggi</button>
+  <button class="btn-secondary" id="pauseBtn">⏸ Pausa</button>
+  <button class="btn-secondary" id="stopBtn">⏹ Stop</button>
+</div>
+<div class="note">La formattazione markdown (titoli, link, grassetti...) viene rimossa automaticamente solo per la lettura — il testo salvato resta invariato.</div>
+
+<div class="save-row row">
+  <button class="btn-secondary" id="saveMdBtn">⬇ Salva come Markdown</button>
+  <button class="btn-secondary" id="clearBtn">🗑 Cancella tutto</button>
+</div>
+
+<div class="status" id="ttsStatus"></div>
+<div class="note" id="wakeLockNote"></div>
+
+<div class="reading-box" id="readingBox"></div>
+
+<div class="driving-mode" id="drivingMode">
+  <div class="driving-progress" id="drivingProgress"></div>
+  <div class="driving-controls">
+    <button class="drive-btn" id="driveBack30" aria-label="Indietro 30 secondi">⏪<span class="drive-label">30s</span></button>
+    <button class="drive-btn drive-btn-primary" id="drivePlayPause" aria-label="Pausa/Riprendi">⏸</button>
+    <button class="drive-btn" id="driveForward30" aria-label="Avanti 30 secondi">⏩<span class="drive-label">30s</span></button>
+  </div>
+  <button class="drive-exit" id="driveExit">✕ Esci</button>
+</div>
+
+<div class="note" id="unsupportedNote" style="display:none; margin-top:14px; padding:12px; background:#fff3f0; border:1px solid #e6c6bc; border-radius:10px; color:#8a3b26;">
+  ⚠️ La sintesi vocale non è disponibile in questa finestra (succede nell'app Claude, che usa una webview limitata). Tocca i tre puntini in alto e scegli "Apri nel browser" (Safari / Chrome) per farla funzionare.
+</div>
+
+<script>
+const hasTTS = ('speechSynthesis' in window);
+if (!hasTTS) {
+  document.getElementById('unsupportedNote').style.display = 'block';
+  document.getElementById('playBtn').disabled = true;
+  document.getElementById('pauseBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = true;
+}
+</script>
+
+<script>
+const tabs = document.querySelectorAll('.tab');
+const panels = { testo: document.getElementById('panel-testo'), link: document.getElementById('panel-link'), file: document.getElementById('panel-file') };
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    Object.values(panels).forEach(p => p.classList.remove('active'));
+    panels[tab.dataset.tab].classList.add('active');
+  });
+});
+
+const textInput = document.getElementById('textInput');
+const urlInput = document.getElementById('urlInput');
+const fetchBtn = document.getElementById('fetchBtn');
+const fetchStatus = document.getElementById('fetchStatus');
+const voiceSelect = document.getElementById('voiceSelect');
+const rateRange = document.getElementById('rateRange');
+const rateValue = document.getElementById('rateValue');
+const playBtn = document.getElementById('playBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const stopBtn = document.getElementById('stopBtn');
+const ttsStatus = document.getElementById('ttsStatus');
+const readingBox = document.getElementById('readingBox');
+const saveMdBtn = document.getElementById('saveMdBtn');
+const clearBtn = document.getElementById('clearBtn');
+const fileInput = document.getElementById('fileInput');
+const fileStatus = document.getElementById('fileStatus');
+
+const drivingMode = document.getElementById('drivingMode');
+const drivingProgress = document.getElementById('drivingProgress');
+const driveBack30 = document.getElementById('driveBack30');
+const drivePlayPause = document.getElementById('drivePlayPause');
+const driveForward30 = document.getElementById('driveForward30');
+const driveExit = document.getElementById('driveExit');
+
+const langNote = document.getElementById('langNote');
+
+// Rilevamento lingua euristico: conta parole-funzione tipiche di IT vs EN.
+// Su testi molto brevi o ambigui non decide (ritorna null e lascia la voce invariata).
+const IT_MARKERS = ['il','lo','la','i','gli','le','un','uno','una','che','di','e','per','con','sono','è','questo','questa','questi','queste','non','del','della','dei','delle','nel','nella','anche','più','come','ma','se','quando','dove','perché','anche','tra','fra','loro','suo','sua','molto','tutto','alla','allo','agli'];
+const EN_MARKERS = ['the','and','of','to','in','is','are','that','this','with','for','on','as','it','was','be','have','has','not','but','if','when','where','you','your','from','at','by','an','or','we','they','their','which','will','would','can','could'];
+
+function detectLanguage(text) {
+  const words = (text.toLowerCase().match(/[a-zàèéìòù']+/g) || []);
+  if (words.length < 8) return null; // testo troppo corto per un giudizio affidabile
+  let itScore = 0, enScore = 0;
+  words.forEach(w => {
+    if (IT_MARKERS.includes(w)) itScore++;
+    else if (EN_MARKERS.includes(w)) enScore++;
+  });
+  if (itScore === 0 && enScore === 0) return null;
+  return enScore > itScore ? 'en' : 'it';
+}
+
+function applyDetectedLanguage() {
+  if (!hasTTS || voices.length === 0) return;
+  const text = textInput.value;
+  const lang = detectLanguage(text);
+  if (!lang) { langNote.textContent = ''; return; }
+  const matchIndex = voices.findIndex(v => v.lang.toLowerCase().startsWith(lang));
+  if (matchIndex === -1) {
+    langNote.textContent = 'Lingua rilevata: ' + (lang === 'en' ? 'Inglese' : 'Italiano') + ' — nessuna voce disponibile per questa lingua, uso quella selezionata.';
+    return;
+  }
+  voiceSelect.value = String(matchIndex);
+  langNote.textContent = 'Lingua rilevata: ' + (lang === 'en' ? 'Inglese' : 'Italiano') + ' — voce impostata su ' + voices[matchIndex].name + '.';
+}
+
+let voices = [];
+function loadVoices() {
+  if (!hasTTS) return;
+  voices = speechSynthesis.getVoices();
+  voiceSelect.innerHTML = '';
+  // Elenca tutte le voci disponibili (non solo italiane) cosi' anche l'inglese e' selezionabile
+  voices.forEach((v, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = v.name + ' (' + v.lang + ')';
+    voiceSelect.appendChild(opt);
+  });
+  // Selezione di default: prima voce italiana disponibile, se c'e'
+  const defaultItIndex = voices.findIndex(v => v.lang.toLowerCase().startsWith('it'));
+  if (defaultItIndex !== -1) voiceSelect.value = String(defaultItIndex);
+  applyDetectedLanguage();
+}
+if (hasTTS) {
+  loadVoices();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+}
+
+rateRange.addEventListener('input', () => {
+  rateValue.textContent = parseFloat(rateRange.value).toFixed(1) + 'x';
+});
+
+let langDetectTimer = null;
+textInput.addEventListener('input', () => {
+  clearTimeout(langDetectTimer);
+  langDetectTimer = setTimeout(applyDetectedLanguage, 300);
+});
+
+fetchBtn.addEventListener('click', async () => {
+  const url = urlInput.value.trim();
+  if (!url) { fetchStatus.textContent = 'Inserisci un link valido.'; return; }
+  fetchStatus.textContent = 'Estrazione in corso...';
+  fetchBtn.disabled = true;
+  try {
+    const readerUrl = 'https://r.jina.ai/' + url;
+    const resp = await fetch(readerUrl);
+    if (!resp.ok) throw new Error('Errore HTTP ' + resp.status);
+    const text = await resp.text();
+    textInput.value = text.trim();
+    applyDetectedLanguage();
+    fetchStatus.textContent = 'Testo estratto ✓ — controllalo nella scheda "Testo" prima di leggere.';
+    document.querySelector('.tab[data-tab="testo"]').click();
+  } catch (err) {
+    fetchStatus.textContent = 'Non sono riuscito a estrarre il contenuto (' + err.message + '). Prova a copiare e incollare il testo manualmente.';
+  } finally {
+    fetchBtn.disabled = false;
+  }
+});
+
+const dsKeyInput = document.getElementById('dsKeyInput');
+const dsCleanBtn = document.getElementById('dsCleanBtn');
+const dsStatus = document.getElementById('dsStatus');
+
+dsCleanBtn.addEventListener('click', async () => {
+  const apiKey = dsKeyInput.value.trim();
+  const rawText = textInput.value.trim();
+  if (!apiKey) { dsStatus.textContent = 'Inserisci la tua API key DeepSeek.'; return; }
+  if (!rawText) { dsStatus.textContent = 'Incolla o estrai del testo prima.'; return; }
+
+  dsStatus.textContent = 'Pulizia in corso...';
+  dsCleanBtn.disabled = true;
+
+  try {
+    const resp = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + apiKey
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: 'Ripulisci il testo che ricevi: rimuovi elementi di navigazione, pubblicità, righe ripetute o rumore residuo da un copia-incolla web. Riformattalo come Markdown pulito e ben leggibile, mantenendo il contenuto originale integro. Rispondi SOLO con il markdown, senza commenti aggiuntivi.' },
+          { role: 'user', content: rawText }
+        ],
+        temperature: 0.2
+      })
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error('HTTP ' + resp.status + ' — ' + errText.slice(0, 200));
+    }
+
+    const data = await resp.json();
+    const cleaned = data.choices?.[0]?.message?.content;
+    if (!cleaned) throw new Error('Risposta inattesa dall\'API.');
+
+    textInput.value = cleaned.trim();
+    applyDetectedLanguage();
+    dsStatus.textContent = 'Testo ripulito ✓';
+  } catch (err) {
+    dsStatus.textContent = 'Non è riuscito (' + err.message + '). Se l\'errore menziona CORS, il browser sta bloccando la chiamata diretta: serve un piccolo proxy server per questa funzione, non è sistemabile solo lato pagina.';
+  } finally {
+    dsCleanBtn.disabled = false;
+  }
+});
+
+let sentenceQueue = [];
+let currentSentenceIndex = 0;
+let wordSpans = [];
+let isReading = false;
+let wakeLock = null;
+let speechGeneration = 0;
+let currentGlobalWordIndex = 0;
+
+async function acquireWakeLock() {
+  const wakeLockNote = document.getElementById('wakeLockNote');
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+      wakeLockNote.textContent = '';
+    } else {
+      wakeLockNote.textContent = '⚠️ Questo browser non supporta il blocco schermo — potrebbe spegnersi durante la lettura.';
+    }
+  } catch (err) {
+    wakeLockNote.textContent = '⚠️ Non riesco a impedire lo spegnimento schermo qui (' + err.message + '). Funziona meglio se la pagina è aperta da un sito HTTPS reale invece che da file locale.';
+  }
+}
+
+async function releaseWakeLock() {
+  if (wakeLock) {
+    try { await wakeLock.release(); } catch (err) {}
+    wakeLock = null;
+  }
+}
+
+document.addEventListener('visibilitychange', async () => {
+  if (isReading && document.visibilityState === 'visible' && !wakeLock) {
+    await acquireWakeLock();
+  }
+});
+
+function stripMarkdown(text) {
+  return text
+    .replace(/```[\s\S]*?```/g, '')           // blocchi di codice
+    .replace(/`([^`]+)`/g, '$1')               // codice inline
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')  // immagini -> testo alt
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')   // link -> testo del link
+    .replace(/^#{1,6}\s+/gm, '')               // titoli
+    .replace(/(\*\*|__)(.*?)\1/g, '$2')        // grassetto
+    .replace(/(\*|_)(.*?)\1/g, '$2')           // corsivo
+    .replace(/^>\s?/gm, '')                    // citazioni
+    .replace(/^\s*[-*+]\s+/gm, '')             // elenchi puntati
+    .replace(/^\s*\d+\.\s+/gm, '')             // elenchi numerati
+    .replace(/^\s*\|?[\s:|-]{3,}\|?\s*$/gm, '') // righe di separazione tabelle (|---|---|---|)
+    .replace(/^-{3,}\s*$/gm, '')               // linee orizzontali
+    .replace(/\|/g, ' ')                       // separatori tabelle
+    .replace(/\n{3,}/g, '\n\n')                // righe vuote multiple
+    .trim();
+}
+
+function splitIntoSentences(text) {
+  // Divide per punto/esclamativo/interrogativo seguiti da spazio o fine riga, mantenendo il punteggiatura
+  const parts = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
+  return parts.map(s => s.trim()).filter(s => s.length > 0);
+}
+
+function prepareReadingBox(text) {
+  readingBox.innerHTML = '';
+  const words = text.split(/(\s+)/);
+  wordSpans = [];
+  words.forEach(w => {
+    if (w.trim() === '') {
+      readingBox.appendChild(document.createTextNode(w));
+    } else {
+      const span = document.createElement('span');
+      span.textContent = w;
+      readingBox.appendChild(span);
+      wordSpans.push(span);
+    }
+  });
+  readingBox.classList.add('visible');
+}
+
+function clearHighlight() {
+  wordSpans.forEach(s => { s.style.background = ''; s.style.color = ''; });
+}
+
+function highlightWordAt(globalWordIndex) {
+  clearHighlight();
+  const span = wordSpans[globalWordIndex];
+  if (span) {
+    span.style.background = '#f2e2dc';
+    span.style.color = '#b5563c';
+    span.style.borderRadius = '4px';
+    span.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+}
+
+// Precalcola, per ogni frase, l'indice della prima parola globale
+let sentenceWordOffsets = [];
+
+function buildSentenceOffsets() {
+  sentenceWordOffsets = [];
+  let count = 0;
+  sentenceQueue.forEach(s => {
+    sentenceWordOffsets.push(count);
+    count += s.split(/\s+/).filter(w => w.length > 0).length;
+  });
+}
+
+function speakSentence(index) {
+  if (!isReading) return;
+  if (index >= sentenceQueue.length) {
+    ttsStatus.textContent = 'Lettura terminata.';
+    clearHighlight();
+    isReading = false;
+    releaseWakeLock();
+    hideDrivingMode();
+    return;
+  }
+  currentSentenceIndex = index;
+  speechGeneration++;
+  const myGeneration = speechGeneration;
+
+  const sentenceText = sentenceQueue[index];
+  const utterance = new SpeechSynthesisUtterance(sentenceText);
+  const selectedVoice = voices[voiceSelect.value];
+  if (selectedVoice) utterance.voice = selectedVoice;
+  utterance.rate = parseFloat(rateRange.value);
+  utterance.lang = selectedVoice ? selectedVoice.lang : 'it-IT';
+
+  const baseWordOffset = sentenceWordOffsets[index];
+  currentGlobalWordIndex = baseWordOffset; // granularità minima: inizio frase (alcuni motori Android non emettono onboundary)
+  let advanced = false; // protezione: alcuni motori vocali Android scatenano onend due volte per la stessa frase
+
+  function advanceOnce() {
+    if (advanced) return;
+    advanced = true;
+    if (isReading && myGeneration === speechGeneration) speakSentence(index + 1);
+  }
+
+  utterance.onboundary = (event) => {
+    if (myGeneration !== speechGeneration) return; // frase superata da un salto: ignora
+    if (event.name === 'word') {
+      const before = sentenceText.slice(0, event.charIndex);
+      const wordsBefore = before.split(/\s+/).filter(w => w.length > 0).length;
+      currentGlobalWordIndex = baseWordOffset + wordsBefore;
+      highlightWordAt(currentGlobalWordIndex);
+    }
+  };
+
+  utterance.onend = () => {
+    if (myGeneration !== speechGeneration) return; // già superata da un salto
+    advanceOnce();
+  };
+
+  utterance.onerror = (event) => {
+    if (myGeneration !== speechGeneration) return; // già superata da un salto
+    if (advanced) return; // evita di mostrare/ripetere due volte lo stesso errore
+    ttsStatus.textContent = 'Errore alla frase ' + (index + 1) + '/' + sentenceQueue.length + ' (' + (event.error || 'sconosciuto') + '). Provo a proseguire...';
+    advanceOnce();
+  };
+
+  ttsStatus.textContent = 'Lettura in corso... (frase ' + (index + 1) + '/' + sentenceQueue.length + ')';
+  drivingProgress.textContent = 'Frase ' + (index + 1) + ' di ' + sentenceQueue.length;
+  updateDrivePlayPauseIcon();
+  speechSynthesis.speak(utterance);
+}
+
+function showDrivingMode() {
+  drivingMode.classList.add('active');
+  updateDrivePlayPauseIcon();
+}
+
+function hideDrivingMode() {
+  drivingMode.classList.remove('active');
+}
+
+function updateDrivePlayPauseIcon() {
+  drivePlayPause.textContent = speechSynthesis.paused ? '▶' : '⏸';
+}
+
+function estimateWordsPerSecond() {
+  const rate = parseFloat(rateRange.value) || 1;
+  const baseWordsPerMinute = 150; // stima di lettura naturale a velocità 1.0x, regola se non torna con i tuoi tempi reali
+  return (baseWordsPerMinute * rate) / 60;
+}
+
+function findSentenceIndexForWord(targetWordIndex) {
+  let idx = 0;
+  for (let i = 0; i < sentenceWordOffsets.length; i++) {
+    if (sentenceWordOffsets[i] <= targetWordIndex) idx = i;
+    else break;
+  }
+  return idx;
+}
+
+function jumpSeconds(deltaSeconds) {
+  if (!isReading || sentenceQueue.length === 0) return;
+  const wasPaused = speechSynthesis.paused;
+  const wordsPerSecond = estimateWordsPerSecond();
+  const deltaWords = Math.round(deltaSeconds * wordsPerSecond);
+  const totalWords = wordSpans.length;
+  let targetWord = currentGlobalWordIndex + deltaWords;
+  targetWord = Math.max(0, Math.min(targetWord, Math.max(totalWords - 1, 0)));
+  const targetSentenceIndex = findSentenceIndexForWord(targetWord);
+  speechSynthesis.cancel();
+  speakSentence(targetSentenceIndex);
+  if (wasPaused) speechSynthesis.pause();
+}
+
+driveBack30.addEventListener('click', () => jumpSeconds(-30));
+driveForward30.addEventListener('click', () => jumpSeconds(30));
+
+drivePlayPause.addEventListener('click', () => {
+  if (speechSynthesis.paused && isReading) {
+    speechSynthesis.resume();
+    ttsStatus.textContent = 'Lettura ripresa...';
+  } else if (speechSynthesis.speaking && !speechSynthesis.paused) {
+    speechSynthesis.pause();
+    ttsStatus.textContent = 'In pausa.';
+  }
+  updateDrivePlayPauseIcon();
+});
+
+driveExit.addEventListener('click', () => {
+  isReading = false;
+  speechSynthesis.cancel();
+  ttsStatus.textContent = 'Lettura interrotta.';
+  clearHighlight();
+  releaseWakeLock();
+  hideDrivingMode();
+});
+
+playBtn.addEventListener('click', () => {
+  const text = textInput.value.trim();
+  if (!text) { ttsStatus.textContent = 'Incolla o estrai del testo prima di leggere.'; return; }
+
+  if (speechSynthesis.paused && isReading) {
+    speechSynthesis.resume();
+    ttsStatus.textContent = 'Lettura ripresa...';
+    return;
+  }
+
+  speechSynthesis.cancel();
+  const spokenText = stripMarkdown(text);
+  prepareReadingBox(spokenText);
+  sentenceQueue = splitIntoSentences(spokenText);
+  buildSentenceOffsets();
+  isReading = true;
+  acquireWakeLock();
+  speakSentence(0);
+  showDrivingMode();
+});
+
+pauseBtn.addEventListener('click', () => {
+  if (speechSynthesis.speaking && !speechSynthesis.paused) {
+    speechSynthesis.pause();
+    ttsStatus.textContent = 'In pausa.';
+  }
+});
+
+stopBtn.addEventListener('click', () => {
+  isReading = false;
+  speechSynthesis.cancel();
+  ttsStatus.textContent = 'Lettura interrotta.';
+  clearHighlight();
+  releaseWakeLock();
+  hideDrivingMode();
+});
+
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    textInput.value = e.target.result.trim();
+    applyDetectedLanguage();
+    fileStatus.textContent = 'Caricato: ' + file.name + ' ✓ — controllalo nella scheda "Testo" prima di leggere.';
+    document.querySelector('.tab[data-tab="testo"]').click();
+  };
+  reader.onerror = () => { fileStatus.textContent = 'Non sono riuscito a leggere il file.'; };
+  reader.readAsText(file);
+});
+
+clearBtn.addEventListener('click', () => {
+  isReading = false;
+  speechSynthesis.cancel();
+  releaseWakeLock();
+  clearHighlight();
+  hideDrivingMode();
+  textInput.value = '';
+  urlInput.value = '';
+  readingBox.innerHTML = '';
+  readingBox.classList.remove('visible');
+  ttsStatus.textContent = '';
+  fetchStatus.textContent = '';
+  fileStatus.textContent = '';
+  dsStatus.textContent = '';
+  document.getElementById('wakeLockNote').textContent = '';
+  langNote.textContent = '';
+});
+
+saveMdBtn.addEventListener('click', async () => {
+  const text = textInput.value.trim();
+  if (!text) { ttsStatus.textContent = 'Nessun testo da salvare.'; return; }
+  const now = new Date();
+  const stamp = now.toISOString().slice(0,16).replace('T','_').replace(':','-');
+  const filename = 'lettura_' + stamp + '.md';
+  const blob = new Blob([text], { type: 'text/markdown' });
+
+  // Prova prima la condivisione nativa (mostra Drive, Files, ecc. tra le opzioni)
+  if (navigator.canShare) {
+    try {
+      const file = new File([blob], filename, { type: 'text/markdown' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: filename });
+        ttsStatus.textContent = 'Condiviso: scegli dove salvarlo.';
+        return;
+      }
+    } catch (err) {
+      if (err.name === 'AbortError') { ttsStatus.textContent = 'Condivisione annullata.'; return; }
+      // se fallisce per altro motivo, si passa al download diretto sotto
+    }
+  }
+
+  // Ripiego: download diretto nella cartella Download
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  ttsStatus.textContent = 'Salvato in Download come ' + filename;
+});
+</script>
+
+</body>
+</html>
+
+=== FINE FILE: lettore-vocale/index.html ===
+
+=== FILE: lettore-vocale/manifest.json ===
+# righe: 15 — dimensione: 461 byte
+
+{
+  "name": "Lettore Vocale",
+  "short_name": "Lettore",
+  "description": "Legge ad alta voce testo incollato, link o file markdown",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf9f7",
+  "theme_color": "#b5563c",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
+
+=== FINE FILE: lettore-vocale/manifest.json ===
+
+=== FILE: manifest.json ===
+# righe: 15 — dimensione: 431 byte
+
+{
+  "name": "Taschino",
+  "short_name": "Taschino",
+  "description": "I tuoi mini-strumenti personali",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf9f7",
+  "theme_color": "#b5563c",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
+
+=== FINE FILE: manifest.json ===
+
+=== FILE: merge_project.sh ===
+# righe: 79 — dimensione: 2515 byte
+
+#!/usr/bin/env bash
+#
+# merge_project.sh — unisce ricorsivamente tutti i file di testo di un progetto
+# in un unico file, con intestazioni che indicano il percorso relativo di ciascun
+# file. Pensato per creare un file da caricare nella "project knowledge" di Claude.
+#
+# USO:
+#   ./merge_project.sh [cartella_progetto] [file_output]
+#
+# ESEMPI:
+#   ./merge_project.sh                          # usa la cartella corrente, output: project_merged.txt
+#   ./merge_project.sh ~/taschino                # cartella specifica, output: project_merged.txt
+#   ./merge_project.sh ~/taschino merged.md      # cartella e nome output specifici
+
+set -euo pipefail
+
+SRC_DIR="${1:-.}"
+OUT_FILE="${2:-project_merged.txt}"
+
+# Cartelle/pattern da escludere sempre (aggiungi qui se ti serve)
+EXCLUDE_DIRS=(".git" "node_modules" "dist" "build" ".venv" "__pycache__" ".idea" ".vscode")
+
+# Costruisce l'espressione find per escludere le cartelle sopra
+PRUNE_EXPR=()
+for d in "${EXCLUDE_DIRS[@]}"; do
+  PRUNE_EXPR+=(-path "*/$d" -o)
+done
+# rimuove l'ultimo -o
+unset 'PRUNE_EXPR[${#PRUNE_EXPR[@]}-1]'
+
+# Svuota/crea il file di output
+: > "$OUT_FILE"
+
+# Intestazione generale col riepilogo dell'albero delle directory (utile come mappa)
+{
+  echo "# Struttura del progetto: $SRC_DIR"
+  echo "# Generato il: $(date '+%Y-%m-%d %H:%M:%S')"
+  echo
+  echo "## Albero file (esclusi: ${EXCLUDE_DIRS[*]})"
+  echo '```'
+} >> "$OUT_FILE"
+
+find "$SRC_DIR" \( "${PRUNE_EXPR[@]}" \) -prune -o -type f -print \
+  | sed "s|^$SRC_DIR/||" | sort >> "$OUT_FILE"
+
+echo '```' >> "$OUT_FILE"
+echo >> "$OUT_FILE"
+echo "---" >> "$OUT_FILE"
+echo >> "$OUT_FILE"
+
+# Trova tutti i file, escludendo le cartelle indicate, ordinati per percorso
+FILES=$(find "$SRC_DIR" \( "${PRUNE_EXPR[@]}" \) -prune -o -type f -print | sort)
+
+while IFS= read -r file; do
+  # Salta il file di output stesso se si trova dentro SRC_DIR
+  [ "$(realpath "$file")" = "$(realpath "$OUT_FILE")" ] && continue
+
+  # Salta i file binari (immagini, font, ecc.) — include solo testo
+  if ! file -b --mime "$file" | grep -qE 'text|json|xml|javascript|x-empty'; then
+    continue
+  fi
+
+  rel_path="${file#$SRC_DIR/}"
+  lines=$(wc -l < "$file" | tr -d ' ')
+  size=$(wc -c < "$file" | tr -d ' ')
+
+  {
+    echo "=== FILE: $rel_path ==="
+    echo "# righe: $lines — dimensione: ${size} byte"
+    echo
+    cat "$file"
+    echo
+    echo "=== FINE FILE: $rel_path ==="
+    echo
+  } >> "$OUT_FILE"
+done <<< "$FILES"
+
+echo "Fatto. Output scritto in: $OUT_FILE"
+echo "Righe totali: $(wc -l < "$OUT_FILE")"
+
+=== FINE FILE: merge_project.sh ===
+
+=== FILE: README.md ===
+# righe: 48 — dimensione: 2067 byte
+
+# Taschino
+
+Piccola collezione di mini-app HTML personali, pubblicate come sito statico via GitLab Pages.
+
+## Struttura
+
+```
+taschino/
+├── index.html              # home page con l'elenco dei tool
+├── .gitlab-ci.yml           # configurazione per GitLab Pages
+└── lettore-vocale/
+    └── index.html           # tool: lettore vocale (testo o link → voce)
+```
+
+## Come pubblicare
+
+1. Crea un nuovo repository vuoto su GitLab, es. `taschino`.
+2. Nella cartella di questo progetto:
+
+```bash
+git init
+git remote add origin git@gitlab.com:<tuo-utente>/taschino.git
+git add .
+git commit -m "Primo tool: lettore vocale"
+git branch -M main
+git push -u origin main
+```
+
+3. Vai su **Settings → Pages** nel progetto GitLab: dopo la prima pipeline (Build → Pipelines), la Pages sarà attiva automaticamente grazie al file `.gitlab-ci.yml` incluso.
+4. L'URL sarà del tipo:
+
+```
+https://<tuo-utente>.gitlab.io/taschino/
+```
+
+## Aggiungere un nuovo tool
+
+1. Crea una nuova cartella, es. `nuovo-tool/`, con dentro un `index.html`.
+2. Aggiungi una card nella home page (`index.html` principale) che punta a `nuovo-tool/`.
+3. Per renderlo installabile come app (icona propria, schermo intero, no barra Chrome):
+   - Crea `nuovo-tool/manifest.json` (copia quello di `lettore-vocale/` e cambia nome/descrizione)
+   - Aggiungi due icone `icon-192.png` e `icon-512.png` nella cartella
+   - Nell'`<head>` dell'`index.html` del tool, aggiungi gli stessi tag `<link rel="manifest">`, `<meta name="theme-color">`, `<link rel="apple-touch-icon">` presenti in `lettore-vocale/index.html`
+4. Commit e push: la pipeline ripubblica tutto automaticamente.
+
+## Installare un tool come app sul telefono
+
+Apri l'URL del tool specifico (es. `.../lettore-vocale/`) da Chrome → menu (⋮) → **"Installa app"** (o "Aggiungi a schermata Home" se non compare l'opzione diretta). Su iPhone/Safari: pulsante Condividi → **"Aggiungi a Home"**. Con il manifest configurato, l'icona sarà quella personalizzata e l'app si aprirà a schermo intero, senza barra degli indirizzi.
+
+=== FINE FILE: README.md ===
+

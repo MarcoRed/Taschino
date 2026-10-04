@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taschino</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#b5563c">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Taschino">
+<style>
+  :root {
+    --bg: #faf9f7;
+    --card: #ffffff;
+    --ink: #1f1d1a;
+    --muted: #6b6560;
+    --accent: #b5563c;
+    --accent-soft: #f2e2dc;
+    --border: #e6e1da;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 24px 16px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  p.sub { color: var(--muted); margin-top: 0; margin-bottom: 24px; }
+  .tool-card {
+    display: block;
+    text-decoration: none;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .tool-card:active { background: var(--accent-soft); }
+  .tool-title { font-weight: 600; font-size: 1.05rem; }
+  .tool-desc { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+</style>
+</head>
+<body>
+  <h1>🗃️ Taschino</h1>
+  <p class="sub">I tuoi mini-strumenti personali, sempre a portata di browser.</p>
+
+  <a class="tool-card" href="lettore-vocale/">
+    <div class="tool-title">🔊 Lettore Vocale</div>
+    <div class="tool-desc">Incolla testo o un link e fattelo leggere ad alta voce.</div>
+  </a>
+
+  <!-- Aggiungi qui nuove card man mano che aggiungi tool -->
+</body>
+</html>
