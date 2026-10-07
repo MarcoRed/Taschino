@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Taschino</title>
+<title>Lettore Vocale</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#b5563c">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Taschino">
+<meta name="apple-mobile-web-app-title" content="Lettore Vocale">
 <style>
   :root {
     --bg: #faf9f7;
@@ -22,41 +22,1033 @@
     --border: #e6e1da;
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   body {
-    margin: 0;
+    margin: 0 auto;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: var(--bg);
     color: var(--ink);
-    padding: 24px 16px;
+    padding: 16px;
     max-width: 640px;
-    margin: 0 auto;
   }
-  h1 { font-size: 1.5rem; margin-bottom: 4px; }
-  p.sub { color: var(--muted); margin-top: 0; margin-bottom: 24px; }
-  .tool-card {
-    display: block;
-    text-decoration: none;
-    color: var(--ink);
+
+  /* ---------- Schermata principale ---------- */
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 4px 0 14px;
+  }
+  h1 { font-size: 1.3rem; font-weight: 600; margin: 0; }
+  .icon-btn {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 12px;
+    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    font-size: 1.2rem;
   }
-  .tool-card:active { background: var(--accent-soft); }
-  .tool-title { font-weight: 600; font-size: 1.05rem; }
-  .tool-desc { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+
+  .input-wrap { position: relative; }
+  textarea, input[type=text], input[type=password] {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: var(--card);
+    color: var(--ink);
+  }
+  textarea { min-height: 180px; line-height: 1.5; resize: vertical; padding-right: 40px; }
+  .clear-x {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.9rem;
+  }
+
+  button {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button:disabled { opacity: 0.5; cursor: default; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--card); color: var(--ink); border: 1px solid var(--border); }
+  .row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .row button { flex: 1; min-width: 90px; }
+
+  .link-box { margin-top: 10px; }
+  .toc-open-btn {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+
+  .speed-row { display: flex; gap: 8px; margin-top: 14px; align-items: center; }
+  .speed-row .speed-label { font-size: 0.85rem; color: var(--muted); margin-right: 2px; }
+  .chip {
+    flex: 1;
+    padding: 9px 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 999px;
+    font-size: 0.9rem;
+  }
+  .chip.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+  .btn-big { display: block; width: 100%; margin-top: 16px; padding: 16px; font-size: 1.15rem; }
+
+  .status { margin-top: 10px; font-size: 0.85rem; color: var(--muted); min-height: 18px; }
+  .note { font-size: 0.78rem; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+  .warn {
+    margin-top: 14px;
+    padding: 12px;
+    background: #fff3f0;
+    border: 1px solid #e6c6bc;
+    border-radius: 10px;
+    color: #8a3b26;
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  /* ---------- Fogli a tutto schermo (Impostazioni, Indice) ---------- */
+  .sheet {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    overflow-y: auto;
+    padding: 16px;
+  }
+  .sheet.active { display: block; }
+  #settingsSheet { z-index: 1500; }
+  #tocSheet { z-index: 2100; }
+  .sheet-inner { max-width: 640px; margin: 0 auto; padding-bottom: 40px; }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; margin: 4px 0 16px; }
+  .sheet-head h2 { font-size: 1.15rem; margin: 0; font-weight: 600; }
+  .sheet-head button { padding: 10px 16px; }
+  .field { margin-top: 16px; }
+  .field > label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
+  select {
+    width: 100%;
+    padding: 11px;
+    font-size: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card);
+    color: var(--ink);
+    font-family: inherit;
+  }
+  input[type=range] { width: 100%; }
+  .range-line { display: flex; align-items: center; gap: 12px; }
+  .range-line span { min-width: 42px; text-align: right; font-size: 0.9rem; color: var(--muted); }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .toggle-row > label:first-child { font-size: 0.95rem; color: var(--ink); margin: 0; }
+  .switch { position: relative; display: inline-block; width: 46px; height: 26px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch-slider { position: absolute; cursor: pointer; inset: 0; background: var(--border); border-radius: 26px; transition: 0.2s; }
+  .switch-slider::before {
+    content: ""; position: absolute; width: 20px; height: 20px; left: 3px; bottom: 3px;
+    background: white; border-radius: 50%; transition: 0.2s;
+  }
+  .switch input:checked + .switch-slider { background: var(--accent); }
+  .switch input:checked + .switch-slider::before { transform: translateX(20px); }
+  details { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 12px; }
+  summary { cursor: pointer; font-size: 0.95rem; color: var(--ink); padding: 4px 0; }
+
+  .toc-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    font-size: 0.98rem;
+    font-weight: 400;
+    color: var(--ink);
+  }
+  .toc-item:active { background: var(--accent-soft); }
+  .toc-item.current { border-color: var(--accent); background: var(--accent-soft); }
+  .toc-item .toc-item-index { color: var(--muted); font-size: 0.8rem; margin-right: 6px; }
+
+  /* ---------- Player a tutto schermo (unico) ---------- */
+  .player {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #17140f;
+    color: #ffffff;
+    z-index: 1000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    gap: 34px;
+  }
+  .player.active { display: flex; }
+  .player-progress { font-size: 1.25rem; font-weight: 600; text-align: center; opacity: 0.9; padding: 0 12px; }
+  .player-main { display: flex; align-items: center; justify-content: center; gap: 16px; }
+  .drive-btn {
+    background: rgba(255,255,255,0.12);
+    color: #ffffff;
+    border: 2px solid rgba(255,255,255,0.28);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    padding: 0;
+    font-size: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.15;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .drive-btn:active { background: rgba(255,255,255,0.26); }
+  .drive-btn .drive-label { font-size: 0.68rem; opacity: 0.85; margin-top: 2px; }
+  .drive-btn-primary { width: 104px; height: 104px; font-size: 2.6rem; background: var(--accent); border-color: var(--accent); }
+  .drive-btn-primary:active { background: #9a4831; }
+  .player-sections { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .player-chip {
+    background: rgba(255,255,255,0.12);
+    color: #ffffff;
+    border: 2px solid rgba(255,255,255,0.28);
+    border-radius: 16px;
+    padding: 14px 20px;
+    font-size: 1.05rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .player-chip:active { background: rgba(255,255,255,0.26); }
+  .drive-exit {
+    background: transparent;
+    color: rgba(255,255,255,0.8);
+    border: 2px solid rgba(255,255,255,0.35);
+    border-radius: 12px;
+    padding: 14px 32px;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  .drive-exit:active { background: rgba(255,255,255,0.1); }
 </style>
 </head>
 <body>
-  <h1>🗃️ Taschino</h1>
-  <p class="sub">I tuoi mini-strumenti personali, sempre a portata di browser.</p>
 
-  <a class="tool-card" href="lettore-vocale/">
-    <div class="tool-title">🔊 Lettore Vocale</div>
-    <div class="tool-desc">Incolla testo o un link e fattelo leggere ad alta voce.</div>
-  </a>
+<div class="top">
+  <h1>🔊 Lettore Vocale</h1>
+  <button type="button" class="icon-btn" id="settingsBtn" aria-label="Impostazioni">⚙️</button>
+</div>
 
-  <!-- Aggiungi qui nuove card man mano che aggiungi tool -->
+<div class="input-wrap">
+  <textarea id="textInput" placeholder="Incolla qui il testo da leggere..."></textarea>
+  <button type="button" class="clear-x" id="clearBtn" aria-label="Cancella tutto" hidden>✕</button>
+</div>
+
+<div class="row">
+  <button type="button" class="btn-secondary" id="linkToggleBtn">🔗 Da link</button>
+  <button type="button" class="btn-secondary" id="fileBtn">📄 Da file</button>
+</div>
+<input type="file" id="fileInput" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
+
+<div class="link-box" id="linkBox" hidden>
+  <input type="text" id="urlInput" placeholder="https://esempio.com/articolo" inputmode="url" autocomplete="off">
+  <div class="row">
+    <button type="button" class="btn-secondary" id="fetchBtn">Estrai testo dalla pagina</button>
+  </div>
+  <div class="note">Il testo passa da r.jina.ai: non usarlo per pagine riservate.</div>
+</div>
+
+<button type="button" class="toc-open-btn" id="tocOpenBtn" hidden></button>
+
+<div class="speed-row" id="speedRow">
+  <span class="speed-label">Velocità</span>
+</div>
+
+<button type="button" class="btn-primary btn-big" id="playBtn">▶ Leggi</button>
+
+<div class="status" id="statusLine"></div>
+<div class="note" id="wakeLockNote"></div>
+
+<div class="warn" id="unsupportedNote" hidden>
+  ⚠️ La sintesi vocale non è disponibile in questa finestra (succede nell'app Claude, che usa una webview limitata). Tocca i tre puntini in alto e scegli "Apri nel browser" (Safari / Chrome) per farla funzionare.
+</div>
+
+<!-- ===== Impostazioni ===== -->
+<div class="sheet" id="settingsSheet">
+  <div class="sheet-inner">
+    <div class="sheet-head">
+      <h2>Impostazioni</h2>
+      <button type="button" class="btn-primary" id="settingsCloseBtn">Fatto</button>
+    </div>
+
+    <div class="field">
+      <label for="voiceSelect">Voce</label>
+      <select id="voiceSelect"></select>
+      <div class="note" id="langNote"></div>
+    </div>
+
+    <div class="field">
+      <label for="rateRange">Velocità</label>
+      <div class="range-line">
+        <input type="range" id="rateRange" min="0.5" max="1.8" step="0.1" value="1">
+        <span id="rateValue">1.0x</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="levelSelect">Capitoli nei file Markdown</label>
+      <select id="levelSelect">
+        <option value="0" selected>Automatico</option>
+        <option value="1"># (livello 1)</option>
+        <option value="2">## (livello 2)</option>
+        <option value="3">### (livello 3)</option>
+        <option value="4">#### (livello 4)</option>
+      </select>
+      <div class="note">Se il testo ha dei titoli, viene letto per capitoli con indice. Altrimenti la lettura è continua.</div>
+    </div>
+
+    <div class="field toggle-row">
+      <label for="autoplayToggle">Auto-play tra le sezioni</label>
+      <label class="switch">
+        <input type="checkbox" id="autoplayToggle" checked>
+        <span class="switch-slider"></span>
+      </label>
+    </div>
+
+    <div class="field">
+      <button type="button" class="btn-secondary" id="saveMdBtn" style="width:100%">⬇ Salva il testo come Markdown</button>
+      <div class="note">La formattazione markdown viene rimossa solo per la lettura: il testo salvato resta invariato.</div>
+      <div class="status" id="settingsStatus"></div>
+    </div>
+
+    <details>
+      <summary>🧹 Pulisci testo con DeepSeek (opzionale)</summary>
+      <div class="field">
+        <input type="password" id="dsKeyInput" placeholder="API key DeepSeek (sk-...)" autocomplete="off">
+        <div class="note">La key resta solo in questa sessione del browser e va reinserita ogni volta che riapri la pagina. Se il browser blocca la chiamata (errore CORS) serve un piccolo proxy: non è risolvibile solo lato pagina.</div>
+        <div class="row">
+          <button type="button" class="btn-secondary" id="dsCleanBtn">Pulisci e formatta in Markdown</button>
+        </div>
+        <div class="status" id="dsStatus"></div>
+      </div>
+    </details>
+  </div>
+</div>
+
+<!-- ===== Indice ===== -->
+<div class="sheet" id="tocSheet">
+  <div class="sheet-inner">
+    <div class="sheet-head">
+      <h2 id="tocTitle">Indice</h2>
+      <button type="button" class="btn-secondary" id="tocCloseBtn">✕ Chiudi</button>
+    </div>
+    <div id="tocList"></div>
+  </div>
+</div>
+
+<!-- ===== Player unico ===== -->
+<div class="player" id="player">
+  <div class="player-progress" id="playerProgress"></div>
+  <div class="player-main">
+    <button type="button" class="drive-btn" id="back30Btn" aria-label="Indietro 30 secondi">⏪<span class="drive-label">30s</span></button>
+    <button type="button" class="drive-btn drive-btn-primary" id="playPauseBtn" aria-label="Pausa/Riprendi">⏸</button>
+    <button type="button" class="drive-btn" id="fwd30Btn" aria-label="Avanti 30 secondi">⏩<span class="drive-label">30s</span></button>
+  </div>
+  <div class="player-sections" id="playerSections" hidden>
+    <button type="button" class="player-chip" id="prevSectionBtn" aria-label="Sezione precedente">⏮ Sezione</button>
+    <button type="button" class="player-chip" id="indexBtn">☰ Indice</button>
+    <button type="button" class="player-chip" id="nextSectionBtn" aria-label="Sezione successiva">Sezione ⏭</button>
+  </div>
+  <button type="button" class="drive-exit" id="exitBtn">✕ Esci</button>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const hasTTS = ('speechSynthesis' in window);
+
+// ===== Elementi =====
+const textInput = $('textInput');
+const clearBtn = $('clearBtn');
+const linkToggleBtn = $('linkToggleBtn');
+const fileBtn = $('fileBtn');
+const fileInput = $('fileInput');
+const linkBox = $('linkBox');
+const urlInput = $('urlInput');
+const fetchBtn = $('fetchBtn');
+const tocOpenBtn = $('tocOpenBtn');
+const speedRow = $('speedRow');
+const playBtn = $('playBtn');
+const statusLine = $('statusLine');
+const wakeLockNote = $('wakeLockNote');
+
+const settingsBtn = $('settingsBtn');
+const settingsSheet = $('settingsSheet');
+const settingsCloseBtn = $('settingsCloseBtn');
+const voiceSelect = $('voiceSelect');
+const langNote = $('langNote');
+const rateRange = $('rateRange');
+const rateValue = $('rateValue');
+const levelSelect = $('levelSelect');
+const autoplayToggle = $('autoplayToggle');
+const saveMdBtn = $('saveMdBtn');
+const settingsStatus = $('settingsStatus');
+const dsKeyInput = $('dsKeyInput');
+const dsCleanBtn = $('dsCleanBtn');
+const dsStatus = $('dsStatus');
+
+const tocSheet = $('tocSheet');
+const tocTitle = $('tocTitle');
+const tocList = $('tocList');
+const tocCloseBtn = $('tocCloseBtn');
+
+const player = $('player');
+const playerProgress = $('playerProgress');
+const back30Btn = $('back30Btn');
+const playPauseBtn = $('playPauseBtn');
+const fwd30Btn = $('fwd30Btn');
+const playerSections = $('playerSections');
+const prevSectionBtn = $('prevSectionBtn');
+const indexBtn = $('indexBtn');
+const nextSectionBtn = $('nextSectionBtn');
+const exitBtn = $('exitBtn');
+
+// ===== Preferenze salvate (localStorage, se disponibile) =====
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('lv_' + k); return v === null ? d : v; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('lv_' + k, v); } catch (e) {} }
+};
+
+if (!hasTTS) {
+  $('unsupportedNote').hidden = false;
+  playBtn.disabled = true;
+}
+
+// ===== Velocità: chip rapidi + slider nelle impostazioni =====
+const SPEED_CHIPS = [1, 1.2, 1.5, 1.8];
+const chipButtons = [];
+SPEED_CHIPS.forEach(v => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'chip';
+  b.textContent = v + '×';
+  b.addEventListener('click', () => setRate(v));
+  speedRow.appendChild(b);
+  chipButtons.push([v, b]);
+});
+
+function getRate() { return parseFloat(rateRange.value) || 1; }
+function setRate(r) {
+  rateRange.value = String(r);
+  rateValue.textContent = getRate().toFixed(1) + 'x';
+  chipButtons.forEach(([v, b]) => b.classList.toggle('active', Math.abs(v - getRate()) < 0.01));
+  store.set('rate', String(getRate()));
+}
+rateRange.addEventListener('input', () => setRate(getRate()));
+setRate(parseFloat(store.get('rate', '1')) || 1);
+
+levelSelect.value = store.get('level', '0');
+autoplayToggle.checked = store.get('autoplay', '1') === '1';
+levelSelect.addEventListener('change', () => { store.set('level', levelSelect.value); updateChapterHint(); });
+autoplayToggle.addEventListener('change', () => store.set('autoplay', autoplayToggle.checked ? '1' : '0'));
+
+// ===== Impostazioni (foglio) =====
+settingsBtn.addEventListener('click', () => settingsSheet.classList.add('active'));
+settingsCloseBtn.addEventListener('click', () => settingsSheet.classList.remove('active'));
+
+// ===== Lingua e voci =====
+const IT_MARKERS = ['il','lo','la','i','gli','le','un','uno','una','che','di','e','per','con','sono','è','questo','questa','questi','queste','non','del','della','dei','delle','nel','nella','anche','più','come','ma','se','quando','dove','perché','tra','fra','loro','suo','sua','molto','tutto','alla','allo','agli'];
+const EN_MARKERS = ['the','and','of','to','in','is','are','that','this','with','for','on','as','it','was','be','have','has','not','but','if','when','where','you','your','from','at','by','an','or','we','they','their','which','will','would','can','could'];
+
+function detectLanguage(text) {
+  const words = (text.toLowerCase().match(/[a-zàèéìòù']+/g) || []);
+  if (words.length < 8) return null;
+  let itScore = 0, enScore = 0;
+  words.forEach(w => {
+    if (IT_MARKERS.includes(w)) itScore++;
+    else if (EN_MARKERS.includes(w)) enScore++;
+  });
+  if (itScore === 0 && enScore === 0) return null;
+  return enScore > itScore ? 'en' : 'it';
+}
+
+let voices = [];
+
+function applyDetectedLanguage() {
+  if (!hasTTS || voices.length === 0) return;
+  const lang = detectLanguage(textInput.value);
+  if (!lang) { langNote.textContent = ''; return; }
+  const label = lang === 'en' ? 'Inglese' : 'Italiano';
+  const current = voices[voiceSelect.value];
+  // Se la voce scelta parla già la lingua del testo, la lasciamo com'è
+  if (current && current.lang.toLowerCase().startsWith(lang)) {
+    langNote.textContent = 'Lingua rilevata: ' + label + '.';
+    return;
+  }
+  const matchIndex = voices.findIndex(v => v.lang.toLowerCase().startsWith(lang));
+  if (matchIndex === -1) {
+    langNote.textContent = 'Lingua rilevata: ' + label + ' — nessuna voce disponibile, uso quella selezionata.';
+    return;
+  }
+  voiceSelect.value = String(matchIndex);
+  langNote.textContent = 'Lingua rilevata: ' + label + ' — voce impostata su ' + voices[matchIndex].name + '.';
+}
+
+function voiceKey(v) { return v.name + '|' + v.lang; }
+
+function loadVoices() {
+  if (!hasTTS) return;
+  voices = speechSynthesis.getVoices();
+  voiceSelect.innerHTML = '';
+  voices.forEach((v, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = v.name + ' (' + v.lang + ')';
+    voiceSelect.appendChild(opt);
+  });
+  const savedKey = store.get('voice', '');
+  let idx = savedKey ? voices.findIndex(v => voiceKey(v) === savedKey) : -1;
+  if (idx === -1) idx = voices.findIndex(v => v.lang.toLowerCase().startsWith('it'));
+  if (idx !== -1) voiceSelect.value = String(idx);
+  applyDetectedLanguage();
+}
+voiceSelect.addEventListener('change', () => {
+  const v = voices[voiceSelect.value];
+  if (v) store.set('voice', voiceKey(v));
+});
+if (hasTTS) {
+  loadVoices();
+  if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+// ===== Testo: ingresso (incolla / link / file) =====
+let textChangedTimer = null;
+function onTextChanged() {
+  clearBtn.hidden = textInput.value.length === 0;
+  clearTimeout(textChangedTimer);
+  textChangedTimer = setTimeout(() => { applyDetectedLanguage(); updateChapterHint(); }, 300);
+}
+textInput.addEventListener('input', onTextChanged);
+
+linkToggleBtn.addEventListener('click', () => {
+  linkBox.hidden = !linkBox.hidden;
+  if (!linkBox.hidden) urlInput.focus();
+});
+
+fetchBtn.addEventListener('click', async () => {
+  const url = urlInput.value.trim();
+  if (!url) { statusLine.textContent = 'Inserisci un link valido.'; return; }
+  statusLine.textContent = 'Estrazione in corso...';
+  fetchBtn.disabled = true;
+  try {
+    const resp = await fetch('https://r.jina.ai/' + url);
+    if (!resp.ok) throw new Error('Errore HTTP ' + resp.status);
+    const text = await resp.text();
+    textInput.value = text.trim();
+    onTextChanged();
+    linkBox.hidden = true;
+    statusLine.textContent = 'Testo estratto ✓ — controllalo prima di leggere.';
+  } catch (err) {
+    statusLine.textContent = 'Non sono riuscito a estrarre il contenuto (' + err.message + '). Prova a copiare e incollare il testo.';
+  } finally {
+    fetchBtn.disabled = false;
+  }
+});
+
+fileBtn.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    textInput.value = String(e.target.result).trim();
+    onTextChanged();
+    statusLine.textContent = 'Caricato: ' + file.name + ' ✓';
+    fileInput.value = '';
+  };
+  reader.onerror = () => { statusLine.textContent = 'Non sono riuscito a leggere il file.'; };
+  reader.readAsText(file);
+});
+
+clearBtn.addEventListener('click', () => {
+  stopReading('');
+  textInput.value = '';
+  urlInput.value = '';
+  statusLine.textContent = '';
+  wakeLockNote.textContent = '';
+  langNote.textContent = '';
+  dsStatus.textContent = '';
+  settingsStatus.textContent = '';
+  linkBox.hidden = true;
+  onTextChanged();
+});
+
+// ===== DeepSeek (opzionale) =====
+dsCleanBtn.addEventListener('click', async () => {
+  const apiKey = dsKeyInput.value.trim();
+  const rawText = textInput.value.trim();
+  if (!apiKey) { dsStatus.textContent = 'Inserisci la tua API key DeepSeek.'; return; }
+  if (!rawText) { dsStatus.textContent = 'Incolla o estrai del testo prima.'; return; }
+  dsStatus.textContent = 'Pulizia in corso...';
+  dsCleanBtn.disabled = true;
+  try {
+    const resp = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: 'Ripulisci il testo che ricevi: rimuovi elementi di navigazione, pubblicità, righe ripetute o rumore residuo da un copia-incolla web. Riformattalo come Markdown pulito e ben leggibile, mantenendo il contenuto originale integro. Rispondi SOLO con il markdown, senza commenti aggiuntivi.' },
+          { role: 'user', content: rawText }
+        ],
+        temperature: 0.2
+      })
+    });
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error('HTTP ' + resp.status + ' — ' + errText.slice(0, 200));
+    }
+    const data = await resp.json();
+    const cleaned = data.choices?.[0]?.message?.content;
+    if (!cleaned) throw new Error('Risposta inattesa dall\'API.');
+    textInput.value = cleaned.trim();
+    onTextChanged();
+    dsStatus.textContent = 'Testo ripulito ✓';
+  } catch (err) {
+    dsStatus.textContent = 'Non è riuscito (' + err.message + '). Se l\'errore menziona CORS, il browser blocca la chiamata diretta: serve un piccolo proxy.';
+  } finally {
+    dsCleanBtn.disabled = false;
+  }
+});
+
+// ===== Salva come Markdown =====
+saveMdBtn.addEventListener('click', async () => {
+  const text = textInput.value.trim();
+  if (!text) { settingsStatus.textContent = 'Nessun testo da salvare.'; return; }
+  const stamp = new Date().toISOString().slice(0, 16).replace('T', '_').replace(':', '-');
+  const filename = 'lettura_' + stamp + '.md';
+  const blob = new Blob([text], { type: 'text/markdown' });
+
+  if (navigator.canShare) {
+    try {
+      const file = new File([blob], filename, { type: 'text/markdown' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: filename });
+        settingsStatus.textContent = 'Condiviso: scegli dove salvarlo.';
+        return;
+      }
+    } catch (err) {
+      if (err.name === 'AbortError') { settingsStatus.textContent = 'Condivisione annullata.'; return; }
+    }
+  }
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  settingsStatus.textContent = 'Salvato in Download come ' + filename;
+});
+
+// ===== Schermo sempre acceso durante la lettura =====
+let wakeLock = null;
+async function acquireWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+      wakeLockNote.textContent = '';
+    } else {
+      wakeLockNote.textContent = '⚠️ Questo browser non supporta il blocco schermo: potrebbe spegnersi durante la lettura.';
+    }
+  } catch (err) {
+    wakeLockNote.textContent = '⚠️ Non riesco a impedire lo spegnimento schermo (' + err.message + '). Funziona meglio da un sito HTTPS reale.';
+  }
+}
+async function releaseWakeLock() {
+  if (wakeLock) {
+    try { await wakeLock.release(); } catch (err) {}
+    wakeLock = null;
+  }
+}
+document.addEventListener('visibilitychange', async () => {
+  if (isReading && document.visibilityState === 'visible' && !wakeLock) await acquireWakeLock();
+});
+
+// ===== Testo -> sezioni =====
+function stripMarkdown(text) {
+  return text
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/(\*\*|__)(.*?)\1/g, '$2')
+    .replace(/(\*|_)(.*?)\1/g, '$2')
+    .replace(/^>\s?/gm, '')
+    .replace(/^\s*[-*+]\s+/gm, '')
+    .replace(/^\s*\d+\.\s+/gm, '')
+    .replace(/^\s*\|?[\s:|-]{3,}\|?\s*$/gm, '')
+    .replace(/^-{3,}\s*$/gm, '')
+    .replace(/\|/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function splitIntoSentences(text) {
+  const parts = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
+  return parts.map(s => s.trim()).filter(s => s.length > 0);
+}
+
+// Titoli con esattamente `level` cancelletti; ignora quelli dentro i blocchi di codice.
+function parseSections(text, level) {
+  const lines = text.split('\n');
+  const headingRe = new RegExp('^#{' + level + '}\\s+(.+)$');
+  const result = [];
+  let current = null;
+  let preamble = '';
+  let headings = 0;
+  let inFence = false;
+  for (const line of lines) {
+    if (/^\s*```/.test(line)) inFence = !inFence;
+    const m = inFence ? null : line.match(headingRe);
+    if (m) {
+      headings++;
+      if (current) result.push(current);
+      current = { title: m[1].trim(), body: '' };
+    } else if (current) {
+      current.body += line + '\n';
+    } else {
+      preamble += line + '\n';
+    }
+  }
+  if (current) result.push(current);
+  if (headings > 0 && preamble.trim()) result.unshift({ title: 'Introduzione', body: preamble });
+  return { sections: result, headings };
+}
+
+// Automatico: il primo livello (1-4) con almeno 2 titoli. Manuale: quel livello, se ha almeno 1 titolo.
+// Se non ci sono titoli, lettura continua come unica sezione.
+function analyzeText(text) {
+  const manual = parseInt(levelSelect.value, 10);
+  const levels = manual ? [manual] : [1, 2, 3, 4];
+  const minHeadings = manual ? 1 : 2;
+  for (const lv of levels) {
+    const r = parseSections(text, lv);
+    if (r.headings >= minHeadings) return { sections: r.sections, chapters: true };
+  }
+  return { sections: [{ title: '', body: text }], chapters: false };
+}
+
+function updateChapterHint() {
+  const text = textInput.value.trim();
+  if (!text) { tocOpenBtn.hidden = true; return; }
+  const a = analyzeText(text);
+  if (!a.chapters) { tocOpenBtn.hidden = true; return; }
+  tocOpenBtn.textContent = '📑 Indice · ' + a.sections.length + (a.sections.length === 1 ? ' capitolo' : ' capitoli');
+  tocOpenBtn.hidden = false;
+}
+
+// ===== Motore di lettura (unico: lineare o per capitoli) =====
+let sections = [];
+let hasChapters = false;
+let secIdx = 0;
+let sentenceQueue = [];
+let sentenceWordOffsets = [];
+let sectionWordCount = 0;
+let sentIdx = 0;
+let curWord = 0;
+let isReading = false;
+let isPaused = false;      // pausa "finta": cancel + rilettura della frase corrente (pause()/resume() nativi sono inaffidabili)
+let waitingNext = false;   // sezione finita, auto-play spento: si aspetta il tocco su ▶
+let gen = 0;               // invalida i callback delle utterance interrotte
+let backTapTimer = null;
+
+function buildOffsets() {
+  sentenceWordOffsets = [];
+  let count = 0;
+  sentenceQueue.forEach(s => {
+    sentenceWordOffsets.push(count);
+    count += s.split(/\s+/).filter(w => w.length > 0).length;
+  });
+  sectionWordCount = count;
+}
+
+function countWordsInSection(i) {
+  return stripMarkdown(sections[i].body).split(/\s+/).filter(w => w.length > 0).length;
+}
+
+function findSentenceIndexForWord(targetWord) {
+  let idx = 0;
+  for (let i = 0; i < sentenceWordOffsets.length; i++) {
+    if (sentenceWordOffsets[i] <= targetWord) idx = i;
+    else break;
+  }
+  return idx;
+}
+
+function wordsPerSecond() {
+  return (150 * getRate()) / 60; // stima: 150 parole/min a 1.0x
+}
+
+function updatePlayIcon() {
+  playPauseBtn.textContent = (isPaused || waitingNext) ? '▶' : '⏸';
+}
+
+function updateProgress() {
+  if (hasChapters) {
+    playerProgress.textContent = sections[secIdx].title + ' (' + (secIdx + 1) + '/' + sections.length + ')';
+  } else {
+    playerProgress.textContent = 'Frase ' + Math.min(sentIdx + 1, Math.max(sentenceQueue.length, 1)) + ' di ' + sentenceQueue.length;
+  }
+}
+
+function showPlayer() {
+  playerSections.hidden = !hasChapters;
+  player.classList.add('active');
+  updatePlayIcon();
+}
+
+function hidePlayer() { player.classList.remove('active'); }
+
+function stopReading(message) {
+  isReading = false;
+  isPaused = false;
+  waitingNext = false;
+  gen++;
+  if (hasTTS) speechSynthesis.cancel();
+  releaseWakeLock();
+  hidePlayer();
+  statusLine.textContent = message || '';
+}
+
+function loadSection(i) {
+  secIdx = i;
+  waitingNext = false;
+  sentenceQueue = splitIntoSentences(stripMarkdown(sections[i].body));
+  buildOffsets();
+  sentIdx = 0;
+  curWord = 0;
+}
+
+// Porta la lettura a una sezione e a una parola (startWord) di quella sezione.
+// keepPaused: se già in pausa, aggiorna solo la posizione senza audio.
+function goToSection(index, startWord = 0, keepPaused = false) {
+  if (index < 0) index = 0;
+  if (index >= sections.length) { stopReading('Lettura terminata.'); return; }
+  if (!keepPaused) isPaused = false;
+  gen++;
+  speechSynthesis.cancel();
+  loadSection(index);
+  sentIdx = findSentenceIndexForWord(startWord);
+  curWord = sentenceWordOffsets[sentIdx] || 0;
+  updateProgress();
+  updatePlayIcon();
+  if (!(keepPaused && isPaused)) speakSentence(sentIdx);
+}
+
+function sectionEnded() {
+  if (secIdx + 1 < sections.length) {
+    if (autoplayToggle.checked) {
+      goToSection(secIdx + 1);
+    } else {
+      waitingNext = true;
+      playerProgress.textContent = sections[secIdx].title + ' — sezione terminata. Premi ▶ per continuare.';
+      updatePlayIcon();
+    }
+  } else {
+    stopReading('Lettura terminata.');
+  }
+}
+
+function speakSentence(idx) {
+  if (!isReading) return;
+  if (idx >= sentenceQueue.length) { sectionEnded(); return; }
+  sentIdx = idx;
+  gen++;
+  const myGen = gen;
+
+  const sentenceText = sentenceQueue[idx];
+  const utterance = new SpeechSynthesisUtterance(sentenceText);
+  const voice = voices[voiceSelect.value];
+  if (voice) utterance.voice = voice;
+  utterance.rate = getRate();
+  utterance.lang = voice ? voice.lang : 'it-IT';
+
+  const baseWord = sentenceWordOffsets[idx];
+  curWord = baseWord;
+  let advanced = false; // alcuni motori Android scatenano onend due volte
+
+  function advanceOnce() {
+    if (advanced) return;
+    advanced = true;
+    if (isReading && myGen === gen) speakSentence(idx + 1);
+  }
+
+  utterance.onboundary = (event) => {
+    if (myGen !== gen) return;
+    if (event.name === 'word') {
+      const before = sentenceText.slice(0, event.charIndex);
+      curWord = baseWord + before.split(/\s+/).filter(w => w.length > 0).length;
+    }
+  };
+  utterance.onend = () => { if (myGen === gen) advanceOnce(); };
+  utterance.onerror = () => { if (myGen === gen && !advanced) advanceOnce(); };
+
+  updateProgress();
+  updatePlayIcon();
+  speechSynthesis.speak(utterance);
+}
+
+function startReading(index = 0) {
+  const text = textInput.value.trim();
+  if (!text) { statusLine.textContent = 'Incolla, estrai o carica del testo prima di leggere.'; return; }
+  if (!hasTTS) return;
+  speechSynthesis.cancel();
+  const a = analyzeText(text);
+  sections = a.sections;
+  hasChapters = a.chapters;
+  isReading = true;
+  isPaused = false;
+  waitingNext = false;
+  statusLine.textContent = '';
+  acquireWakeLock();
+  showPlayer();
+  goToSection(index);
+}
+
+playBtn.addEventListener('click', () => startReading(0));
+
+// ===== Salti di 30 secondi (anche attraverso le sezioni) =====
+function jumpSeconds(deltaSeconds) {
+  if (!isReading) return;
+  if (waitingNext) { waitingNext = false; isPaused = false; curWord = sectionWordCount; }
+  const deltaWords = Math.round(deltaSeconds * wordsPerSecond());
+  let target = curWord + deltaWords;
+  const keep = isPaused;
+
+  // Indietro oltre l'inizio: ultima parte della sezione precedente
+  if (target < 0 && secIdx > 0) {
+    const prev = secIdx - 1;
+    goToSection(prev, Math.max(0, countWordsInSection(prev) + target), keep);
+    return;
+  }
+  // Avanti oltre la fine: inizio della sezione successiva (se l'auto-play è attivo)
+  if (target >= sectionWordCount && secIdx + 1 < sections.length && autoplayToggle.checked) {
+    goToSection(secIdx + 1, target - sectionWordCount, keep);
+    return;
+  }
+  target = Math.max(0, Math.min(target, Math.max(sectionWordCount - 1, 0)));
+  goToSection(secIdx, target, keep);
+}
+back30Btn.addEventListener('click', () => jumpSeconds(-30));
+fwd30Btn.addEventListener('click', () => jumpSeconds(30));
+
+// ===== Play / pausa =====
+function pauseReading() {
+  if (!isReading || isPaused) return;
+  isPaused = true;
+  gen++;
+  speechSynthesis.cancel();
+  updatePlayIcon();
+}
+playPauseBtn.addEventListener('click', () => {
+  if (waitingNext) { goToSection(secIdx + 1); return; }
+  if (isPaused) {
+    isPaused = false;
+    speakSentence(sentIdx);
+    updatePlayIcon();
+  } else {
+    pauseReading();
+  }
+});
+
+exitBtn.addEventListener('click', () => stopReading('Lettura interrotta.'));
+
+// ===== Salti di sezione =====
+// Indietro: primo tap = riparte dall'inizio della sezione; secondo tap entro 2s = sezione precedente.
+prevSectionBtn.addEventListener('click', () => {
+  if (backTapTimer) {
+    clearTimeout(backTapTimer);
+    backTapTimer = null;
+    goToSection(secIdx - 1);
+  } else {
+    goToSection(secIdx);
+    backTapTimer = setTimeout(() => { backTapTimer = null; }, 2000);
+  }
+});
+nextSectionBtn.addEventListener('click', () => goToSection(secIdx + 1));
+
+// ===== Indice =====
+let tocResumeOnClose = false;
+
+function openToc(fromPlayer) {
+  let list = sections;
+  if (!fromPlayer) {
+    const text = textInput.value.trim();
+    if (!text) return;
+    const a = analyzeText(text);
+    if (!a.chapters) return;
+    list = a.sections;
+  }
+  tocList.innerHTML = '';
+  list.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'toc-item' + (fromPlayer && i === secIdx ? ' current' : '');
+    const idxSpan = document.createElement('span');
+    idxSpan.className = 'toc-item-index';
+    idxSpan.textContent = (i + 1) + '.';
+    btn.appendChild(idxSpan);
+    btn.appendChild(document.createTextNode(s.title));
+    btn.addEventListener('click', () => {
+      tocResumeOnClose = false;
+      tocSheet.classList.remove('active');
+      if (fromPlayer && isReading) goToSection(i);
+      else startReading(i);
+    });
+    tocList.appendChild(btn);
+  });
+  tocTitle.textContent = 'Indice (' + list.length + (list.length === 1 ? ' sezione' : ' sezioni') + ')';
+  if (fromPlayer && isReading && !isPaused && !waitingNext) {
+    pauseReading();
+    tocResumeOnClose = true;
+  }
+  tocSheet.classList.add('active');
+}
+
+tocOpenBtn.addEventListener('click', () => openToc(false));
+indexBtn.addEventListener('click', () => openToc(true));
+tocCloseBtn.addEventListener('click', () => {
+  tocSheet.classList.remove('active');
+  if (tocResumeOnClose && isReading) {
+    tocResumeOnClose = false;
+    isPaused = false;
+    speakSentence(sentIdx);
+    updatePlayIcon();
+  }
+});
+
+// Stato iniziale
+onTextChanged();
+</script>
+
 </body>
 </html>
