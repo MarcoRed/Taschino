@@ -1,37 +1,30 @@
 # Taschino
 
-Piccola collezione di mini-app HTML personali, pubblicate come sito statico via GitLab Pages.
+Piccola collezione di mini-app HTML personali, pubblicate come sito statico via GitHub Pages.
+
+🔗 **Sito:** https://marcored.github.io/Taschino/
 
 ## Struttura
 
 ```
 taschino/
 ├── index.html              # home page con l'elenco dei tool
-├── .gitlab-ci.yml           # configurazione per GitLab Pages
+├── manifest.json           # PWA manifest per la home
 └── lettore-vocale/
-    └── index.html           # tool: lettore vocale (testo o link → voce)
+    └── index.html          # tool: lettore vocale (testo, link o file → voce)
 ```
 
-## Come pubblicare
+## Come aggiornare il sito
 
-1. Crea un nuovo repository vuoto su GitLab, es. `taschino`.
-2. Nella cartella di questo progetto:
+Basta fare push su `main`: GitHub Pages pubblica automaticamente dalla branch principale.
 
 ```bash
-git init
-git remote add origin git@gitlab.com:<tuo-utente>/taschino.git
 git add .
-git commit -m "Primo tool: lettore vocale"
-git branch -M main
-git push -u origin main
+git commit -m "Descrizione delle modifiche"
+git push
 ```
 
-3. Vai su **Settings → Pages** nel progetto GitLab: dopo la prima pipeline (Build → Pipelines), la Pages sarà attiva automaticamente grazie al file `.gitlab-ci.yml` incluso.
-4. L'URL sarà del tipo:
-
-```
-https://<tuo-utente>.gitlab.io/taschino/
-```
+Il sito si aggiorna in 1-2 minuti.
 
 ## Aggiungere un nuovo tool
 
@@ -41,10 +34,8 @@ https://<tuo-utente>.gitlab.io/taschino/
    - Crea `nuovo-tool/manifest.json` (copia quello di `lettore-vocale/` e cambia nome/descrizione)
    - Aggiungi due icone `icon-192.png` e `icon-512.png` nella cartella
    - Nell'`<head>` dell'`index.html` del tool, aggiungi gli stessi tag `<link rel="manifest">`, `<meta name="theme-color">`, `<link rel="apple-touch-icon">` presenti in `lettore-vocale/index.html`
-4. Commit e push: la pipeline ripubblica tutto automaticamente.
+4. `git add . && git commit -m "Nuovo tool: ..." && git push`
 
 ## Installare un tool come app sul telefono
 
-Apri l'URL del tool specifico (es. `.../lettore-vocale/`) da Chrome → menu (⋮) → **"Installa app"** (o "Aggiungi a schermata Home" se non compare l'opzione diretta). Su iPhone/Safari: pulsante Condividi → **"Aggiungi a Home"**. Con il manifest configurato, l'icona sarà quella personalizzata e l'app si aprirà a schermo intero, senza barra degli indirizzi.
-# Taschino
-# Taschino
+Apri l'URL del tool specifico (es. `.../lettore-vocale/`) da Chrome → menu (⋮) → **"Installa app"** (o "Aggiungi a schermata Home"). Su iPhone/Safari: pulsante Condividi → **"Aggiungi a Home"**. Con il manifest configurato, l'icona sarà quella personalizzata e l'app si aprirà a schermo intero, senza barra degli indirizzi.
