@@ -22,70 +22,36 @@
     --border: #e6e1da;
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   body {
-    margin: 0;
+    margin: 0 auto;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: var(--bg);
     color: var(--ink);
     padding: 16px;
     max-width: 640px;
-    margin: 0 auto;
-  }
-  h1 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin: 4px 0 16px;
   }
 
-  /* Switch modalità Standard / Capitoli */
-  .mode-switch {
+  /* ---------- Schermata principale ---------- */
+  .top {
     display: flex;
-    gap: 8px;
-    margin-bottom: 14px;
+    align-items: center;
+    justify-content: space-between;
+    margin: 4px 0 14px;
   }
-  .mode-btn {
-    flex: 1;
-    padding: 10px;
-    text-align: center;
+  h1 { font-size: 1.3rem; font-weight: 600; margin: 0; }
+  .icon-btn {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 10px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--muted);
-  }
-  .mode-btn.active {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: #ffffff;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    font-size: 1.2rem;
   }
 
-  .tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-  .tab {
-    flex: 1;
-    padding: 10px;
-    text-align: center;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    color: var(--muted);
-  }
-  .tab.active {
-    background: var(--accent-soft);
-    border-color: var(--accent);
-    color: var(--accent);
-    font-weight: 600;
-  }
-  .panel { display: none; }
-  .panel.active { display: block; }
-  textarea, input[type=text] {
+  .input-wrap { position: relative; }
+  textarea, input[type=text], input[type=password] {
     width: 100%;
     border: 1px solid var(--border);
     border-radius: 10px;
@@ -94,9 +60,21 @@
     font-family: inherit;
     background: var(--card);
     color: var(--ink);
-    resize: vertical;
   }
-  textarea { min-height: 160px; line-height: 1.5; }
+  textarea { min-height: 180px; line-height: 1.5; resize: vertical; padding-right: 40px; }
+  .clear-x {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.9rem;
+  }
+
   button {
     border: none;
     border-radius: 10px;
@@ -104,169 +82,97 @@
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
+    font-family: inherit;
   }
+  button:disabled { opacity: 0.5; cursor: default; }
   .btn-primary { background: var(--accent); color: white; }
   .btn-secondary { background: var(--card); color: var(--ink); border: 1px solid var(--border); }
   .row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
   .row button { flex: 1; min-width: 90px; }
-  .controls-row { display: flex; gap: 12px; margin-top: 14px; align-items: center; }
-  .controls-row label { font-size: 0.85rem; color: var(--muted); white-space: nowrap; }
-  select, input[type=range] { flex: 1; }
-  .status {
+
+  .link-box { margin-top: 10px; }
+  .toc-open-btn {
+    display: block;
+    width: 100%;
     margin-top: 10px;
-    font-size: 0.85rem;
-    color: var(--muted);
-    min-height: 18px;
-  }
-  .reading-box {
-    margin-top: 16px;
-    padding: 14px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-size: 1.05rem;
-    line-height: 1.7;
-    max-height: 260px;
-    overflow-y: auto;
-    display: none;
-  }
-  .reading-box.visible { display: block; }
-  mark {
     background: var(--accent-soft);
     color: var(--accent);
-    border-radius: 4px;
-    padding: 0 2px;
+    border: 1px solid var(--accent);
   }
-  .note {
-    font-size: 0.78rem;
+
+  .speed-row { display: flex; gap: 8px; margin-top: 14px; align-items: center; }
+  .speed-row .speed-label { font-size: 0.85rem; color: var(--muted); margin-right: 2px; }
+  .chip {
+    flex: 1;
+    padding: 9px 0;
+    background: var(--card);
+    border: 1px solid var(--border);
     color: var(--muted);
-    margin-top: 6px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+  }
+  .chip.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+  .btn-big { display: block; width: 100%; margin-top: 16px; padding: 16px; font-size: 1.15rem; }
+
+  .status { margin-top: 10px; font-size: 0.85rem; color: var(--muted); min-height: 18px; }
+  .note { font-size: 0.78rem; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+  .warn {
+    margin-top: 14px;
+    padding: 12px;
+    background: #fff3f0;
+    border: 1px solid #e6c6bc;
+    border-radius: 10px;
+    color: #8a3b26;
+    font-size: 0.85rem;
     line-height: 1.4;
   }
-  .save-row { margin-top: 10px; }
 
-  .driving-mode {
+  /* ---------- Fogli a tutto schermo (Impostazioni, Indice) ---------- */
+  .sheet {
     display: none;
     position: fixed;
     inset: 0;
-    background: #17140f;
-    color: #ffffff;
-    z-index: 1000;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    gap: 40px;
+    background: var(--bg);
+    overflow-y: auto;
+    padding: 16px;
   }
-  .driving-mode.active { display: flex; }
-  .driving-progress {
-    font-size: 1.4rem;
-    font-weight: 600;
-    text-align: center;
-    opacity: 0.9;
-  }
-  .driving-controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 22px;
-  }
-  .drive-btn {
-    background: rgba(255,255,255,0.12);
-    color: #ffffff;
-    border: 2px solid rgba(255,255,255,0.28);
-    border-radius: 50%;
-    width: 88px;
-    height: 88px;
-    font-size: 1.9rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    line-height: 1.15;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .drive-btn:active { background: rgba(255,255,255,0.26); }
-  .drive-btn .drive-label { font-size: 0.68rem; opacity: 0.85; margin-top: 2px; }
-  .drive-btn-primary {
-    width: 116px;
-    height: 116px;
-    font-size: 2.8rem;
-    background: var(--accent);
-    border-color: var(--accent);
-  }
-  .drive-btn-primary:active { background: #9a4831; }
-  .drive-exit {
-    background: transparent;
-    color: rgba(255,255,255,0.8);
-    border: 2px solid rgba(255,255,255,0.35);
-    border-radius: 12px;
-    padding: 14px 32px;
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
-  .drive-exit:active { background: rgba(255,255,255,0.1); }
-
-  /* --- Modalità Capitoli --- */
-  .chapter-config {
-    display: none;
-    margin-top: 4px;
-    padding: 14px;
-    background: var(--card);
+  .sheet.active { display: block; }
+  #settingsSheet { z-index: 1500; }
+  #tocSheet { z-index: 2100; }
+  .sheet-inner { max-width: 640px; margin: 0 auto; padding-bottom: 40px; }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; margin: 4px 0 16px; }
+  .sheet-head h2 { font-size: 1.15rem; margin: 0; font-weight: 600; }
+  .sheet-head button { padding: 10px 16px; }
+  .field { margin-top: 16px; }
+  .field > label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
+  select {
+    width: 100%;
+    padding: 11px;
+    font-size: 1rem;
     border: 1px solid var(--border);
     border-radius: 10px;
+    background: var(--card);
+    color: var(--ink);
+    font-family: inherit;
   }
-  .chapter-config.visible { display: block; }
-  .chapter-config .controls-row { margin-top: 10px; }
-  .chapter-config .controls-row:first-child { margin-top: 0; }
-  .toggle-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .toggle-row label { font-size: 0.9rem; color: var(--ink); }
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 46px;
-    height: 26px;
-    flex-shrink: 0;
-  }
+  input[type=range] { width: 100%; }
+  .range-line { display: flex; align-items: center; gap: 12px; }
+  .range-line span { min-width: 42px; text-align: right; font-size: 0.9rem; color: var(--muted); }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .toggle-row > label:first-child { font-size: 0.95rem; color: var(--ink); margin: 0; }
+  .switch { position: relative; display: inline-block; width: 46px; height: 26px; flex-shrink: 0; }
   .switch input { opacity: 0; width: 0; height: 0; }
-  .switch-slider {
-    position: absolute;
-    cursor: pointer;
-    inset: 0;
-    background: var(--border);
-    border-radius: 26px;
-    transition: 0.2s;
-  }
+  .switch-slider { position: absolute; cursor: pointer; inset: 0; background: var(--border); border-radius: 26px; transition: 0.2s; }
   .switch-slider::before {
-    content: "";
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    left: 3px;
-    bottom: 3px;
-    background: white;
-    border-radius: 50%;
-    transition: 0.2s;
+    content: ""; position: absolute; width: 20px; height: 20px; left: 3px; bottom: 3px;
+    background: white; border-radius: 50%; transition: 0.2s;
   }
   .switch input:checked + .switch-slider { background: var(--accent); }
   .switch input:checked + .switch-slider::before { transform: translateX(20px); }
+  details { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 12px; }
+  summary { cursor: pointer; font-size: 0.95rem; color: var(--ink); padding: 4px 0; }
 
-  .toc-panel {
-    display: none;
-    margin-top: 14px;
-  }
-  .toc-panel.visible { display: block; }
-  .toc-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
   .toc-item {
     display: block;
     width: 100%;
@@ -277,16 +183,15 @@
     padding: 12px 14px;
     margin-bottom: 8px;
     font-size: 0.98rem;
+    font-weight: 400;
     color: var(--ink);
   }
   .toc-item:active { background: var(--accent-soft); }
-  .toc-item .toc-item-index {
-    color: var(--muted);
-    font-size: 0.8rem;
-    margin-right: 6px;
-  }
+  .toc-item.current { border-color: var(--accent); background: var(--accent-soft); }
+  .toc-item .toc-item-index { color: var(--muted); font-size: 0.8rem; margin-right: 6px; }
 
-  .chapter-mode {
+  /* ---------- Player a tutto schermo (unico) ---------- */
+  .player {
     display: none;
     position: fixed;
     inset: 0;
@@ -299,250 +204,311 @@
     padding: 24px;
     gap: 34px;
   }
-  .chapter-mode.active { display: flex; }
-  .chapter-progress {
-    font-size: 1.25rem;
-    font-weight: 600;
-    text-align: center;
-    opacity: 0.9;
-    padding: 0 12px;
-  }
-  .chapter-main-controls {
+  .player.active { display: flex; }
+  .player-progress { font-size: 1.25rem; font-weight: 600; text-align: center; opacity: 0.9; padding: 0 12px; }
+  .player-main { display: flex; align-items: center; justify-content: center; gap: 16px; }
+  .drive-btn {
+    background: rgba(255,255,255,0.12);
+    color: #ffffff;
+    border: 2px solid rgba(255,255,255,0.28);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    padding: 0;
+    font-size: 1.8rem;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 22px;
+    line-height: 1.15;
+    -webkit-tap-highlight-color: transparent;
   }
-  .chapter-index-btn {
+  .drive-btn:active { background: rgba(255,255,255,0.26); }
+  .drive-btn .drive-label { font-size: 0.68rem; opacity: 0.85; margin-top: 2px; }
+  .drive-btn-primary { width: 104px; height: 104px; font-size: 2.6rem; background: var(--accent); border-color: var(--accent); }
+  .drive-btn-primary:active { background: #9a4831; }
+  .player-sections { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .player-chip {
     background: rgba(255,255,255,0.12);
     color: #ffffff;
     border: 2px solid rgba(255,255,255,0.28);
     border-radius: 16px;
-    padding: 14px 28px;
+    padding: 14px 20px;
     font-size: 1.05rem;
-    font-weight: 600;
     -webkit-tap-highlight-color: transparent;
   }
-  .chapter-index-btn:active { background: rgba(255,255,255,0.26); }
+  .player-chip:active { background: rgba(255,255,255,0.26); }
+  .drive-exit {
+    background: transparent;
+    color: rgba(255,255,255,0.8);
+    border: 2px solid rgba(255,255,255,0.35);
+    border-radius: 12px;
+    padding: 14px 32px;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  .drive-exit:active { background: rgba(255,255,255,0.1); }
 </style>
 </head>
 <body>
 
-<h1>🔊 Lettore Vocale</h1>
-
-<div class="mode-switch">
-  <button type="button" class="mode-btn active" id="modeStandardBtn">🔊 Standard</button>
-  <button type="button" class="mode-btn" id="modeChaptersBtn">📑 Capitoli</button>
+<div class="top">
+  <h1>🔊 Lettore Vocale</h1>
+  <button type="button" class="icon-btn" id="settingsBtn" aria-label="Impostazioni">⚙️</button>
 </div>
 
-<div class="tabs">
-  <div class="tab active" data-tab="testo">Testo</div>
-  <div class="tab" data-tab="link">Link</div>
-  <div class="tab" data-tab="file">File</div>
-</div>
+<button type="button" class="toc-open-btn" id="resumeBtn" style="margin:0 0 12px" hidden></button>
 
-<div class="panel active" id="panel-testo">
+<div class="input-wrap">
   <textarea id="textInput" placeholder="Incolla qui il testo da leggere..."></textarea>
+  <button type="button" class="clear-x" id="clearBtn" aria-label="Cancella tutto" hidden>✕</button>
 </div>
 
-<div class="panel" id="panel-link">
-  <input type="text" id="urlInput" placeholder="https://esempio.com/articolo">
+<div class="row">
+  <button type="button" class="btn-secondary" id="linkToggleBtn">🔗 Da link</button>
+  <button type="button" class="btn-secondary" id="fileBtn">📄 Da file</button>
+</div>
+<input type="file" id="fileInput" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
+
+<div class="link-box" id="linkBox" hidden>
+  <input type="text" id="urlInput" placeholder="https://esempio.com/articolo" inputmode="url" autocomplete="off">
   <div class="row">
-    <button class="btn-secondary" id="fetchBtn">Estrai testo dalla pagina</button>
+    <button type="button" class="btn-secondary" id="fetchBtn">Estrai testo dalla pagina</button>
   </div>
-  <div class="note">Il contenuto della pagina viene estratto tramite un servizio di lettura esterno (r.jina.ai) prima di arrivare qui — non usarlo per pagine con contenuti riservati o privati.</div>
-  <div class="status" id="fetchStatus"></div>
+  <div class="note">Il testo passa da r.jina.ai: non usarlo per pagine riservate.</div>
 </div>
 
-<div class="panel" id="panel-file">
-  <input type="file" id="fileInput" accept=".md,.markdown,.txt,text/markdown,text/plain">
-  <div class="note">Si apre il selettore file di Android — Google Drive compare tra le fonti disponibili se hai l'app installata.</div>
-  <div class="status" id="fileStatus"></div>
+<button type="button" class="toc-open-btn" id="tocOpenBtn" hidden></button>
+
+<div class="speed-row" id="speedRow">
+  <span class="speed-label">Velocità</span>
 </div>
 
-<div class="panel active" id="panel-deepseek" style="margin-top: 4px;">
-  <details>
-    <summary style="cursor:pointer; font-size:0.9rem; color: var(--muted); padding: 4px 0;">🧹 Pulisci testo con DeepSeek (opzionale)</summary>
-    <div style="margin-top: 10px;">
-      <input type="text" id="dsKeyInput" placeholder="API key DeepSeek (sk-...)" autocomplete="off">
-      <div class="note">La key resta solo in questa sessione del browser, non viene salvata da nessuna parte. Va reinserita ogni volta che riapri la pagina.</div>
-      <div class="row">
-        <button class="btn-secondary" id="dsCleanBtn">Pulisci e formatta in Markdown</button>
-      </div>
-      <div class="note">Se il browser blocca la chiamata diretta all'API (errore CORS), te lo segnalo qui sotto — in quel caso serve un piccolo proxy, non è un limite risolvibile solo lato pagina.</div>
-      <div class="status" id="dsStatus"></div>
-    </div>
-  </details>
-</div>
+<button type="button" class="btn-primary btn-big" id="playBtn">▶ Leggi</button>
 
-<!-- ===== Controlli modalità STANDARD (invariati) ===== -->
-<div id="standardControls">
-  <div class="controls-row">
-    <label for="voiceSelect">Voce</label>
-    <select id="voiceSelect"></select>
-  </div>
-  <div class="note" id="langNote"></div>
-  <div class="controls-row">
-    <label for="rateRange">Velocità</label>
-    <input type="range" id="rateRange" min="0.5" max="1.8" step="0.1" value="1">
-    <span id="rateValue">1.0x</span>
-  </div>
-
-  <div class="row">
-    <button class="btn-primary" id="playBtn">▶ Leggi</button>
-    <button class="btn-secondary" id="pauseBtn">⏸ Pausa</button>
-    <button class="btn-secondary" id="stopBtn">⏹ Stop</button>
-  </div>
-  <div class="note">La formattazione markdown (titoli, link, grassetti...) viene rimossa automaticamente solo per la lettura — il testo salvato resta invariato.</div>
-
-  <div class="save-row row">
-    <button class="btn-secondary" id="saveMdBtn">⬇ Salva come Markdown</button>
-    <button class="btn-secondary" id="clearBtn">🗑 Cancella tutto</button>
-  </div>
-</div>
-
-<!-- ===== Controlli modalità CAPITOLI ===== -->
-<div id="chapterConfig" class="chapter-config">
-  <div class="controls-row">
-    <label for="chapterLevelSelect">Livello TOC</label>
-    <select id="chapterLevelSelect">
-      <option value="1"># (livello 1)</option>
-      <option value="2" selected>## (livello 2)</option>
-      <option value="3">### (livello 3)</option>
-      <option value="4">#### (livello 4)</option>
-    </select>
-  </div>
-  <div class="controls-row toggle-row">
-    <label for="autoplayToggle">Auto-play tra le sezioni</label>
-    <label class="switch">
-      <input type="checkbox" id="autoplayToggle" checked>
-      <span class="switch-slider"></span>
-    </label>
-  </div>
-  <div class="row">
-    <button class="btn-primary" id="generateTocBtn">📑 Genera indice</button>
-  </div>
-  <div class="status" id="chapterConfigStatus"></div>
-</div>
-
-<div class="toc-panel" id="tocPanel">
-  <div class="toc-title" id="tocTitle">Indice</div>
-  <div id="tocList"></div>
-  <div class="row">
-    <button class="btn-secondary" id="tocClearBtn">🗑 Cancella tutto</button>
-  </div>
-</div>
-
-<div class="status" id="ttsStatus"></div>
+<div class="status" id="statusLine"></div>
 <div class="note" id="wakeLockNote"></div>
 
-<div class="reading-box" id="readingBox"></div>
-
-<!-- Overlay guida — modalità Standard (invariato) -->
-<div class="driving-mode" id="drivingMode">
-  <div class="driving-progress" id="drivingProgress"></div>
-  <div class="driving-controls">
-    <button class="drive-btn" id="driveBack30" aria-label="Indietro 30 secondi">⏪<span class="drive-label">30s</span></button>
-    <button class="drive-btn drive-btn-primary" id="drivePlayPause" aria-label="Pausa/Riprendi">⏸</button>
-    <button class="drive-btn" id="driveForward30" aria-label="Avanti 30 secondi">⏩<span class="drive-label">30s</span></button>
-  </div>
-  <button class="drive-exit" id="driveExit">✕ Esci</button>
-</div>
-
-<!-- Overlay guida — modalità Capitoli (nuovo) -->
-<div class="chapter-mode" id="chapterMode">
-  <div class="chapter-progress" id="chapterProgress"></div>
-  <div class="chapter-main-controls">
-    <button class="drive-btn" id="chapterBack" aria-label="Indietro">⏮</button>
-    <button class="drive-btn drive-btn-primary" id="chapterPlayPause" aria-label="Pausa/Riprendi">⏸</button>
-    <button class="drive-btn" id="chapterForward" aria-label="Avanti">⏭</button>
-  </div>
-  <button class="chapter-index-btn" id="chapterIndexBtn">☰ Indice</button>
-</div>
-
-<div class="note" id="unsupportedNote" style="display:none; margin-top:14px; padding:12px; background:#fff3f0; border:1px solid #e6c6bc; border-radius:10px; color:#8a3b26;">
+<div class="warn" id="unsupportedNote" hidden>
   ⚠️ La sintesi vocale non è disponibile in questa finestra (succede nell'app Claude, che usa una webview limitata). Tocca i tre puntini in alto e scegli "Apri nel browser" (Safari / Chrome) per farla funzionare.
 </div>
 
-<script>
-const hasTTS = ('speechSynthesis' in window);
-if (!hasTTS) {
-  document.getElementById('unsupportedNote').style.display = 'block';
-  document.getElementById('playBtn').disabled = true;
-  document.getElementById('pauseBtn').disabled = true;
-  document.getElementById('stopBtn').disabled = true;
-  document.getElementById('generateTocBtn').disabled = true;
-}
-</script>
+<!-- ===== Impostazioni ===== -->
+<div class="sheet" id="settingsSheet">
+  <div class="sheet-inner">
+    <div class="sheet-head">
+      <h2>Impostazioni</h2>
+      <button type="button" class="btn-primary" id="settingsCloseBtn">Fatto</button>
+    </div>
+
+    <div class="field">
+      <label for="voiceSelect">Voce</label>
+      <select id="voiceSelect"></select>
+      <div class="note" id="langNote"></div>
+    </div>
+
+    <div class="field">
+      <label for="rateRange">Velocità</label>
+      <div class="range-line">
+        <input type="range" id="rateRange" min="0.5" max="1.8" step="0.1" value="1">
+        <span id="rateValue">1.0x</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="levelSelect">Capitoli nei file Markdown</label>
+      <select id="levelSelect">
+        <option value="0" selected>Automatico</option>
+        <option value="1"># (livello 1)</option>
+        <option value="2">## (livello 2)</option>
+        <option value="3">### (livello 3)</option>
+        <option value="4">#### (livello 4)</option>
+      </select>
+      <div class="note">Se il testo ha dei titoli, viene letto per capitoli con indice. Altrimenti la lettura è continua.</div>
+    </div>
+
+    <div class="field toggle-row">
+      <label for="autoplayToggle">Auto-play tra le sezioni</label>
+      <label class="switch">
+        <input type="checkbox" id="autoplayToggle" checked>
+        <span class="switch-slider"></span>
+      </label>
+    </div>
+
+    <div class="field toggle-row">
+      <label for="paraStopToggle">Fermati alla fine di ogni paragrafo</label>
+      <label class="switch">
+        <input type="checkbox" id="paraStopToggle">
+        <span class="switch-slider"></span>
+      </label>
+    </div>
+    <div class="note">Aspetta ▶ (o la play della schermata di blocco) prima del paragrafo successivo.</div>
+    <div class="note">Marcatori, su una riga da sola: <b>[pausa 30s]</b>, <b>[pausa 5m]</b>, <b>[pause 1h]</b> = silenzio di quel tempo (senza unità: minuti). <b>[suspend]</b> = si ferma e aspetta ▶.</div>
+
+    <div class="field toggle-row">
+      <label for="bgAudioToggle">Continua con schermo spento</label>
+      <label class="switch">
+        <input type="checkbox" id="bgAudioToggle" checked>
+        <span class="switch-slider"></span>
+      </label>
+    </div>
+    <div class="note">Usa un audio silenzioso e mostra i controlli (⏪ ⏯ ⏩) nella schermata di blocco. Se disturba altre app audio, spegnilo.</div>
+
+    <div class="field">
+      <button type="button" class="btn-secondary" id="saveMdBtn" style="width:100%">⬇ Salva il testo come Markdown</button>
+      <div class="note">La formattazione markdown viene rimossa solo per la lettura: il testo salvato resta invariato.</div>
+      <div class="status" id="settingsStatus"></div>
+    </div>
+
+    <details>
+      <summary>🧹 Pulisci testo con DeepSeek (opzionale)</summary>
+      <div class="field">
+        <input type="password" id="dsKeyInput" placeholder="API key DeepSeek (sk-...)" autocomplete="off">
+        <div class="note">La key resta solo in questa sessione del browser e va reinserita ogni volta che riapri la pagina. Se il browser blocca la chiamata (errore CORS) serve un piccolo proxy: non è risolvibile solo lato pagina.</div>
+        <div class="row">
+          <button type="button" class="btn-secondary" id="dsCleanBtn">Pulisci e formatta in Markdown</button>
+        </div>
+        <div class="status" id="dsStatus"></div>
+      </div>
+    </details>
+  </div>
+</div>
+
+<!-- ===== Indice ===== -->
+<div class="sheet" id="tocSheet">
+  <div class="sheet-inner">
+    <div class="sheet-head">
+      <h2 id="tocTitle">Indice</h2>
+      <button type="button" class="btn-secondary" id="tocCloseBtn">✕ Chiudi</button>
+    </div>
+    <div id="tocList"></div>
+  </div>
+</div>
+
+<!-- ===== Player unico ===== -->
+<div class="player" id="player">
+  <div class="player-progress" id="playerProgress"></div>
+  <div class="player-main">
+    <button type="button" class="drive-btn" id="back30Btn" aria-label="Indietro 30 secondi">⏪<span class="drive-label">30s</span></button>
+    <button type="button" class="drive-btn drive-btn-primary" id="playPauseBtn" aria-label="Pausa/Riprendi">⏸</button>
+    <button type="button" class="drive-btn" id="fwd30Btn" aria-label="Avanti 30 secondi">⏩<span class="drive-label">30s</span></button>
+  </div>
+  <div class="player-sections" id="playerSections" hidden>
+    <button type="button" class="player-chip" id="prevSectionBtn" aria-label="Sezione precedente">⏮ Sezione</button>
+    <button type="button" class="player-chip" id="indexBtn">☰ Indice</button>
+    <button type="button" class="player-chip" id="nextSectionBtn" aria-label="Sezione successiva">Sezione ⏭</button>
+  </div>
+  <button type="button" class="drive-exit" id="exitBtn">✕ Esci</button>
+</div>
 
 <script>
-const tabs = document.querySelectorAll('.tab');
-const panels = { testo: document.getElementById('panel-testo'), link: document.getElementById('panel-link'), file: document.getElementById('panel-file') };
-tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    tabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    Object.values(panels).forEach(p => p.classList.remove('active'));
-    panels[tab.dataset.tab].classList.add('active');
-  });
+const $ = (id) => document.getElementById(id);
+const hasTTS = ('speechSynthesis' in window);
+
+// ===== Elementi =====
+const textInput = $('textInput');
+const clearBtn = $('clearBtn');
+const linkToggleBtn = $('linkToggleBtn');
+const fileBtn = $('fileBtn');
+const fileInput = $('fileInput');
+const linkBox = $('linkBox');
+const urlInput = $('urlInput');
+const fetchBtn = $('fetchBtn');
+const tocOpenBtn = $('tocOpenBtn');
+const speedRow = $('speedRow');
+const playBtn = $('playBtn');
+const statusLine = $('statusLine');
+const wakeLockNote = $('wakeLockNote');
+
+const settingsBtn = $('settingsBtn');
+const settingsSheet = $('settingsSheet');
+const settingsCloseBtn = $('settingsCloseBtn');
+const voiceSelect = $('voiceSelect');
+const langNote = $('langNote');
+const rateRange = $('rateRange');
+const rateValue = $('rateValue');
+const levelSelect = $('levelSelect');
+const autoplayToggle = $('autoplayToggle');
+const bgAudioToggle = $('bgAudioToggle');
+const paraStopToggle = $('paraStopToggle');
+const resumeBtn = $('resumeBtn');
+const saveMdBtn = $('saveMdBtn');
+const settingsStatus = $('settingsStatus');
+const dsKeyInput = $('dsKeyInput');
+const dsCleanBtn = $('dsCleanBtn');
+const dsStatus = $('dsStatus');
+
+const tocSheet = $('tocSheet');
+const tocTitle = $('tocTitle');
+const tocList = $('tocList');
+const tocCloseBtn = $('tocCloseBtn');
+
+const player = $('player');
+const playerProgress = $('playerProgress');
+const back30Btn = $('back30Btn');
+const playPauseBtn = $('playPauseBtn');
+const fwd30Btn = $('fwd30Btn');
+const playerSections = $('playerSections');
+const prevSectionBtn = $('prevSectionBtn');
+const indexBtn = $('indexBtn');
+const nextSectionBtn = $('nextSectionBtn');
+const exitBtn = $('exitBtn');
+
+// ===== Preferenze salvate (localStorage, se disponibile) =====
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('lv_' + k); return v === null ? d : v; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('lv_' + k, v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem('lv_' + k); } catch (e) {} }
+};
+
+if (!hasTTS) {
+  $('unsupportedNote').hidden = false;
+  playBtn.disabled = true;
+}
+
+// ===== Velocità: chip rapidi + slider nelle impostazioni =====
+const SPEED_CHIPS = [1, 1.2, 1.5, 1.8];
+const chipButtons = [];
+SPEED_CHIPS.forEach(v => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'chip';
+  b.textContent = v + '×';
+  b.addEventListener('click', () => setRate(v));
+  speedRow.appendChild(b);
+  chipButtons.push([v, b]);
 });
 
-const textInput = document.getElementById('textInput');
-const urlInput = document.getElementById('urlInput');
-const fetchBtn = document.getElementById('fetchBtn');
-const fetchStatus = document.getElementById('fetchStatus');
-const voiceSelect = document.getElementById('voiceSelect');
-const rateRange = document.getElementById('rateRange');
-const rateValue = document.getElementById('rateValue');
-const playBtn = document.getElementById('playBtn');
-const pauseBtn = document.getElementById('pauseBtn');
-const stopBtn = document.getElementById('stopBtn');
-const ttsStatus = document.getElementById('ttsStatus');
-const readingBox = document.getElementById('readingBox');
-const saveMdBtn = document.getElementById('saveMdBtn');
-const clearBtn = document.getElementById('clearBtn');
-const fileInput = document.getElementById('fileInput');
-const fileStatus = document.getElementById('fileStatus');
-
-const drivingMode = document.getElementById('drivingMode');
-const drivingProgress = document.getElementById('drivingProgress');
-const driveBack30 = document.getElementById('driveBack30');
-const drivePlayPause = document.getElementById('drivePlayPause');
-const driveForward30 = document.getElementById('driveForward30');
-const driveExit = document.getElementById('driveExit');
-
-const langNote = document.getElementById('langNote');
-
-// ===== Switch modalità Standard / Capitoli =====
-const modeStandardBtn = document.getElementById('modeStandardBtn');
-const modeChaptersBtn = document.getElementById('modeChaptersBtn');
-const standardControls = document.getElementById('standardControls');
-const chapterConfig = document.getElementById('chapterConfig');
-const tocPanel = document.getElementById('tocPanel');
-let appMode = 'standard'; // 'standard' | 'chapters'
-
-function setAppMode(mode) {
-  appMode = mode;
-  modeStandardBtn.classList.toggle('active', mode === 'standard');
-  modeChaptersBtn.classList.toggle('active', mode === 'chapters');
-  standardControls.style.display = mode === 'standard' ? 'block' : 'none';
-  chapterConfig.classList.toggle('visible', mode === 'chapters');
-  if (mode === 'standard') {
-    tocPanel.classList.remove('visible');
-  }
-  ttsStatus.textContent = '';
+function getRate() { return parseFloat(rateRange.value) || 1; }
+function setRate(r) {
+  rateRange.value = String(r);
+  rateValue.textContent = getRate().toFixed(1) + 'x';
+  chipButtons.forEach(([v, b]) => b.classList.toggle('active', Math.abs(v - getRate()) < 0.01));
+  store.set('rate', String(getRate()));
 }
-modeStandardBtn.addEventListener('click', () => setAppMode('standard'));
-modeChaptersBtn.addEventListener('click', () => setAppMode('chapters'));
+rateRange.addEventListener('input', () => setRate(getRate()));
+setRate(parseFloat(store.get('rate', '1')) || 1);
 
-// Rilevamento lingua euristico: conta parole-funzione tipiche di IT vs EN.
-// Su testi molto brevi o ambigui non decide (ritorna null e lascia la voce invariata).
-const IT_MARKERS = ['il','lo','la','i','gli','le','un','uno','una','che','di','e','per','con','sono','è','questo','questa','questi','queste','non','del','della','dei','delle','nel','nella','anche','più','come','ma','se','quando','dove','perché','anche','tra','fra','loro','suo','sua','molto','tutto','alla','allo','agli'];
+levelSelect.value = store.get('level', '0');
+autoplayToggle.checked = store.get('autoplay', '1') === '1';
+levelSelect.addEventListener('change', () => { store.set('level', levelSelect.value); updateChapterHint(); });
+autoplayToggle.addEventListener('change', () => store.set('autoplay', autoplayToggle.checked ? '1' : '0'));
+paraStopToggle.checked = store.get('parastop', '0') === '1';
+paraStopToggle.addEventListener('change', () => store.set('parastop', paraStopToggle.checked ? '1' : '0'));
+bgAudioToggle.checked = store.get('bgaudio', '1') === '1';
+bgAudioToggle.addEventListener('change', () => { store.set('bgaudio', bgAudioToggle.checked ? '1' : '0'); updatePlayIcon(); });
+
+// ===== Impostazioni (foglio) =====
+settingsBtn.addEventListener('click', () => settingsSheet.classList.add('active'));
+settingsCloseBtn.addEventListener('click', () => settingsSheet.classList.remove('active'));
+
+// ===== Lingua e voci =====
+const IT_MARKERS = ['il','lo','la','i','gli','le','un','uno','una','che','di','e','per','con','sono','è','questo','questa','questi','queste','non','del','della','dei','delle','nel','nella','anche','più','come','ma','se','quando','dove','perché','tra','fra','loro','suo','sua','molto','tutto','alla','allo','agli'];
 const EN_MARKERS = ['the','and','of','to','in','is','are','that','this','with','for','on','as','it','was','be','have','has','not','but','if','when','where','you','your','from','at','by','an','or','we','they','their','which','will','would','can','could'];
 
 function detectLanguage(text) {
   const words = (text.toLowerCase().match(/[a-zàèéìòù']+/g) || []);
-  if (words.length < 8) return null; // testo troppo corto per un giudizio affidabile
+  if (words.length < 8) return null;
   let itScore = 0, enScore = 0;
   words.forEach(w => {
     if (IT_MARKERS.includes(w)) itScore++;
@@ -552,525 +518,260 @@ function detectLanguage(text) {
   return enScore > itScore ? 'en' : 'it';
 }
 
+let voices = [];
+
 function applyDetectedLanguage() {
   if (!hasTTS || voices.length === 0) return;
-  const text = textInput.value;
-  const lang = detectLanguage(text);
+  const lang = detectLanguage(textInput.value);
   if (!lang) { langNote.textContent = ''; return; }
+  const label = lang === 'en' ? 'Inglese' : 'Italiano';
+  const current = voices[voiceSelect.value];
+  // Se la voce scelta parla già la lingua del testo, la lasciamo com'è
+  if (current && current.lang.toLowerCase().startsWith(lang)) {
+    langNote.textContent = 'Lingua rilevata: ' + label + '.';
+    return;
+  }
   const matchIndex = voices.findIndex(v => v.lang.toLowerCase().startsWith(lang));
   if (matchIndex === -1) {
-    langNote.textContent = 'Lingua rilevata: ' + (lang === 'en' ? 'Inglese' : 'Italiano') + ' — nessuna voce disponibile per questa lingua, uso quella selezionata.';
+    langNote.textContent = 'Lingua rilevata: ' + label + ' — nessuna voce disponibile, uso quella selezionata.';
     return;
   }
   voiceSelect.value = String(matchIndex);
-  langNote.textContent = 'Lingua rilevata: ' + (lang === 'en' ? 'Inglese' : 'Italiano') + ' — voce impostata su ' + voices[matchIndex].name + '.';
+  langNote.textContent = 'Lingua rilevata: ' + label + ' — voce impostata su ' + voices[matchIndex].name + '.';
 }
 
-let voices = [];
+function voiceKey(v) { return v.name + '|' + v.lang; }
+
 function loadVoices() {
   if (!hasTTS) return;
   voices = speechSynthesis.getVoices();
   voiceSelect.innerHTML = '';
-  // Elenca tutte le voci disponibili (non solo italiane) cosi' anche l'inglese e' selezionabile
   voices.forEach((v, i) => {
     const opt = document.createElement('option');
     opt.value = i;
     opt.textContent = v.name + ' (' + v.lang + ')';
     voiceSelect.appendChild(opt);
   });
-  // Selezione di default: prima voce italiana disponibile, se c'e'
-  const defaultItIndex = voices.findIndex(v => v.lang.toLowerCase().startsWith('it'));
-  if (defaultItIndex !== -1) voiceSelect.value = String(defaultItIndex);
+  const savedKey = store.get('voice', '');
+  let idx = savedKey ? voices.findIndex(v => voiceKey(v) === savedKey) : -1;
+  if (idx === -1) idx = voices.findIndex(v => v.lang.toLowerCase().startsWith('it'));
+  if (idx !== -1) voiceSelect.value = String(idx);
   applyDetectedLanguage();
 }
+voiceSelect.addEventListener('change', () => {
+  const v = voices[voiceSelect.value];
+  if (v) store.set('voice', voiceKey(v));
+});
 if (hasTTS) {
   loadVoices();
-  if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = loadVoices;
-  }
+  if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
 }
 
-rateRange.addEventListener('input', () => {
-  rateValue.textContent = parseFloat(rateRange.value).toFixed(1) + 'x';
-});
+// ===== Testo: ingresso (incolla / link / file) =====
+let textChangedTimer = null;
+function onTextChanged() {
+  clearBtn.hidden = textInput.value.length === 0;
+  clearTimeout(textChangedTimer);
+  textChangedTimer = setTimeout(() => { applyDetectedLanguage(); updateChapterHint(); restoreOffer(); }, 300);
+}
+textInput.addEventListener('input', onTextChanged);
 
-let langDetectTimer = null;
-textInput.addEventListener('input', () => {
-  clearTimeout(langDetectTimer);
-  langDetectTimer = setTimeout(applyDetectedLanguage, 300);
+linkToggleBtn.addEventListener('click', () => {
+  linkBox.hidden = !linkBox.hidden;
+  if (!linkBox.hidden) urlInput.focus();
 });
 
 fetchBtn.addEventListener('click', async () => {
   const url = urlInput.value.trim();
-  if (!url) { fetchStatus.textContent = 'Inserisci un link valido.'; return; }
-  fetchStatus.textContent = 'Estrazione in corso...';
+  if (!url) { statusLine.textContent = 'Inserisci un link valido.'; return; }
+  statusLine.textContent = 'Estrazione in corso...';
   fetchBtn.disabled = true;
   try {
-    const readerUrl = 'https://r.jina.ai/' + url;
-    const resp = await fetch(readerUrl);
+    const resp = await fetch('https://r.jina.ai/' + url);
     if (!resp.ok) throw new Error('Errore HTTP ' + resp.status);
     const text = await resp.text();
     textInput.value = text.trim();
-    applyDetectedLanguage();
-    fetchStatus.textContent = 'Testo estratto ✓ — controllalo nella scheda "Testo" prima di leggere.';
-    document.querySelector('.tab[data-tab="testo"]').click();
+    onTextChanged();
+    linkBox.hidden = true;
+    statusLine.textContent = 'Testo estratto ✓ — controllalo prima di leggere.';
   } catch (err) {
-    fetchStatus.textContent = 'Non sono riuscito a estrarre il contenuto (' + err.message + '). Prova a copiare e incollare il testo manualmente.';
+    statusLine.textContent = 'Non sono riuscito a estrarre il contenuto (' + err.message + '). Prova a copiare e incollare il testo.';
   } finally {
     fetchBtn.disabled = false;
   }
 });
 
-const dsKeyInput = document.getElementById('dsKeyInput');
-const dsCleanBtn = document.getElementById('dsCleanBtn');
-const dsStatus = document.getElementById('dsStatus');
-
-dsCleanBtn.addEventListener('click', async () => {
-  const apiKey = dsKeyInput.value.trim();
-  const rawText = textInput.value.trim();
-  if (!apiKey) { dsStatus.textContent = 'Inserisci la tua API key DeepSeek.'; return; }
-  if (!rawText) { dsStatus.textContent = 'Incolla o estrai del testo prima.'; return; }
-
-  dsStatus.textContent = 'Pulizia in corso...';
-  dsCleanBtn.disabled = true;
-
-  try {
-    const resp = await fetch('https://api.deepseek.com/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + apiKey
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: 'Ripulisci il testo che ricevi: rimuovi elementi di navigazione, pubblicità, righe ripetute o rumore residuo da un copia-incolla web. Riformattalo come Markdown pulito e ben leggibile, mantenendo il contenuto originale integro. Rispondi SOLO con il markdown, senza commenti aggiuntivi.' },
-          { role: 'user', content: rawText }
-        ],
-        temperature: 0.2
-      })
-    });
-
-    if (!resp.ok) {
-      const errText = await resp.text();
-      throw new Error('HTTP ' + resp.status + ' — ' + errText.slice(0, 200));
-    }
-
-    const data = await resp.json();
-    const cleaned = data.choices?.[0]?.message?.content;
-    if (!cleaned) throw new Error('Risposta inattesa dall\'API.');
-
-    textInput.value = cleaned.trim();
-    applyDetectedLanguage();
-    dsStatus.textContent = 'Testo ripulito ✓';
-  } catch (err) {
-    dsStatus.textContent = 'Non è riuscito (' + err.message + '). Se l\'errore menziona CORS, il browser sta bloccando la chiamata diretta: serve un piccolo proxy server per questa funzione, non è sistemabile solo lato pagina.';
-  } finally {
-    dsCleanBtn.disabled = false;
-  }
-});
-
-let sentenceQueue = [];
-let currentSentenceIndex = 0;
-let wordSpans = [];
-let isReading = false;
-let isDrivingPaused = false; // pausa "finta" anche qui: cancel + rilettura della frase corrente, stesso motivo del fix sui Capitoli — pause()/resume() nativi sono inaffidabili (anche su Chrome desktop, non solo Android)
-let wakeLock = null;
-let speechGeneration = 0;
-let currentGlobalWordIndex = 0;
-
-async function acquireWakeLock() {
-  const wakeLockNote = document.getElementById('wakeLockNote');
-  try {
-    if ('wakeLock' in navigator) {
-      wakeLock = await navigator.wakeLock.request('screen');
-      wakeLock.addEventListener('release', () => { wakeLock = null; });
-      wakeLockNote.textContent = '';
-    } else {
-      wakeLockNote.textContent = '⚠️ Questo browser non supporta il blocco schermo — potrebbe spegnersi durante la lettura.';
-    }
-  } catch (err) {
-    wakeLockNote.textContent = '⚠️ Non riesco a impedire lo spegnimento schermo qui (' + err.message + '). Funziona meglio se la pagina è aperta da un sito HTTPS reale invece che da file locale.';
-  }
-}
-
-async function releaseWakeLock() {
-  if (wakeLock) {
-    try { await wakeLock.release(); } catch (err) {}
-    wakeLock = null;
-  }
-}
-
-document.addEventListener('visibilitychange', async () => {
-  if (isReading && document.visibilityState === 'visible' && !wakeLock) {
-    await acquireWakeLock();
-  }
-});
-
-function stripMarkdown(text) {
-  return text
-    .replace(/```[\s\S]*?```/g, '')           // blocchi di codice
-    .replace(/`([^`]+)`/g, '$1')               // codice inline
-    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')  // immagini -> testo alt
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')   // link -> testo del link
-    .replace(/^#{1,6}\s+/gm, '')               // titoli
-    .replace(/(\*\*|__)(.*?)\1/g, '$2')        // grassetto
-    .replace(/(\*|_)(.*?)\1/g, '$2')           // corsivo
-    .replace(/^>\s?/gm, '')                    // citazioni
-    .replace(/^\s*[-*+]\s+/gm, '')             // elenchi puntati
-    .replace(/^\s*\d+\.\s+/gm, '')             // elenchi numerati
-    .replace(/^\s*\|?[\s:|-]{3,}\|?\s*$/gm, '') // righe di separazione tabelle (|---|---|---|)
-    .replace(/^-{3,}\s*$/gm, '')               // linee orizzontali
-    .replace(/\|/g, ' ')                       // separatori tabelle
-    .replace(/\n{3,}/g, '\n\n')                // righe vuote multiple
-    .trim();
-}
-
-function splitIntoSentences(text) {
-  // Divide per punto/esclamativo/interrogativo seguiti da spazio o fine riga, mantenendo il punteggiatura
-  const parts = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
-  return parts.map(s => s.trim()).filter(s => s.length > 0);
-}
-
-function prepareReadingBox(text) {
-  readingBox.innerHTML = '';
-  const words = text.split(/(\s+)/);
-  wordSpans = [];
-  words.forEach(w => {
-    if (w.trim() === '') {
-      readingBox.appendChild(document.createTextNode(w));
-    } else {
-      const span = document.createElement('span');
-      span.textContent = w;
-      readingBox.appendChild(span);
-      wordSpans.push(span);
-    }
-  });
-  readingBox.classList.add('visible');
-}
-
-function clearHighlight() {
-  wordSpans.forEach(s => { s.style.background = ''; s.style.color = ''; });
-}
-
-function highlightWordAt(globalWordIndex) {
-  clearHighlight();
-  const span = wordSpans[globalWordIndex];
-  if (span) {
-    span.style.background = '#f2e2dc';
-    span.style.color = '#b5563c';
-    span.style.borderRadius = '4px';
-    span.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  }
-}
-
-// Precalcola, per ogni frase, l'indice della prima parola globale
-let sentenceWordOffsets = [];
-
-function buildSentenceOffsets() {
-  sentenceWordOffsets = [];
-  let count = 0;
-  sentenceQueue.forEach(s => {
-    sentenceWordOffsets.push(count);
-    count += s.split(/\s+/).filter(w => w.length > 0).length;
-  });
-}
-
-function speakSentence(index) {
-  if (!isReading) return;
-  if (index >= sentenceQueue.length) {
-    ttsStatus.textContent = 'Lettura terminata.';
-    clearHighlight();
-    isReading = false;
-    releaseWakeLock();
-    hideDrivingMode();
-    return;
-  }
-  currentSentenceIndex = index;
-  speechGeneration++;
-  const myGeneration = speechGeneration;
-
-  const sentenceText = sentenceQueue[index];
-  const utterance = new SpeechSynthesisUtterance(sentenceText);
-  const selectedVoice = voices[voiceSelect.value];
-  if (selectedVoice) utterance.voice = selectedVoice;
-  utterance.rate = parseFloat(rateRange.value);
-  utterance.lang = selectedVoice ? selectedVoice.lang : 'it-IT';
-
-  const baseWordOffset = sentenceWordOffsets[index];
-  currentGlobalWordIndex = baseWordOffset; // granularità minima: inizio frase (alcuni motori Android non emettono onboundary)
-  let advanced = false; // protezione: alcuni motori vocali Android scatenano onend due volte per la stessa frase
-
-  function advanceOnce() {
-    if (advanced) return;
-    advanced = true;
-    if (isReading && myGeneration === speechGeneration) speakSentence(index + 1);
-  }
-
-  utterance.onboundary = (event) => {
-    if (myGeneration !== speechGeneration) return; // frase superata da un salto: ignora
-    if (event.name === 'word') {
-      const before = sentenceText.slice(0, event.charIndex);
-      const wordsBefore = before.split(/\s+/).filter(w => w.length > 0).length;
-      currentGlobalWordIndex = baseWordOffset + wordsBefore;
-      highlightWordAt(currentGlobalWordIndex);
-    }
-  };
-
-  utterance.onend = () => {
-    if (myGeneration !== speechGeneration) return; // già superata da un salto
-    advanceOnce();
-  };
-
-  utterance.onerror = (event) => {
-    if (myGeneration !== speechGeneration) return; // già superata da un salto
-    if (advanced) return; // evita di mostrare/ripetere due volte lo stesso errore
-    ttsStatus.textContent = 'Errore alla frase ' + (index + 1) + '/' + sentenceQueue.length + ' (' + (event.error || 'sconosciuto') + '). Provo a proseguire...';
-    advanceOnce();
-  };
-
-  ttsStatus.textContent = 'Lettura in corso... (frase ' + (index + 1) + '/' + sentenceQueue.length + ')';
-  drivingProgress.textContent = 'Frase ' + (index + 1) + ' di ' + sentenceQueue.length;
-  updateDrivePlayPauseIcon();
-  speechSynthesis.speak(utterance);
-}
-
-function showDrivingMode() {
-  drivingMode.classList.add('active');
-  updateDrivePlayPauseIcon();
-}
-
-function hideDrivingMode() {
-  drivingMode.classList.remove('active');
-}
-
-function updateDrivePlayPauseIcon() {
-  drivePlayPause.textContent = isDrivingPaused ? '▶' : '⏸';
-}
-
-function pauseDrivingReading() {
-  if (!isReading || isDrivingPaused) return;
-  isDrivingPaused = true;
-  speechGeneration++; // invalida i callback residui dell'utterance che stiamo per interrompere, non deve far avanzare da sola
-  speechSynthesis.cancel();
-  ttsStatus.textContent = 'In pausa.';
-  updateDrivePlayPauseIcon();
-}
-
-function resumeDrivingReading() {
-  if (!isReading || !isDrivingPaused) return;
-  isDrivingPaused = false;
-  ttsStatus.textContent = 'Lettura ripresa...';
-  speakSentence(currentSentenceIndex);
-  updateDrivePlayPauseIcon();
-}
-
-function estimateWordsPerSecond() {
-  const rate = parseFloat(rateRange.value) || 1;
-  const baseWordsPerMinute = 150; // stima di lettura naturale a velocità 1.0x, regola se non torna con i tuoi tempi reali
-  return (baseWordsPerMinute * rate) / 60;
-}
-
-function findSentenceIndexForWord(targetWordIndex) {
-  let idx = 0;
-  for (let i = 0; i < sentenceWordOffsets.length; i++) {
-    if (sentenceWordOffsets[i] <= targetWordIndex) idx = i;
-    else break;
-  }
-  return idx;
-}
-
-function jumpSeconds(deltaSeconds) {
-  if (!isReading || sentenceQueue.length === 0) return;
-  const wordsPerSecond = estimateWordsPerSecond();
-  const deltaWords = Math.round(deltaSeconds * wordsPerSecond);
-  const totalWords = wordSpans.length;
-  let targetWord = currentGlobalWordIndex + deltaWords;
-  targetWord = Math.max(0, Math.min(targetWord, Math.max(totalWords - 1, 0)));
-  const targetSentenceIndex = findSentenceIndexForWord(targetWord);
-  speechGeneration++; // invalida l'utterance che stiamo per interrompere
-  speechSynthesis.cancel();
-  if (isDrivingPaused) {
-    // restiamo in pausa, ma alla nuova posizione — niente audio finche' non si preme ripresa
-    currentSentenceIndex = targetSentenceIndex;
-    currentGlobalWordIndex = sentenceWordOffsets[targetSentenceIndex] || 0;
-    highlightWordAt(currentGlobalWordIndex);
-    drivingProgress.textContent = 'Frase ' + (targetSentenceIndex + 1) + ' di ' + sentenceQueue.length;
-  } else {
-    speakSentence(targetSentenceIndex);
-  }
-}
-
-driveBack30.addEventListener('click', () => jumpSeconds(-30));
-driveForward30.addEventListener('click', () => jumpSeconds(30));
-
-drivePlayPause.addEventListener('click', () => {
-  if (isDrivingPaused) {
-    resumeDrivingReading();
-  } else {
-    pauseDrivingReading();
-  }
-});
-
-driveExit.addEventListener('click', () => {
-  isReading = false;
-  isDrivingPaused = false;
-  speechSynthesis.cancel();
-  ttsStatus.textContent = 'Lettura interrotta.';
-  clearHighlight();
-  releaseWakeLock();
-  hideDrivingMode();
-});
-
-playBtn.addEventListener('click', () => {
-  const text = textInput.value.trim();
-  if (!text) { ttsStatus.textContent = 'Incolla o estrai del testo prima di leggere.'; return; }
-
-  if (isDrivingPaused && isReading) {
-    resumeDrivingReading();
-    return;
-  }
-
-  speechSynthesis.cancel();
-  isDrivingPaused = false;
-  const spokenText = stripMarkdown(text);
-  prepareReadingBox(spokenText);
-  sentenceQueue = splitIntoSentences(spokenText);
-  buildSentenceOffsets();
-  isReading = true;
-  acquireWakeLock();
-  speakSentence(0);
-  showDrivingMode();
-});
-
-pauseBtn.addEventListener('click', () => {
-  pauseDrivingReading();
-});
-
-stopBtn.addEventListener('click', () => {
-  isReading = false;
-  isDrivingPaused = false;
-  speechSynthesis.cancel();
-  ttsStatus.textContent = 'Lettura interrotta.';
-  clearHighlight();
-  releaseWakeLock();
-  hideDrivingMode();
-});
-
+fileBtn.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', () => {
   const file = fileInput.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = (e) => {
-    textInput.value = e.target.result.trim();
-    applyDetectedLanguage();
-    fileStatus.textContent = 'Caricato: ' + file.name + ' ✓ — controllalo nella scheda "Testo" prima di leggere.';
-    document.querySelector('.tab[data-tab="testo"]').click();
+    textInput.value = String(e.target.result).trim();
+    onTextChanged();
+    statusLine.textContent = 'Caricato: ' + file.name + ' ✓';
+    fileInput.value = '';
   };
-  reader.onerror = () => { fileStatus.textContent = 'Non sono riuscito a leggere il file.'; };
+  reader.onerror = () => { statusLine.textContent = 'Non sono riuscito a leggere il file.'; };
   reader.readAsText(file);
 });
 
-function resetChapterState() {
-  sections = [];
-  currentSectionIndex = 0;
-  sectionFinishedWaiting = false;
-  backTapTimer = null;
-  tocPanel.classList.remove('visible');
-  hideChapterMode();
-}
-
 clearBtn.addEventListener('click', () => {
-  isReading = false;
-  isDrivingPaused = false;
-  speechSynthesis.cancel();
-  releaseWakeLock();
-  clearHighlight();
-  hideDrivingMode();
-  resetChapterState();
+  stopReading('');
+  forgetSession();
   textInput.value = '';
   urlInput.value = '';
-  readingBox.innerHTML = '';
-  readingBox.classList.remove('visible');
-  ttsStatus.textContent = '';
-  fetchStatus.textContent = '';
-  fileStatus.textContent = '';
-  dsStatus.textContent = '';
-  document.getElementById('wakeLockNote').textContent = '';
+  statusLine.textContent = '';
+  wakeLockNote.textContent = '';
   langNote.textContent = '';
+  dsStatus.textContent = '';
+  settingsStatus.textContent = '';
+  linkBox.hidden = true;
+  onTextChanged();
 });
-document.getElementById('tocClearBtn').addEventListener('click', () => clearBtn.click());
 
+// ===== DeepSeek (opzionale) =====
+dsCleanBtn.addEventListener('click', async () => {
+  const apiKey = dsKeyInput.value.trim();
+  const rawText = textInput.value.trim();
+  if (!apiKey) { dsStatus.textContent = 'Inserisci la tua API key DeepSeek.'; return; }
+  if (!rawText) { dsStatus.textContent = 'Incolla o estrai del testo prima.'; return; }
+  dsStatus.textContent = 'Pulizia in corso...';
+  dsCleanBtn.disabled = true;
+  try {
+    const resp = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: 'Ripulisci il testo che ricevi: rimuovi elementi di navigazione, pubblicità, righe ripetute o rumore residuo da un copia-incolla web. Riformattalo come Markdown pulito e ben leggibile, mantenendo il contenuto originale integro. Mantieni intatte le righe che contengono solo un marcatore tipo [pausa 30s], [pause 5m] o [suspend]. Rispondi SOLO con il markdown, senza commenti aggiuntivi.' },
+          { role: 'user', content: rawText }
+        ],
+        temperature: 0.2
+      })
+    });
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error('HTTP ' + resp.status + ' — ' + errText.slice(0, 200));
+    }
+    const data = await resp.json();
+    const cleaned = data.choices?.[0]?.message?.content;
+    if (!cleaned) throw new Error('Risposta inattesa dall\'API.');
+    textInput.value = cleaned.trim();
+    onTextChanged();
+    dsStatus.textContent = 'Testo ripulito ✓';
+  } catch (err) {
+    dsStatus.textContent = 'Non è riuscito (' + err.message + '). Se l\'errore menziona CORS, il browser blocca la chiamata diretta: serve un piccolo proxy.';
+  } finally {
+    dsCleanBtn.disabled = false;
+  }
+});
+
+// ===== Salva come Markdown =====
 saveMdBtn.addEventListener('click', async () => {
   const text = textInput.value.trim();
-  if (!text) { ttsStatus.textContent = 'Nessun testo da salvare.'; return; }
-  const now = new Date();
-  const stamp = now.toISOString().slice(0,16).replace('T','_').replace(':','-');
+  if (!text) { settingsStatus.textContent = 'Nessun testo da salvare.'; return; }
+  const stamp = new Date().toISOString().slice(0, 16).replace('T', '_').replace(':', '-');
   const filename = 'lettura_' + stamp + '.md';
   const blob = new Blob([text], { type: 'text/markdown' });
 
-  // Prova prima la condivisione nativa (mostra Drive, Files, ecc. tra le opzioni)
   if (navigator.canShare) {
     try {
       const file = new File([blob], filename, { type: 'text/markdown' });
       if (navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: filename });
-        ttsStatus.textContent = 'Condiviso: scegli dove salvarlo.';
+        settingsStatus.textContent = 'Condiviso: scegli dove salvarlo.';
         return;
       }
     } catch (err) {
-      if (err.name === 'AbortError') { ttsStatus.textContent = 'Condivisione annullata.'; return; }
-      // se fallisce per altro motivo, si passa al download diretto sotto
+      if (err.name === 'AbortError') { settingsStatus.textContent = 'Condivisione annullata.'; return; }
     }
   }
-
-  // Ripiego: download diretto nella cartella Download
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
   link.download = filename;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  ttsStatus.textContent = 'Salvato in Download come ' + filename;
+  settingsStatus.textContent = 'Salvato in Download come ' + filename;
 });
 
-// ===== Modalità Capitoli =====
-const chapterLevelSelect = document.getElementById('chapterLevelSelect');
-const autoplayToggle = document.getElementById('autoplayToggle');
-const generateTocBtn = document.getElementById('generateTocBtn');
-const chapterConfigStatus = document.getElementById('chapterConfigStatus');
-const tocList = document.getElementById('tocList');
-const tocTitle = document.getElementById('tocTitle');
+// ===== Schermo sempre acceso durante la lettura =====
+let wakeLock = null;
+async function acquireWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+      wakeLockNote.textContent = '';
+    } else {
+      wakeLockNote.textContent = '⚠️ Questo browser non supporta il blocco schermo: potrebbe spegnersi durante la lettura.';
+    }
+  } catch (err) {
+    wakeLockNote.textContent = '⚠️ Non riesco a impedire lo spegnimento schermo (' + err.message + '). Funziona meglio da un sito HTTPS reale.';
+  }
+}
+async function releaseWakeLock() {
+  if (wakeLock) {
+    try { await wakeLock.release(); } catch (err) {}
+    wakeLock = null;
+  }
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    if (isReading) savePosition();
+    return;
+  }
+  if (!isReading) return;
+  if (!wakeLock) acquireWakeLock();
+  // Tornati in primo piano: se il sistema ha interrotto la voce, si riparte dalla frase in cui eravamo
+  if (waitingNext) return;
+  if (autoPaused) { resumeReading(); return; }
+  if (inTimedPause) { if (Date.now() >= pauseEndsAt) finishTimedPause(); return; }
+  if (!isPaused && !speechSynthesis.speaking && !speechSynthesis.pending) goToSection(secIdx, curWord);
+});
+document.addEventListener('pagehide', () => { if (isReading) savePosition(); });
 
-const chapterMode = document.getElementById('chapterMode');
-const chapterProgress = document.getElementById('chapterProgress');
-const chapterBack = document.getElementById('chapterBack');
-const chapterPlayPause = document.getElementById('chapterPlayPause');
-const chapterForward = document.getElementById('chapterForward');
-const chapterIndexBtn = document.getElementById('chapterIndexBtn');
+// ===== Testo -> sezioni =====
+function stripMarkdown(text) {
+  return text
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/(\*\*|__)(.*?)\1/g, '$2')
+    .replace(/(\*|_)(.*?)\1/g, '$2')
+    .replace(/^>\s?/gm, '')
+    .replace(/^\s*[-*+]\s+/gm, '')
+    .replace(/^\s*\d+\.\s+/gm, '')
+    .replace(/^\s*\|?[\s:|-]{3,}\|?\s*$/gm, '')
+    .replace(/^-{3,}\s*$/gm, '')
+    .replace(/\|/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
 
-let sections = [];
-let currentSectionIndex = 0;
-let chapterGeneration = 0;
-let sectionFinishedWaiting = false;
-let backTapTimer = null;
-let currentChapterSentenceIdx = 0;
-let isChapterPaused = false; // pausa "finta": teniamo il posto e ricominciamo la frase, non ci fidiamo di speechSynthesis.pause()/resume() (inaffidabili su Chrome Android)
+function splitIntoSentences(text) {
+  const parts = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
+  return parts.map(s => s.trim()).filter(s => s.length > 0);
+}
 
-// Individua i confini dei capitoli sugli heading Markdown del livello scelto
-// (esattamente N cancelletti, es. livello 2 -> righe "## ..."), come discusso:
-// tutto il testo tra un heading e il successivo dello stesso livello e' un capitolo.
+// Titoli con esattamente `level` cancelletti; ignora quelli dentro i blocchi di codice.
 function parseSections(text, level) {
   const lines = text.split('\n');
   const headingRe = new RegExp('^#{' + level + '}\\s+(.+)$');
   const result = [];
   let current = null;
   let preamble = '';
-  let headingsFound = 0;
+  let headings = 0;
+  let inFence = false;
   for (const line of lines) {
-    const m = line.match(headingRe);
+    if (/^\s*```/.test(line)) inFence = !inFence;
+    const m = inFence ? null : line.match(headingRe);
     if (m) {
-      headingsFound++;
+      headings++;
       if (current) result.push(current);
       current = { title: m[1].trim(), body: '' };
     } else if (current) {
@@ -1080,177 +781,572 @@ function parseSections(text, level) {
     }
   }
   if (current) result.push(current);
-  // Se il livello scelto non trova nessun heading, non fingiamo che vada bene:
-  // meglio segnalarlo (vedi generateTocBtn) cosi' l'utente prova un altro livello,
-  // invece di creare una finta sezione unica con tutto il testo dentro.
-  if (headingsFound === 0) return [];
-  if (preamble.trim()) {
-    result.unshift({ title: 'Introduzione', body: preamble });
+  if (headings > 0 && preamble.trim()) result.unshift({ title: 'Introduzione', body: preamble });
+  return { sections: result, headings };
+}
+
+// Automatico: il primo livello (1-4) con almeno 2 titoli. Manuale: quel livello, se ha almeno 1 titolo.
+// Se non ci sono titoli, lettura continua come unica sezione.
+function analyzeText(text) {
+  const manual = parseInt(levelSelect.value, 10);
+  const levels = manual ? [manual] : [1, 2, 3, 4];
+  const minHeadings = manual ? 1 : 2;
+  for (const lv of levels) {
+    const r = parseSections(text, lv);
+    if (r.headings >= minHeadings) return { sections: r.sections, chapters: true };
   }
-  return result;
+  return { sections: [{ title: '', body: text }], chapters: false };
 }
 
-function renderToc() {
-  tocList.innerHTML = '';
-  sections.forEach((s, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'toc-item';
-    btn.type = 'button';
-    btn.innerHTML = '<span class="toc-item-index">' + (i + 1) + '.</span>' + s.title;
-    btn.addEventListener('click', () => startChapterReading(i));
-    tocList.appendChild(btn);
-  });
-  tocTitle.textContent = 'Indice (' + sections.length + (sections.length === 1 ? ' sezione' : ' sezioni') + ')';
-  tocPanel.classList.add('visible');
-}
-
-generateTocBtn.addEventListener('click', () => {
+function updateChapterHint() {
   const text = textInput.value.trim();
-  if (!text) { chapterConfigStatus.textContent = 'Incolla o carica del testo prima di generare l\'indice.'; return; }
-  const level = parseInt(chapterLevelSelect.value, 10);
-  sections = parseSections(text, level);
-  if (sections.length === 0) {
-    chapterConfigStatus.textContent = 'Nessun heading trovato a questo livello — prova un altro livello TOC.';
-    tocPanel.classList.remove('visible');
-    return;
+  if (!text) { tocOpenBtn.hidden = true; return; }
+  const a = analyzeText(text);
+  if (!a.chapters) { tocOpenBtn.hidden = true; return; }
+  tocOpenBtn.textContent = '📑 Indice · ' + a.sections.length + (a.sections.length === 1 ? ' capitolo' : ' capitoli');
+  tocOpenBtn.hidden = false;
+}
+
+// ===== Motore di lettura (unico: lineare o per capitoli) =====
+let sections = [];
+let hasChapters = false;
+let secIdx = 0;
+let sentenceQueue = [];
+let sentenceWordOffsets = [];
+let sectionWordCount = 0;
+let sentIdx = 0;
+let curWord = 0;
+let isReading = false;
+let isPaused = false;      // pausa "finta": cancel + rilettura della frase corrente (pause()/resume() nativi sono inaffidabili)
+let waitingNext = false;   // sezione finita, auto-play spento: si aspetta il tocco su ▶
+let gen = 0;               // invalida i callback delle utterance interrotte
+let backTapTimer = null;
+let autoPaused = false;    // pausa causata dal sistema (schermo spento): riparte da sola al ritorno
+let sentenceIsPause = [], sentenceSuspend = [], sentenceParaEnd = [];
+let pauseTimer = null, inTimedPause = false, pauseEndsAt = 0;
+
+function buildOffsets() {
+  sentenceWordOffsets = [];
+  let count = 0;
+  sentenceQueue.forEach(s => {
+    sentenceWordOffsets.push(count);
+    count += s.split(/\s+/).filter(w => w.length > 0).length;
+  });
+  sectionWordCount = count;
+}
+
+function countWordsInSection(i) {
+  return buildItems(sections[i].body).reduce((n, it) => n + (it.text ? it.text.split(/\s+/).filter(w => w.length > 0).length : 0), 0);
+}
+
+function findSentenceIndexForWord(targetWord) {
+  let idx = 0;
+  for (let i = 0; i < sentenceWordOffsets.length; i++) {
+    if (sentenceWordOffsets[i] <= targetWord) idx = i;
+    else break;
   }
-  chapterConfigStatus.textContent = '';
-  renderToc();
-});
-
-function startChapterReading(index) {
-  speechSynthesis.cancel();
-  chapterMode.classList.add('active');
-  isReading = true;
-  acquireWakeLock();
-  goToSection(index);
+  return idx;
 }
 
-function hideChapterMode() {
-  chapterMode.classList.remove('active');
+function wordsPerSecond() {
+  return (150 * getRate()) / 60; // stima: 150 parole/min a 1.0x
 }
 
-function updateChapterPlayPauseIcon() {
-  chapterPlayPause.textContent = (sectionFinishedWaiting || isChapterPaused) ? '▶' : '⏸';
+function updatePlayIcon() {
+  playPauseBtn.textContent = (isPaused || waitingNext) ? '▶' : '⏸';
+  syncMedia();
 }
 
-// Porta la lettura a una sezione specifica (usata da TOC, avanti, indietro, ripeti)
-function goToSection(index) {
-  if (index < 0) index = 0;
-  if (index >= sections.length) {
-    chapterProgress.textContent = 'Fine del documento.';
-    isReading = false;
-    sectionFinishedWaiting = false;
-    isChapterPaused = false;
-    releaseWakeLock();
-    updateChapterPlayPauseIcon();
-    return;
+function updateProgress() {
+  if (hasChapters) {
+    playerProgress.textContent = sections[secIdx].title + ' (' + (secIdx + 1) + '/' + sections.length + ')';
+  } else {
+    playerProgress.textContent = 'Frase ' + Math.min(sentIdx + 1, Math.max(sentenceQueue.length, 1)) + ' di ' + sentenceQueue.length;
   }
-  currentSectionIndex = index;
-  sectionFinishedWaiting = false;
-  isChapterPaused = false;
-  const body = stripMarkdown(sections[index].body);
-  sentenceQueue = splitIntoSentences(body);
-  buildSentenceOffsets();
-  chapterProgress.textContent = sections[index].title + ' (' + (index + 1) + '/' + sections.length + ')';
-  speakChapterSentence(0);
 }
 
-function speakChapterSentence(idx) {
-  if (!isReading) return;
-  chapterGeneration++;
-  const myGeneration = chapterGeneration;
-  currentChapterSentenceIdx = idx;
+function showPlayer() {
+  playerSections.hidden = !hasChapters;
+  player.classList.add('active');
+  updatePlayIcon();
+}
 
-  if (idx >= sentenceQueue.length) {
-    // Sezione finita: auto-play -> avanti da solo, altrimenti resta in pausa qui
-    if (autoplayToggle.checked) {
-      goToSection(currentSectionIndex + 1);
-    } else {
-      sectionFinishedWaiting = true;
-      chapterProgress.textContent = sections[currentSectionIndex].title + ' — sezione terminata. Premi ▶ per continuare.';
-      updateChapterPlayPauseIcon();
+function hidePlayer() { player.classList.remove('active'); }
+
+function stopReading(message, finished) {
+  isReading = false;
+  isPaused = false;
+  autoPaused = false;
+  waitingNext = false;
+  gen++;
+  cancelTimers();
+  if (hasTTS) speechSynthesis.cancel();
+  releaseWakeLock();
+  hidePlayer();
+  syncMedia();
+  statusLine.textContent = message || '';
+  if (finished) forgetSession(); else restoreOffer();
+}
+
+// ===== Marcatori nel testo: [pausa 30s], [pausa 5m], [pause 1h], [suspend] =====
+const PAUSE_RE = /^\[\s*(?:pausa|pause)\s+(\d+(?:[.,]\d+)?)\s*(s|sec|secondi?|m|min|minuti?|h|ore?)?\s*\]$/i;
+const SUSPEND_RE = /^\[\s*(?:suspend|sospendi)\s*\]$/i;
+function parseMarker(line) {
+  const t = line.trim();
+  const m = t.match(PAUSE_RE);
+  if (m) {
+    const n = parseFloat(m[1].replace(',', '.'));
+    const u = (m[2] || 'm').toLowerCase();
+    const mult = u.startsWith('s') ? 1000 : (u.startsWith('h') || u.startsWith('or')) ? 3600000 : 60000;
+    return { pauseMs: Math.round(n * mult) };
+  }
+  if (SUSPEND_RE.test(t)) return { suspend: true };
+  return null;
+}
+// Corpo di una sezione -> elementi: frasi (con fine paragrafo), pause, sospensioni.
+// I blocchi di codice non vengono spezzati e i marcatori dentro non valgono.
+function buildItems(raw) {
+  const items = [];
+  let buf = [];
+  let inFence = false;
+  const flush = () => {
+    const txt = buf.join('\n').trim();
+    buf = [];
+    if (!txt) return;
+    const s = splitIntoSentences(stripMarkdown(txt));
+    s.forEach((t, i) => items.push({ text: t, paraEnd: i === s.length - 1 }));
+  };
+  for (const line of raw.split('\n')) {
+    if (/^\s*```/.test(line)) inFence = !inFence;
+    if (!inFence) {
+      if (line.trim() === '') { flush(); continue; }
+      const mk = parseMarker(line);
+      if (mk) {
+        flush();
+        items.push(mk.suspend ? { text: '', suspend: true } : { text: '', pauseMs: mk.pauseMs });
+        continue;
+      }
     }
-    return;
+    buf.push(line);
   }
+  flush();
+  return items;
+}
+
+function loadSection(i) {
+  secIdx = i;
+  waitingNext = false;
+  const items = buildItems(sections[i].body);
+  sentenceQueue = items.map(it => it.text || '');
+  sentenceIsPause = items.map(it => it.pauseMs || 0);
+  sentenceSuspend = items.map(it => !!it.suspend);
+  sentenceParaEnd = items.map(it => !!it.paraEnd);
+  buildOffsets();
+  sentIdx = 0;
+  curWord = 0;
+}
+
+// Porta la lettura a una sezione e a una parola (startWord) di quella sezione.
+// keepPaused: se già in pausa, aggiorna solo la posizione senza audio.
+function goToSection(index, startWord = 0, keepPaused = false) {
+  if (index < 0) index = 0;
+  if (index >= sections.length) { stopReading('Lettura terminata.', true); return; }
+  if (!keepPaused) { isPaused = false; autoPaused = false; }
+  gen++;
+  cancelTimers();
+  speechSynthesis.cancel();
+  loadSection(index);
+  sentIdx = findSentenceIndexForWord(startWord);
+  curWord = sentenceWordOffsets[sentIdx] || 0;
+  updateProgress();
+  updatePlayIcon();
+  if (!(keepPaused && isPaused)) speakSentence(sentIdx);
+}
+
+function sectionEnded() {
+  if (secIdx + 1 < sections.length) {
+    if (autoplayToggle.checked) {
+      goToSection(secIdx + 1);
+    } else {
+      waitingNext = true;
+      playerProgress.textContent = sections[secIdx].title + ' — sezione terminata. Premi ▶ per continuare.';
+      updatePlayIcon();
+    }
+  } else {
+    stopReading('Lettura terminata.', true);
+  }
+}
+
+function speakSentence(idx) {
+  if (!isReading) return;
+  if (idx >= sentenceQueue.length) { sectionEnded(); return; }
+  if (sentenceSuspend[idx]) { enterWait(idx + 1, 'Sospeso · ▶ per continuare'); speakNote('Sospeso. Premi play per continuare.'); return; }
+  if (sentenceIsPause[idx]) { startTimedPause(idx); return; }
+  sentIdx = idx;
+  gen++;
+  const myGen = gen;
 
   const sentenceText = sentenceQueue[idx];
   const utterance = new SpeechSynthesisUtterance(sentenceText);
-  const selectedVoice = voices[voiceSelect.value];
-  if (selectedVoice) utterance.voice = selectedVoice;
-  utterance.rate = parseFloat(rateRange.value);
-  utterance.lang = selectedVoice ? selectedVoice.lang : 'it-IT';
+  const voice = voices[voiceSelect.value];
+  if (voice) utterance.voice = voice;
+  utterance.rate = getRate();
+  utterance.lang = voice ? voice.lang : 'it-IT';
 
-  const baseWordOffset = sentenceWordOffsets[idx];
-  currentGlobalWordIndex = baseWordOffset;
-  let advanced = false;
+  const baseWord = sentenceWordOffsets[idx];
+  curWord = baseWord;
+  let advanced = false; // alcuni motori Android scatenano onend due volte
 
   function advanceOnce() {
     if (advanced) return;
     advanced = true;
-    if (isReading && myGeneration === chapterGeneration) speakChapterSentence(idx + 1);
+    if (!(isReading && myGen === gen)) return;
+    const next = idx + 1;
+    const nextIsMarker = next < sentenceQueue.length && (sentenceIsPause[next] || sentenceSuspend[next]);
+    if (paraStopToggle.checked && sentenceParaEnd[idx] && !nextIsMarker) {
+      enterWait(next, 'Fine paragrafo · ▶ per continuare');
+      return;
+    }
+    speakSentence(next);
   }
 
+  utterance.onboundary = (event) => {
+    if (myGen !== gen) return;
+    if (event.name === 'word') {
+      const before = sentenceText.slice(0, event.charIndex);
+      curWord = baseWord + before.split(/\s+/).filter(w => w.length > 0).length;
+    }
+  };
+  const startedAt = Date.now();
   utterance.onend = () => {
-    if (myGeneration !== chapterGeneration) return;
+    if (myGen !== gen) return;
+    // Frase lunga finita "troppo in fretta" = la voce è stata tagliata dal sistema (schermo spento), non letta davvero
+    const expectedMs = sentenceText.length * 60 / getRate();
+    if (sentenceText.length > 25 && Date.now() - startedAt < expectedMs * 0.2) { systemInterrupt(false); return; }
     advanceOnce();
   };
-  utterance.onerror = () => {
-    if (myGeneration !== chapterGeneration) return;
-    if (advanced) return;
+  utterance.onerror = (event) => {
+    if (myGen !== gen || advanced) return;
+    const err = event && event.error;
+    if (err === 'interrupted' || err === 'canceled') { systemInterrupt(false); return; }
+    if (err === 'not-allowed') { systemInterrupt(true); return; } // serve un tocco dell'utente per ripartire
     advanceOnce();
   };
 
-  updateChapterPlayPauseIcon();
+  savePosition();
+  updateProgress();
+  updatePlayIcon();
   speechSynthesis.speak(utterance);
 }
 
-// Indietro: primo tap = ripeti la sezione corrente da capo (feedback immediato);
-// un secondo tap entro 2s corregge andando alla sezione precedente.
-chapterBack.addEventListener('click', () => {
+function cancelTimers() {
+  inTimedPause = false;
+  if (pauseTimer) { clearTimeout(pauseTimer); pauseTimer = null; }
+}
+function fmtMs(ms) {
+  const s = Math.round(ms / 1000);
+  if (s >= 3600) return (Math.round(s / 360) / 10) + ' h';
+  if (s >= 60) return Math.round(s / 60) + ' min';
+  return s + ' s';
+}
+// Ferma la lettura prima dell'elemento `next` e aspetta ▶. Se non c'è più testo nella sezione, aspetta il passaggio alla successiva.
+function enterWait(next, msg) {
+  cancelTimers();
+  gen++;
+  try { speechSynthesis.cancel(); } catch (e) {}
+  autoPaused = false;
+  if (next >= sentenceQueue.length) {
+    isPaused = false;
+    waitingNext = true;
+    playerProgress.textContent = (hasChapters ? sections[secIdx].title + ' · ' : '') + 'Sezione terminata · ▶ per continuare';
+  } else {
+    isPaused = true;
+    waitingNext = false;
+    sentIdx = next;
+    curWord = sentenceWordOffsets[next] || 0;
+    playerProgress.textContent = msg + (hasChapters ? ' · ' + sections[secIdx].title : '');
+  }
+  savePosition();
+  updatePlayIcon();
+}
+// Pausa a tempo da marcatore: silenzio per il tempo indicato, poi riprende.
+function startTimedPause(idx) {
+  cancelTimers();
+  gen++;
+  const myGen = gen;
+  const ms = sentenceIsPause[idx];
+  sentIdx = idx;
+  curWord = sentenceWordOffsets[idx] || 0;
+  inTimedPause = true;
+  pauseEndsAt = Infinity; // il conto parte solo dopo l'annuncio
+  playerProgress.textContent = 'Pausa · ' + fmtMs(ms) + (hasChapters ? ' · ' + sections[secIdx].title : '');
+  savePosition();
+  updatePlayIcon();
+  speakNote('Pausa di ' + spokenDuration(ms), () => {
+    if (myGen !== gen || !isReading) return;
+    pauseEndsAt = Date.now() + ms;
+    pauseTimer = setTimeout(() => {
+      if (myGen !== gen || !isReading) return;
+      finishTimedPause();
+    }, ms);
+  });
+}
+
+// Annuncio a voce alta (es. "Pausa di 30 secondi"). onDone a fine o se l'annuncio viene interrotto.
+function speakNote(text, onDone) {
+  if (!hasTTS) { if (onDone) onDone(); return; }
+  const u = new SpeechSynthesisUtterance(text);
+  const voice = voices[voiceSelect.value];
+  if (voice) u.voice = voice;
+  u.rate = getRate();
+  u.lang = voice ? voice.lang : 'it-IT';
+  let done = false;
+  const guard = setTimeout(() => fin(), Math.max(3000, text.length * 150)); // se il motore non chiude mai l'annuncio
+  const fin = () => { if (done) return; done = true; clearTimeout(guard); if (onDone) onDone(); };
+  u.onend = fin;
+  u.onerror = fin;
+  speechSynthesis.speak(u);
+}
+function spokenDuration(ms) {
+  const s = Math.round(ms / 1000);
+  if (s >= 3600) {
+    const h = Math.floor(s / 3600), m = Math.round((s % 3600) / 60);
+    return h + (h === 1 ? ' ora' : ' ore') + (m ? ' e ' + m + (m === 1 ? ' minuto' : ' minuti') : '');
+  }
+  if (s >= 60) { const m = Math.round(s / 60); return m + (m === 1 ? ' minuto' : ' minuti'); }
+  return s + (s === 1 ? ' secondo' : ' secondi');
+}
+function finishTimedPause() {
+  const next = sentIdx + 1;
+  cancelTimers();
+  speakSentence(next);
+}
+
+// ===== Posizione salvata (sopravvive anche se il browser scarta la pagina) =====
+function savePosition() {
+  if (!isReading) return;
+  store.set('pos', JSON.stringify({ sec: secIdx, word: curWord, chapters: hasChapters }));
+}
+function readSaved() {
+  let pos = null;
+  try { pos = JSON.parse(store.get('pos', 'null')); } catch (e) {}
+  return { pos, text: store.get('text', '') };
+}
+function forgetSession() { store.del('pos'); store.del('text'); resumeBtn.hidden = true; }
+function restoreOffer() {
+  const { pos, text } = readSaved();
+  const cur = textInput.value.trim();
+  if (!pos || !text || (cur && cur !== text.trim()) || isReading) { resumeBtn.hidden = true; return; }
+  resumeBtn.textContent = '⏯ Riprendi da dove eri' + (pos.chapters ? ' · sezione ' + ((pos.sec || 0) + 1) : '');
+  resumeBtn.hidden = false;
+}
+resumeBtn.addEventListener('click', () => {
+  const { pos, text } = readSaved();
+  if (!pos || !text) { resumeBtn.hidden = true; return; }
+  textInput.value = text;
+  onTextChanged();
+  startReading(pos.sec || 0, pos.word || 0);
+});
+
+// ===== Audio silenzioso + Media Session: tiene viva la pagina a schermo spento e dà i controlli sulla schermata di blocco =====
+let silentAudio = null;
+let lastMediaTitle = null;
+function silentWavUrl() {
+  const rate = 8000, n = rate * 10; // 10 secondi di silenzio, in loop
+  const buf = new ArrayBuffer(44 + n);
+  const v = new DataView(buf);
+  const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true);
+  w(36, 'data'); v.setUint32(40, n, true);
+  new Uint8Array(buf, 44).fill(128);
+  return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+}
+function startBgAudio() {
+  try {
+    if (!silentAudio) { silentAudio = new Audio(silentWavUrl()); silentAudio.loop = true; }
+    const p = silentAudio.play();
+    if (p && p.catch) p.catch(() => {});
+  } catch (e) {}
+}
+function stopBgAudio() { try { if (silentAudio) silentAudio.pause(); } catch (e) {} }
+function syncMedia() {
+  const playing = isReading && !isPaused && !waitingNext;
+  if (isReading && bgAudioToggle.checked && playing) startBgAudio(); else stopBgAudio();
+  if (!('mediaSession' in navigator)) return;
+  try {
+    navigator.mediaSession.playbackState = isReading ? (playing ? 'playing' : 'paused') : 'none';
+    if (isReading) {
+      const title = (hasChapters && sections[secIdx]) ? sections[secIdx].title : 'Lettura in corso';
+      if (title !== lastMediaTitle) {
+        lastMediaTitle = title;
+        navigator.mediaSession.metadata = new MediaMetadata({ title, artist: 'Lettore Vocale' });
+      }
+    }
+  } catch (e) {}
+}
+if ('mediaSession' in navigator) {
+  const act = (name, fn) => { try { navigator.mediaSession.setActionHandler(name, fn); } catch (e) {} };
+  act('play', () => resumeReading());
+  act('pause', () => pauseReading());
+  act('seekbackward', () => jumpSeconds(-30));
+  act('seekforward', () => jumpSeconds(30));
+  act('previoustrack', () => { if (hasChapters) prevSectionBtn.click(); else jumpSeconds(-30); });
+  act('nexttrack', () => { if (hasChapters) goToSection(secIdx + 1); else jumpSeconds(30); });
+}
+
+function startReading(index = 0, startWord = 0) {
+  const text = textInput.value.trim();
+  if (!text) { statusLine.textContent = 'Incolla, estrai o carica del testo prima di leggere.'; return; }
+  if (!hasTTS) return;
+  speechSynthesis.cancel();
+  const a = analyzeText(text);
+  sections = a.sections;
+  hasChapters = a.chapters;
+  isReading = true;
+  isPaused = false;
+  autoPaused = false;
+  waitingNext = false;
+  statusLine.textContent = '';
+  acquireWakeLock();
+  showPlayer();
+  store.set('text', text);
+  resumeBtn.hidden = true;
+  goToSection(index, startWord);
+}
+
+playBtn.addEventListener('click', () => startReading(0));
+
+// ===== Salti di 30 secondi (anche attraverso le sezioni) =====
+function jumpSeconds(deltaSeconds) {
+  if (!isReading) return;
+  if (waitingNext) { waitingNext = false; isPaused = false; curWord = sectionWordCount; }
+  const deltaWords = Math.round(deltaSeconds * wordsPerSecond());
+  let target = curWord + deltaWords;
+  const keep = isPaused;
+
+  // Indietro oltre l'inizio: ultima parte della sezione precedente
+  if (target < 0 && secIdx > 0) {
+    const prev = secIdx - 1;
+    goToSection(prev, Math.max(0, countWordsInSection(prev) + target), keep);
+    return;
+  }
+  // Avanti oltre la fine: inizio della sezione successiva (se l'auto-play è attivo)
+  if (target >= sectionWordCount && secIdx + 1 < sections.length && autoplayToggle.checked) {
+    goToSection(secIdx + 1, target - sectionWordCount, keep);
+    return;
+  }
+  target = Math.max(0, Math.min(target, Math.max(sectionWordCount - 1, 0)));
+  goToSection(secIdx, target, keep);
+}
+back30Btn.addEventListener('click', () => jumpSeconds(-30));
+fwd30Btn.addEventListener('click', () => jumpSeconds(30));
+
+// ===== Play / pausa =====
+function pauseReading() {
+  if (!isReading || isPaused) return;
+  isPaused = true;
+  autoPaused = false;
+  gen++;
+  cancelTimers();
+  speechSynthesis.cancel();
+  savePosition();
+  updatePlayIcon();
+}
+function resumeReading() {
+  if (!isReading) return;
+  if (waitingNext) { goToSection(secIdx + 1); return; }
+  if (!isPaused) return;
+  isPaused = false;
+  autoPaused = false;
+  speakSentence(sentIdx);
+  updatePlayIcon();
+}
+// Interruzione decisa dal sistema (schermo spento, focus audio perso): pausa nel punto esatto, non si avanza
+function systemInterrupt(needsTap) {
+  if (!isReading || isPaused) return;
+  isPaused = true;
+  autoPaused = !needsTap;
+  gen++;
+  cancelTimers();
+  try { speechSynthesis.cancel(); } catch (e) {}
+  savePosition();
+  updatePlayIcon();
+}
+playPauseBtn.addEventListener('click', () => {
+  if (isPaused || waitingNext) resumeReading(); else pauseReading();
+});
+
+exitBtn.addEventListener('click', () => stopReading('Lettura interrotta.'));
+
+// ===== Salti di sezione =====
+// Indietro: primo tap = riparte dall'inizio della sezione; secondo tap entro 2s = sezione precedente.
+prevSectionBtn.addEventListener('click', () => {
   if (backTapTimer) {
     clearTimeout(backTapTimer);
     backTapTimer = null;
-    speechSynthesis.cancel();
-    goToSection(currentSectionIndex - 1);
+    goToSection(secIdx - 1);
   } else {
-    speechSynthesis.cancel();
-    goToSection(currentSectionIndex);
+    goToSection(secIdx);
     backTapTimer = setTimeout(() => { backTapTimer = null; }, 2000);
   }
 });
+nextSectionBtn.addEventListener('click', () => goToSection(secIdx + 1));
 
-chapterForward.addEventListener('click', () => {
-  speechSynthesis.cancel();
-  goToSection(currentSectionIndex + 1);
-});
+// ===== Indice =====
+let tocResumeOnClose = false;
 
-chapterPlayPause.addEventListener('click', () => {
-  if (sectionFinishedWaiting) {
-    sectionFinishedWaiting = false;
-    goToSection(currentSectionIndex + 1);
-    return;
+function openToc(fromPlayer) {
+  let list = sections;
+  if (!fromPlayer) {
+    const text = textInput.value.trim();
+    if (!text) return;
+    const a = analyzeText(text);
+    if (!a.chapters) return;
+    list = a.sections;
   }
-  if (isChapterPaused) {
-    isChapterPaused = false;
-    speakChapterSentence(currentChapterSentenceIdx);
-  } else {
-    isChapterPaused = true;
-    chapterGeneration++; // invalida i callback dell'utterance che stiamo per interrompere, cosi' non fanno avanzare da soli
-    speechSynthesis.cancel();
-    updateChapterPlayPauseIcon();
+  tocList.innerHTML = '';
+  list.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'toc-item' + (fromPlayer && i === secIdx ? ' current' : '');
+    const idxSpan = document.createElement('span');
+    idxSpan.className = 'toc-item-index';
+    idxSpan.textContent = (i + 1) + '.';
+    btn.appendChild(idxSpan);
+    btn.appendChild(document.createTextNode(s.title));
+    btn.addEventListener('click', () => {
+      tocResumeOnClose = false;
+      tocSheet.classList.remove('active');
+      if (fromPlayer && isReading) goToSection(i);
+      else startReading(i);
+    });
+    tocList.appendChild(btn);
+  });
+  tocTitle.textContent = 'Indice (' + list.length + (list.length === 1 ? ' sezione' : ' sezioni') + ')';
+  if (fromPlayer && isReading && !isPaused && !waitingNext) {
+    pauseReading();
+    tocResumeOnClose = true;
+  }
+  tocSheet.classList.add('active');
+}
+
+tocOpenBtn.addEventListener('click', () => openToc(false));
+indexBtn.addEventListener('click', () => openToc(true));
+tocCloseBtn.addEventListener('click', () => {
+  tocSheet.classList.remove('active');
+  if (tocResumeOnClose && isReading) {
+    tocResumeOnClose = false;
+    isPaused = false;
+    speakSentence(sentIdx);
+    updatePlayIcon();
   }
 });
 
-chapterIndexBtn.addEventListener('click', () => {
-  isReading = false;
-  isChapterPaused = false;
-  sectionFinishedWaiting = false;
-  speechSynthesis.cancel();
-  releaseWakeLock();
-  hideChapterMode();
-  chapterConfigStatus.textContent = '';
-});
+// Stato iniziale
+onTextChanged();
+restoreOffer();
 </script>
 
 </body>
