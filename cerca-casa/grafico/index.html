@@ -10,6 +10,7 @@
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0e141c; --surface: #161e29; --fg: #e8edf4; --muted: #9aa8bb; --line: #2a3646; --accent: #6ea2ee; --accent-fg: #0e141c; } }
 :root[data-theme="dark"] { --bg: #0e141c; --surface: #161e29; --fg: #e8edf4; --muted: #9aa8bb; --line: #2a3646; --accent: #6ea2ee; --accent-fg: #0e141c; }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 16px; line-height: 1.6; }
 .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
 h1 { font-size: 22px; font-weight: 500; margin: 0 0 8px; }
@@ -22,9 +23,24 @@ p { margin: 0 0 12px; }
 .gate-box { width: 100%; max-width: 360px; }
 .field { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
 .field label { font-size: 14px; color: var(--muted); }
-.field input { font: inherit; padding: 10px; border: 0.5px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg); }
+.field input { font: inherit; padding: 10px; border: 0.5px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg); width: 100%; }
 .btn { font: inherit; padding: 10px 16px; border: 0; border-radius: 8px; background: var(--accent); color: var(--accent-fg); cursor: pointer; }
-.hint { color: var(--muted); font-size: 14px; min-height: 1em; }
+.btn.ghost { background: transparent; color: var(--accent); border: 0.5px solid var(--line); }
+.hint { color: var(--muted); font-size: 14px; min-height: 1em; margin: 8px 0 0; }
+.params { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 16px 0; }
+@media (max-width: 520px) { .params { grid-template-columns: 1fr; } }
+.params .field { margin: 0; }
+.adv { margin: 0 0 16px; font-size: 14px; color: var(--muted); }
+.adv summary { cursor: pointer; }
+.adv .field { max-width: 200px; margin-top: 8px; }
+.summary { font-size: 14px; color: var(--muted); margin: 12px 0 0; }
+.summary b { color: var(--fg); font-weight: 500; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tbl th, .tbl td { text-align: left; padding: 6px 8px; border-bottom: 0.5px solid var(--line); }
+.tbl th { color: var(--muted); font-weight: 500; }
+.tbl td.num, .tbl th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+.tablewrap { overflow-x: auto; }
 </style>
 </head>
 <body>
@@ -41,117 +57,181 @@ p { margin: 0 0 12px; }
 <div id="app" hidden>
 <div class="wrap">
   <h1>Zone di Milano: prezzo e tempo dal Policlinico</h1>
-  <p class="muted">Screening iniziale. Prezzi di richiesta Wikicasa (settembre 2026), minuti stimati.</p>
+  <p class="muted">Screening iniziale. Prezzi di richiesta Wikicasa (settembre 2026), minuti stimati. Valori di esempio nei campi: imposta i tuoi.</p>
 
-  <div class="panel chart">
-    <svg viewBox="0 0 700 470" xmlns="http://www.w3.org/2000/svg" role="img" style="font-family:var(--font)">
-    <title>Zone di Milano: prezzo richiesto al m² e minuti dal Policlinico (stime)</title>
-    <desc>Dispersione di 21 zone con scala lineare. Il quadrante verde in basso a sinistra è entro 5.250 euro al m² e 15 minuti. Il colore di ogni punto è il limite più severo tra prezzo e tempo.</desc>
-    <rect x="90" y="252.9" width="162.3" height="167.1" style="fill:#639922;fill-opacity:0.08"/>
-    <line x1="90" y1="420" x2="660" y2="420" style="stroke:#c3c2b7;stroke-width:1"/>
-    <line x1="90" y1="30" x2="90" y2="420" style="stroke:#c3c2b7;stroke-width:1"/>
-    <line x1="252.3" y1="30" x2="252.3" y2="420" style="stroke:#888780;stroke-width:1.5;stroke-dasharray:6 4"/>
-    <line x1="286.7" y1="30" x2="286.7" y2="420" style="stroke:#B4B2A9;stroke-width:1;stroke-dasharray:2 4"/>
-    <line x1="329.7" y1="30" x2="329.7" y2="420" style="stroke:#B4B2A9;stroke-width:1;stroke-dasharray:2 4"/>
-    <line x1="90" y1="252.9" x2="660" y2="252.9" style="stroke:#888780;stroke-width:1.5;stroke-dasharray:6 4"/>
-    <line x1="90" y1="197.1" x2="660" y2="197.1" style="stroke:#B4B2A9;stroke-width:1;stroke-dasharray:2 4"/>
-    <g style="fill:var(--muted);font-size:11px">
-    <text x="256" y="26">5.250 €/m²</text>
-    <text x="290" y="40">-10%</text>
-    <text x="333" y="40">-20%</text>
-    <text x="656" y="247" text-anchor="end">15 min</text>
-    <text x="656" y="191" text-anchor="end">20 min</text>
-    <text x="119.5" y="436" text-anchor="middle">3.000</text>
-    <text x="237.5" y="436" text-anchor="middle">5.000</text>
-    <text x="355.5" y="436" text-anchor="middle">7.000</text>
-    <text x="473.5" y="436" text-anchor="middle">9.000</text>
-    <text x="591.5" y="436" text-anchor="middle">11.000</text>
-    <text x="82" y="424" text-anchor="end">0</text>
-    <text x="82" y="368" text-anchor="end">5</text>
-    <text x="82" y="312" text-anchor="end">10</text>
-    <text x="82" y="256" text-anchor="end">15</text>
-    <text x="82" y="200" text-anchor="end">20</text>
-    <text x="82" y="145" text-anchor="end">25</text>
-    <text x="82" y="89" text-anchor="end">30</text>
-    <text x="82" y="34" text-anchor="end">35</text>
-    </g>
-    <g style="stroke:#B4B2A9;stroke-width:0.75;fill:none">
-    <line x1="144" y1="85" x2="444" y2="52"/>
-    <line x1="164" y1="140" x2="444" y2="72"/>
-    <line x1="226" y1="140" x2="444" y2="92"/>
-    <line x1="215" y1="152" x2="444" y2="112"/>
-    <line x1="199" y1="174" x2="444" y2="132"/>
-    <line x1="213" y1="186" x2="444" y2="152"/>
-    <line x1="207" y1="196" x2="444" y2="172"/>
-    <line x1="206" y1="218" x2="444" y2="192"/>
-    </g>
-    <g>
-    <circle cx="588.8" cy="353.1" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="516.9" cy="286.3" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="424.5" cy="369.9" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="451.1" cy="364.3" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="412.8" cy="297.4" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="382.5" cy="275.1" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="323.1" cy="308.6" r="5" style="fill:#D85A30;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="304.1" cy="286.3" r="5" style="fill:#D85A30;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="290.2" cy="330.9" r="5" style="fill:#D85A30;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="258" cy="264" r="5" style="fill:#EF9F27;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="220" cy="264" r="5" style="fill:#639922;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="226" cy="280.7" r="5" style="fill:#639922;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="167.6" cy="297.4" r="5" style="fill:#639922;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="201.3" cy="219.4" r="5" style="fill:#EF9F27;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="202.3" cy="197.1" r="5" style="fill:#EF9F27;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="208.2" cy="186" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="209.5" cy="152.6" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="193.8" cy="174.9" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="220.7" cy="141.4" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="158.1" cy="141.4" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
-    <circle cx="138.2" cy="85.7" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
-    </g>
-    <g style="fill:var(--fg);font-size:12px">
-    <text x="589" y="338" text-anchor="middle">Centro / Brera</text>
-    <text x="525" y="290">Porta Nuova / Garibaldi</text>
-    <text x="416" y="386" text-anchor="end">Porta Venezia</text>
-    <text x="459" y="368">Crocetta / Policlinico</text>
-    <text x="405" y="301" text-anchor="end">Bianca di Savoia</text>
-    <text x="382" y="258" text-anchor="middle">Porta Romana</text>
-    <text x="315" y="313" text-anchor="end">Porta Genova / Navigli</text>
-    <text x="296" y="282" text-anchor="end">Isola</text>
-    <text x="282" y="335" text-anchor="end">Città Studi</text>
-    <text x="258" y="254" text-anchor="middle">Calvairate</text>
-    <text x="212" y="268" text-anchor="end">Loreto</text>
-    <text x="218" y="285" text-anchor="end">Giambellino</text>
-    <text x="168" y="314" text-anchor="middle">Forlanini</text>
-    <text x="448" y="56">Baggio</text>
-    <text x="448" y="76">Affori / Comasina</text>
-    <text x="448" y="96">Lambrate / Ortica</text>
-    <text x="448" y="116">San Siro / QT8</text>
-    <text x="448" y="136">Bicocca / Niguarda</text>
-    <text x="448" y="156">Bovisa / Dergano</text>
-    <text x="448" y="176">Precotto / Turro</text>
-    <text x="448" y="196">Corvetto / Porto di Mare</text>
-    </g>
-    <text x="375" y="458" text-anchor="middle" style="fill:var(--muted);font-size:13px">Prezzo richiesto €/m² (stima Wikicasa, settembre 2026)</text>
-    <text transform="translate(18,225) rotate(-90)" text-anchor="middle" style="fill:var(--muted);font-size:13px">Minuti dal Policlinico (stima)</text>
-    </svg>
+  <div class="params">
+    <div class="field"><label for="in-b">Budget totale (€)</label><input id="in-b" type="number" inputmode="numeric" min="50000" step="10000"></div>
+    <div class="field"><label for="in-m">Superficie (m²)</label><input id="in-m" type="number" inputmode="numeric" min="20" step="5"></div>
+    <div class="field"><label for="in-t">Minuti massimi</label><input id="in-t" type="number" inputmode="numeric" min="5" step="1"></div>
   </div>
+  <details class="adv">
+    <summary>Impostazioni avanzate</summary>
+    <div class="field"><label for="in-s">Spese di acquisto stimate (% del prezzo)</label><input id="in-s" type="number" inputmode="decimal" min="0" max="20" step="0.5"></div>
+  </details>
+
+  <div class="panel chart" id="chart"></div>
+  <p class="summary" id="summary"></p>
+  <p style="margin-top:12px"><button class="btn ghost" id="btn-copy" type="button">Copia link con i parametri</button> <span class="muted" id="copy-msg"></span></p>
+
+  <h2>Elenco delle zone</h2>
+  <div class="tablewrap"><table class="tbl" id="tbl"></table></div>
 
   <h2>Come sono stimati i minuti</h2>
   <p>I minuti dal Policlinico sono una stima, non un tempo misurato. Il punto di partenza è la fermata Sforza-Policlinico (M3). Per ogni zona ho contato le fermate sulla linea più diretta, circa 1,5–2 minuti per fermata in metropolitana, circa 4 minuti per ogni cambio, più 3–5 minuti tra attesa e tratto a piedi o in tram e bus. Non ho considerato orari di punta né ritardi. Per le zone oltre i 20 minuti la stima è meno precisa.</p>
   <p>Prima di scegliere una zona, i tempi vanno verificati con un'app di percorsi, partendo dal Policlinico in un giorno feriale nell'orario di punta.</p>
 
-  <h2>Prezzi</h2>
-  <p>I valori sono prezzi di richiesta di vendita, medie per zona, da Wikicasa (settembre 2026). Non sono prezzi pagati. Le linee tratteggiate indicano i limiti: 5.250 €/m² per restare in budget con 450.000 € e 80 m², 15 minuti per lo screening. Le linee punteggiate in grigio chiaro segnano lo sconto necessario: -10% e -20% rispetto al prezzo richiesto.</p>
+  <h2>Prezzi e limiti</h2>
+  <p>I valori sono prezzi di richiesta di vendita, medie per zona, da Wikicasa (settembre 2026). Non sono prezzi pagati. Il limite in €/m² si calcola così: budget diviso (1 + spese), diviso i m². Le linee punteggiate indicano lo sconto necessario rispetto al prezzo richiesto (-10% e -20%). La linea orizzontale è il tuo limite di minuti, e la fascia fino a 5 minuti oltre è la tolleranza.</p>
 
   <h2>Prossimo passo</h2>
-  <p>Il prossimo grafico userà i valori OMI dell'Agenzia delle Entrate come riferimento più preciso, con un intervallo minimo-massimo per zona. I punti potranno essere affiancati da una tabella sotto il grafico, così i valori sono leggibili uno per uno.</p>
+  <p>Il prossimo grafico userà i valori OMI dell'Agenzia delle Entrate come riferimento più preciso, con un intervallo minimo-massimo per zona.</p>
 </div>
 </div>
 
 <script>
+var Z = [
+  { n: "Centro / Brera", p: 10954, m: 6, d: [0, -15, "middle"] },
+  { n: "Porta Nuova / Garibaldi", p: 9736, m: 12, d: [8, 4, "start"] },
+  { n: "Porta Venezia", p: 8169, m: 4.5, d: [-8, 16, "end"] },
+  { n: "Crocetta / Policlinico", p: 8620, m: 5, d: [8, 4, "start"] },
+  { n: "Bianca di Savoia", p: 7971, m: 11, d: [-8, 4, "end"] },
+  { n: "Porta Romana", p: 7457, m: 13, d: [0, -17, "middle"] },
+  { n: "Porta Genova / Navigli", p: 6451, m: 10, d: [-8, 4, "end"] },
+  { n: "Isola", p: 6129, m: 12, d: [-8, -4, "end"] },
+  { n: "Città Studi", p: 5894, m: 8, d: [-8, 4, "end"] },
+  { n: "Calvairate", p: 5347, m: 14, d: [0, -10, "middle"] },
+  { n: "Loreto", p: 4704, m: 14, d: [-8, 4, "end"] },
+  { n: "Giambellino", p: 4804, m: 12.5, d: [-8, 4, "end"] },
+  { n: "Forlanini", p: 3816, m: 11, d: [0, 17, "middle"] },
+  { n: "Baggio", p: 3317, m: 30, c: 1 },
+  { n: "Affori / Comasina", p: 3655, m: 25, c: 1 },
+  { n: "Lambrate / Ortica", p: 4716, m: 25, c: 1 },
+  { n: "San Siro / QT8", p: 4526, m: 24, c: 1 },
+  { n: "Bicocca / Niguarda", p: 4259, m: 22, c: 1 },
+  { n: "Bovisa / Dergano", p: 4504, m: 21, c: 1 },
+  { n: "Precotto / Turro", p: 4404, m: 20, c: 1 },
+  { n: "Corvetto / Porto di Mare", p: 4386, m: 18, c: 1 }
+];
+var COL = ["#639922", "#EF9F27", "#D85A30", "#E24B4A"];
+var LAB = ["Entro i limiti", "Da valutare", "Trattativa difficile", "Fuori portata"];
+var DEF = { b: 400000, m: 80, t: 15, s: 7 };
+var state = { b: DEF.b, m: DEF.m, t: DEF.t, s: DEF.s };
+var MAP = { b: "b", m: "m", t: "t", s: "s" };
+var KEY = "zone-grafico-params";
+
+function el(id) { return document.getElementById(id); }
+function fmt(n) { return Math.round(n).toLocaleString("it-IT"); }
+function px(v) { return 90 + (v - 2500) * 0.059; }
+function py(m) { return 420 - m * (390 / 35); }
+function r1(x) { return Math.round(x * 10) / 10; }
+
+function limitP() { return state.b / (1 + state.s / 100) / state.m; }
+function statusOf(z, L) {
+  var disc = Math.max(0, 1 - L / z.p);
+  var sp = disc <= 0 ? 0 : disc <= 0.10 ? 1 : disc <= 0.20 ? 2 : 3;
+  var st = z.m <= state.t ? 0 : z.m <= state.t + 5 ? 1 : 3;
+  return { disc: disc, rank: Math.max(sp, st) };
+}
+
+function vline(x, style, label, lx) {
+  if (x < 90 || x > 660) return "";
+  return '<line x1="' + r1(x) + '" y1="30" x2="' + r1(x) + '" y2="420" style="' + style + '"/>' +
+    (label ? '<text x="' + r1(lx !== undefined ? lx : x + 4) + '" y="' + (label.y || 26) + '" style="fill:var(--muted);font-size:11px">' + label.t + '</text>' : "");
+}
+function hline(y, style, text) {
+  if (y < 30 || y > 420) return "";
+  return '<line x1="90" y1="' + r1(y) + '" x2="660" y2="' + r1(y) + '" style="' + style + '"/>' +
+    '<text x="656" y="' + r1(y - 5) + '" text-anchor="end" style="fill:var(--muted);font-size:11px">' + text + '</text>';
+}
+
+function buildSvg() {
+  var L = limitP(), s = "";
+  var gx = Math.min(660, Math.max(90, px(L)));
+  var gy = Math.min(420, Math.max(30, py(state.t)));
+  s += '<svg viewBox="0 0 700 470" xmlns="http://www.w3.org/2000/svg" role="img" style="font-family:var(--font)">';
+  s += '<title>Zone di Milano: prezzo richiesto al m² e minuti dal Policlinico (stime)</title>';
+  s += '<desc>Dispersione di ' + Z.length + ' zone. Il colore di ogni punto è il limite più severo tra prezzo e tempo. L\'elenco sotto riporta gli stessi dati.</desc>';
+  s += '<rect x="90" y="' + r1(gy) + '" width="' + r1(gx - 90) + '" height="' + r1(420 - gy) + '" style="fill:#639922;fill-opacity:0.08"/>';
+  s += '<line x1="90" y1="420" x2="660" y2="420" style="stroke:#c3c2b7;stroke-width:1"/><line x1="90" y1="30" x2="90" y2="420" style="stroke:#c3c2b7;stroke-width:1"/>';
+  s += vline(px(L), "stroke:#888780;stroke-width:1.5;stroke-dasharray:6 4", { t: fmt(L) + " €/m²" });
+  s += vline(px(L / 0.9), "stroke:#B4B2A9;stroke-width:1;stroke-dasharray:2 4", { t: "-10%", y: 40 });
+  s += vline(px(L / 0.8), "stroke:#B4B2A9;stroke-width:1;stroke-dasharray:2 4", { t: "-20%", y: 40 });
+  s += hline(py(state.t), "stroke:#888780;stroke-width:1.5;stroke-dasharray:6 4", state.t + " min");
+  s += hline(py(state.t + 5), "stroke:#B4B2A9;stroke-width:1;stroke-dasharray:2 4", (state.t + 5) + " min");
+  var xt = [3000, 5000, 7000, 9000, 11000], yt = [0, 5, 10, 15, 20, 25, 30, 35], i;
+  s += '<g style="fill:var(--muted);font-size:11px">';
+  for (i = 0; i < xt.length; i++) s += '<text x="' + r1(px(xt[i])) + '" y="436" text-anchor="middle">' + fmt(xt[i]) + '</text>';
+  for (i = 0; i < yt.length; i++) s += '<text x="82" y="' + r1(py(yt[i]) + 4) + '" text-anchor="end">' + yt[i] + '</text>';
+  s += '</g>';
+
+  var leaders = "", dots = "", labs = "", ci = 0;
+  for (i = 0; i < Z.length; i++) {
+    var z = Z[i], x = px(z.p), y = py(z.m), st = statusOf(z, L);
+    var tip = z.n + ": " + fmt(z.p) + " €/m², circa " + z.m + " min, sconto necessario " + Math.round(st.disc * 100) + "% (" + LAB[st.rank] + ")";
+    dots += '<circle cx="' + r1(x) + '" cy="' + r1(y) + '" r="5" style="fill:' + COL[st.rank] + ';stroke:var(--surface);stroke-width:1.5"><title>' + tip + '</title></circle>';
+    if (z.c) {
+      var ly = 56 + 20 * ci++, tx = 444, ty = ly - 4, dx = tx - x, dy = ty - y, dl = Math.sqrt(dx * dx + dy * dy);
+      leaders += '<line x1="' + r1(x + dx / dl * 6) + '" y1="' + r1(y + dy / dl * 6) + '" x2="' + tx + '" y2="' + ty + '"/>';
+      labs += '<text x="448" y="' + ly + '">' + z.n + '</text>';
+    } else {
+      labs += '<text x="' + r1(x + z.d[0]) + '" y="' + r1(y + z.d[1]) + '" text-anchor="' + z.d[2] + '">' + z.n + '</text>';
+    }
+  }
+  s += '<g style="stroke:#B4B2A9;stroke-width:0.75;fill:none">' + leaders + '</g>' + dots;
+  s += '<g style="fill:var(--fg);font-size:12px">' + labs + '</g>';
+  s += '<text x="375" y="458" text-anchor="middle" style="fill:var(--muted);font-size:13px">Prezzo richiesto €/m² (stima Wikicasa, settembre 2026)</text>';
+  s += '<text transform="translate(18,225) rotate(-90)" text-anchor="middle" style="fill:var(--muted);font-size:13px">Minuti dal Policlinico (stima)</text>';
+  return s + '</svg>';
+}
+
+function render() {
+  var L = limitP();
+  el("chart").innerHTML = buildSvg();
+  var maxP = state.b / (1 + state.s / 100), counts = [0, 0, 0, 0], rows = [], i;
+  for (i = 0; i < Z.length; i++) { var st = statusOf(Z[i], L); counts[st.rank]++; rows.push({ z: Z[i], st: st }); }
+  rows.sort(function (a, b) { return a.st.rank - b.st.rank || a.z.p - b.z.p; });
+  el("summary").innerHTML = "Prezzo massimo d'acquisto circa <b>" + fmt(maxP) + " €</b> (budget meno spese al " + state.s + "%), cioè <b>" + fmt(L) + " €/m²</b> per " + state.m + " m². " +
+    counts[0] + " zone entro i limiti, " + counts[1] + " da valutare, " + counts[2] + " con trattativa difficile, " + counts[3] + " fuori portata.";
+  var h = '<thead><tr><th>Zona</th><th class="num">€/m²</th><th class="num">Minuti</th><th class="num">Sconto</th><th>Esito</th></tr></thead><tbody>';
+  for (i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    h += '<tr><td>' + r.z.n + '</td><td class="num">' + fmt(r.z.p) + '</td><td class="num">' + r.z.m + '</td><td class="num">' + Math.round(r.st.disc * 100) + '%</td><td><span class="dot" style="background:' + COL[r.st.rank] + '"></span>' + LAB[r.st.rank] + '</td></tr>';
+  }
+  el("tbl").innerHTML = h + '</tbody>';
+}
+
+function readInputs() {
+  var b = parseFloat(el("in-b").value), m = parseFloat(el("in-m").value), t = parseFloat(el("in-t").value), s = parseFloat(el("in-s").value);
+  if (b > 0) state.b = b;
+  if (m > 0) state.m = m;
+  if (t > 0) state.t = Math.min(30, t);
+  if (s >= 0) state.s = s;
+}
+function writeInputs() { el("in-b").value = state.b; el("in-m").value = state.m; el("in-t").value = state.t; el("in-s").value = state.s; }
+function hashStr() { return "#b=" + state.b + "&m=" + state.m + "&t=" + state.t + "&s=" + state.s; }
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  try { history.replaceState(null, "", location.pathname + location.search + hashStr()); } catch (e) {}
+}
+function load() {
+  try { var o = JSON.parse(localStorage.getItem(KEY) || "null"); if (o) for (var k in MAP) if (o[k] > 0 || (k === "s" && o[k] >= 0)) state[k] = o[k]; } catch (e) {}
+  var hs = location.hash.replace(/^#/, "").split("&");
+  for (var i = 0; i < hs.length; i++) {
+    var kv = hs[i].split("="), v = parseFloat(kv[1]);
+    if (MAP[kv[0]] && (v > 0 || (kv[0] === "s" && v >= 0))) state[kv[0]] = v;
+  }
+}
+["in-b", "in-m", "in-t", "in-s"].forEach(function (id) {
+  el(id).addEventListener("input", function () { readInputs(); render(); save(); });
+});
+el("btn-copy").addEventListener("click", function () {
+  var url = location.origin + location.pathname + hashStr();
+  function done(t) { el("copy-msg").textContent = t; setTimeout(function () { el("copy-msg").textContent = ""; }, 2500); }
+  try { navigator.clipboard.writeText(url).then(function () { done("Copiato"); }, function () { done(url); }); } catch (e) { done(url); }
+});
+
 var PASS_HASH = "52be8483c18acbb07e92963f4c27655b03faf836a832fe038da32ba54e11d7d8";
 var GATE_KEY = "zone-grafico-ok";
-function el(id) { return document.getElementById(id); }
 function sha256hex(t) {
   return crypto.subtle.digest("SHA-256", new TextEncoder().encode("zcm:" + t)).then(function (b) {
     return Array.prototype.map.call(new Uint8Array(b), function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
@@ -163,7 +243,7 @@ el("gate-form").addEventListener("submit", function (e) {
   e.preventDefault();
   var msg = el("gate-msg");
   if (!(window.crypto && crypto.subtle)) { msg.textContent = "Questo browser non può verificare la password. Apri la pagina con https."; return; }
-  sha256hex(el("gate-pw").value).then(function (h) {
+  sha256hex(el("gate-pw").value.trim()).then(function (h) {
     if (h === PASS_HASH) {
       try { localStorage.setItem(GATE_KEY, PASS_HASH); } catch (x) {}
       unlock();
@@ -173,6 +253,10 @@ el("gate-form").addEventListener("submit", function (e) {
     }
   });
 });
+
+load();
+writeInputs();
+render();
 </script>
 </body>
 </html>
