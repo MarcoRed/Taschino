@@ -39,6 +39,10 @@ p { margin: 0 0 12px; }
 .tbl th, .tbl td { text-align: left; padding: 6px 8px; border-bottom: 0.5px solid var(--line); }
 .tbl th { color: var(--muted); font-weight: 500; }
 .tbl td.num, .tbl th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.small { font-size: 14px; color: var(--muted); }
+.small b { color: var(--fg); font-weight: 500; }
+.note { font-size: 14px; border: 0.5px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--surface); }
+.sub { font-size: 12px; color: var(--muted); }
 .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
 .tablewrap { overflow-x: auto; }
 </style>
@@ -57,7 +61,7 @@ p { margin: 0 0 12px; }
 <div id="app" hidden>
 <div class="wrap">
   <h1>Zone di Milano: prezzo e tempo dal Policlinico</h1>
-  <p class="muted">Screening iniziale. Prezzi di richiesta Wikicasa (settembre 2026), minuti stimati. Valori di esempio nei campi: imposta i tuoi.</p>
+  <p class="muted">Screening iniziale. Prezzi di richiesta Wikicasa (settembre 2026), minuti stimati con un modello per linea (vedi Metodo). Valori di esempio nei campi: imposta i tuoi.</p>
 
   <div class="params">
     <div class="field"><label for="in-b">Budget totale (€)</label><input id="in-b" type="number" inputmode="numeric" min="50000" step="10000"></div>
@@ -76,9 +80,16 @@ p { margin: 0 0 12px; }
   <h2>Elenco delle zone</h2>
   <div class="tablewrap"><table class="tbl" id="tbl"></table></div>
 
-  <h2>Come sono stimati i minuti</h2>
-  <p>I minuti dal Policlinico sono una stima, non un tempo misurato. Il punto di partenza è la fermata M4 Sforza-Policlinico. Attenzione: questa prima stima non considerava le fermate M3 Crocetta e Missori, vicine al Policlinico, quindi alcuni tempi (per esempio Porta Romana e Corvetto) sono sovrastimati. I minuti saranno ricalcolati con gli orari ufficiali ATM. Per ogni zona ho contato le fermate sulla linea più diretta, circa 1,5–2 minuti per fermata in metropolitana, circa 4 minuti per ogni cambio, più 3–5 minuti tra attesa e tratto a piedi o in tram e bus. Non ho considerato orari di punta né ritardi. Per le zone oltre i 20 minuti la stima è meno precisa.</p>
-  <p>Prima di scegliere una zona, i tempi vanno verificati con un'app di percorsi, partendo dal Policlinico in un giorno feriale nell'orario di punta.</p>
+  <h2>Metodo di calcolo dei minuti</h2>
+  <p class="small">Versione 2, stima. Aggiornamento del 9 ottobre 2026. I minuti non sono tempi misurati e non usano ancora gli orari ufficiali.</p>
+  <p class="small"><b>Direzione e arrivo.</b> Dalla fermata di riferimento della zona al Policlinico, in una mattina feriale in punta. L'arrivo è la fermata più comoda tra M4 Sforza-Policlinico, M3 Crocetta e M3 Missori, più 1 minuto per raggiungere il reparto (si assume l'ingresso dal lato più vicino alla metropolitana). La M4 Sforza-Policlinico non ha un interscambio diretto con la M3: il collegamento con Missori è un percorso a piedi esterno.</p>
+  <p class="small"><b>Formula.</b> Attesa iniziale + minuti di viaggio + per ogni cambio il tratto a piedi e l'attesa della linea successiva + 1 minuto + eventuali minuti a piedi dalla fermata alla zona.</p>
+  <p class="small"><b>Attesa.</b> Metà dell'intervallo tra i treni in punta: M1 e M2 1,0 min, M3 1,5 min, M4 e M5 1,25 min. Gli intervalli sono ipotesi basate su valori di riferimento pubblicati (circa 2 minuti su M1 e M2, circa 3 su M3, 90–150 secondi su M4 e M5).</p>
+  <p class="small"><b>Minuti tra due fermate.</b> M1 1,5, M2 1,9, M3 1,8, M4 1,7, M5 1,45. Per la M4 il valore deriva da circa 12 minuti tra Linate e San Babila (7 intervalli), per la M5 da una percorrenza poco inferiore a 26 minuti su 18 intervalli. Per M1, M2 e M3 sono stime mie da velocità commerciali tipiche, non dati ufficiali.</p>
+  <p class="small"><b>Cambi.</b> Tratto a piedi: Duomo e Loreto 3 min, Sant'Ambrogio, San Babila e Zara 4 min, più la mezza attesa della linea successiva. Sono valori stimati.</p>
+  <p class="small"><b>Affidabilità.</b> A: percorso diretto in metropolitana. B: un cambio o una fermata di riferimento incerta. C: tratto a piedi o numero di fermate da verificare (Bianca di Savoia, Calvairate, Baggio). Tram e bus non sono ancora calcolati, quindi per alcune zone il tempo reale potrebbe essere più basso.</p>
+  <p class="small"><b>Limiti.</b> Non sono inclusi ritardi, guasti e variazioni di orario. Prima di scegliere una zona, verificare il tragitto con un'app di percorsi, partendo dalla zona in un giorno feriale nell'orario di punta.</p>
+  <p class="note"><b>Da fare:</b> caricare il dataset GTFS ufficiale ATM (<a href="https://dati.comune.milano.it/gtfs.zip">dati.comune.milano.it/gtfs.zip</a>, valido fino al 19 ottobre 2026, al momento non scaricabile) per ricalcolare tutti i tempi con gli orari veri, tram e bus inclusi.</p>
 
   <h2>Prezzi e limiti</h2>
   <p>I valori sono prezzi di richiesta di vendita, medie per zona, da Wikicasa (settembre 2026). Non sono prezzi pagati. Il limite in €/m² si calcola così: budget diviso (1 + spese), diviso i m². Le linee punteggiate indicano lo sconto necessario rispetto al prezzo richiesto (-10% e -20%). La linea orizzontale è il tuo limite di minuti, e la fascia fino a 5 minuti oltre è la tolleranza.</p>
@@ -90,28 +101,31 @@ p { margin: 0 0 12px; }
 
 <script>
 var Z = [
-  { n: "Centro / Brera", p: 10954, m: 6, d: [0, -15, "middle"] },
-  { n: "Porta Nuova / Garibaldi", p: 9736, m: 12, d: [8, 4, "start"] },
-  { n: "Porta Venezia", p: 8169, m: 4.5, d: [-8, 16, "end"] },
-  { n: "Crocetta / Policlinico", p: 8620, m: 5, d: [8, 4, "start"] },
-  { n: "Bianca di Savoia", p: 7971, m: 11, d: [-8, 4, "end"] },
-  { n: "Porta Romana", p: 7457, m: 13, d: [0, -17, "middle"] },
-  { n: "Porta Genova / Navigli", p: 6451, m: 10, d: [-8, 4, "end"] },
-  { n: "Isola", p: 6129, m: 12, d: [-8, -4, "end"] },
-  { n: "Città Studi", p: 5894, m: 8, d: [-8, 4, "end"] },
-  { n: "Calvairate", p: 5347, m: 14, d: [0, -10, "middle"] },
-  { n: "Loreto", p: 4704, m: 14, d: [-8, 4, "end"] },
-  { n: "Giambellino", p: 4804, m: 12.5, d: [-8, 4, "end"] },
-  { n: "Forlanini", p: 3816, m: 11, d: [0, 17, "middle"] },
-  { n: "Baggio", p: 3317, m: 30, c: 1 },
-  { n: "Affori / Comasina", p: 3655, m: 25, c: 1 },
-  { n: "Lambrate / Ortica", p: 4716, m: 25, c: 1 },
-  { n: "San Siro / QT8", p: 4526, m: 24, c: 1 },
-  { n: "Bicocca / Niguarda", p: 4259, m: 22, c: 1 },
-  { n: "Bovisa / Dergano", p: 4504, m: 21, c: 1 },
-  { n: "Precotto / Turro", p: 4404, m: 20, c: 1 },
-  { n: "Corvetto / Porto di Mare", p: 4386, m: 18, c: 1 }
+  {"n": "Centro / Brera", "l": "Centro / Brera", "p": 10954, "m": 9.1, "r": "Sant'Ambrogio (M4)", "h": "M4 diretta, 4 fermate", "q": "A", "d": [0, -15, "middle"]},
+  {"n": "Porta Nuova / Garibaldi", "l": "Porta Nuova / Garibaldi", "p": 9736, "m": 9.7, "r": "Repubblica (M3)", "h": "M3 diretta, 4 fermate fino a Missori", "q": "A", "d": [8, 4, "start"]},
+  {"n": "Porta Venezia", "l": "Porta Venezia", "p": 8169, "m": 10.4, "r": "Palestro (M1)", "h": "M1 1 fermata, cambio a San Babila, M4 1 fermata", "q": "B", "d": [0, -10, "middle"]},
+  {"n": "Crocetta / Policlinico", "l": "Crocetta / Policlinico", "p": 8620, "m": 2, "r": "Crocetta (M3)", "h": "zona del Policlinico, solo tratto a piedi", "q": "A", "d": [8, 4, "start"]},
+  {"n": "Bianca di Savoia", "l": "Bianca di Savoia", "p": 7971, "m": 9, "r": "Crocetta (M3), 8 min a piedi", "h": "a piedi dalla M3 Crocetta (tram non calcolato)", "q": "C", "d": [-8, 4, "end"]},
+  {"n": "Porta Romana", "l": "Porta Romana", "p": 7457, "m": 4.3, "r": "Porta Romana (M3)", "h": "M3 diretta, 1 fermata", "q": "A", "d": [8, 4, "start"]},
+  {"n": "Porta Genova / Navigli", "l": "Porta Genova / Navigli", "p": 6451, "m": 17.9, "r": "Porta Genova (M2)", "h": "M2 2 fermate, cambio a Sant'Ambrogio, M4 4 fermate", "q": "B", "d": [8, 4, "start"]},
+  {"n": "Isola", "l": "Isola", "p": 6129, "m": 21.8, "r": "Isola (M5)", "h": "M5 1 fermata, cambio a Zara, M3 7 fermate", "q": "B", "d": [-8, -4, "end"]},
+  {"n": "Città Studi", "l": "Città Studi", "p": 5894, "m": 9.1, "r": "Susa (M4)", "h": "M4 diretta, 4 fermate", "q": "A", "d": [0, -10, "middle"]},
+  {"n": "Calvairate", "l": "Calvairate", "p": 5347, "m": 15.1, "r": "Lodi TIBB (M3), 9 min a piedi", "h": "M3 2 fermate più 9 min a piedi dalla fermata", "q": "C", "d": [8, 4, "start"]},
+  {"n": "Lodi / Scalo Romana", "l": "Lodi / Scalo Romana", "p": 5505, "m": 6.1, "r": "Lodi TIBB (M3)", "h": "M3 diretta, 2 fermate", "q": "A", "d": [8, 4, "start"]},
+  {"n": "Chiaravalle / Ripamonti", "l": "Chiaravalle", "p": 4447, "m": 7.9, "r": "Brenta (M3)", "h": "M3 diretta, 3 fermate", "q": "B", "d": [-8, 4, "end"]},
+  {"n": "Corvetto / Porto di Mare", "l": "Corvetto", "p": 4386, "m": 9.7, "r": "Corvetto (M3)", "h": "M3 diretta, 4 fermate", "q": "A", "d": [-8, 4, "end"]},
+  {"n": "Rogoredo / Forlanini", "l": "Rogoredo / Forlanini", "p": 3816, "m": 12.4, "r": "Stazione Forlanini (M4)", "h": "M4 diretta, 6 fermate", "q": "A", "d": [0, 17, "middle"]},
+  {"n": "Giambellino / Lorenteggio", "l": "Giambellino", "p": 4804, "m": 15.8, "r": "Tolstoj (M4)", "h": "M4 diretta, 8 fermate", "q": "A", "d": [-8, -4, "end"]},
+  {"n": "Loreto / Pasteur", "l": "Loreto", "p": 4704, "m": 14.9, "r": "Loreto (M1)", "h": "M1 4 fermate, cambio a San Babila, M4 1 fermata", "q": "B", "d": [-8, 8, "end"]},
+  {"n": "Precotto / Turro", "l": "Precotto / Turro", "p": 4404, "m": 19.4, "r": "Turro (M1)", "h": "M1 7 fermate, cambio a San Babila, M4 1 fermata", "q": "B", "c": 1},
+  {"n": "Bovisa / Dergano", "l": "Bovisa / Dergano", "p": 4504, "m": 18.7, "r": "Dergano (M3)", "h": "M3 diretta, 9 fermate", "q": "A", "c": 1},
+  {"n": "San Siro / QT8", "l": "San Siro / QT8", "p": 4526, "m": 21.8, "r": "QT8 (M1)", "h": "M1 9 fermate, cambio a Duomo, M3 1 fermata", "q": "B", "c": 1},
+  {"n": "Bicocca / Niguarda", "l": "Bicocca / Niguarda", "p": 4259, "m": 26.2, "r": "Bicocca (M5)", "h": "M5 4 fermate, cambio a Zara, M3 7 fermate", "q": "B", "c": 1},
+  {"n": "Lambrate / Ortica", "l": "Lambrate / Ortica", "p": 4716, "m": 22.8, "r": "Lambrate (M2)", "h": "M2 2 fermate, cambio a Loreto, M1 4 fermate, cambio a San Babila, M4 1 fermata", "q": "B", "c": 1},
+  {"n": "Affori / Comasina", "l": "Affori / Comasina", "p": 3655, "m": 20.5, "r": "Affori Centro (M3)", "h": "M3 diretta, 10 fermate", "q": "A", "c": 1},
+  {"n": "Baggio", "l": "Baggio", "p": 3317, "m": 29.3, "r": "Bisceglie (M1)", "h": "M1 14 fermate (numero da verificare), cambio a Duomo, M3 1 fermata", "q": "C", "c": 1}
 ];
+var CORDER = ["Baggio", "Bicocca / Niguarda", "Lambrate / Ortica", "San Siro / QT8", "Affori / Comasina", "Precotto / Turro", "Bovisa / Dergano"];
 var COL = ["#639922", "#EF9F27", "#D85A30", "#E24B4A"];
 var LAB = ["Entro i limiti", "Da valutare", "Trattativa difficile", "Fuori portata"];
 var DEF = { b: 400000, m: 80, t: 15, s: 7 };
@@ -167,14 +181,14 @@ function buildSvg() {
   var leaders = "", dots = "", labs = "", ci = 0;
   for (i = 0; i < Z.length; i++) {
     var z = Z[i], x = px(z.p), y = py(z.m), st = statusOf(z, L);
-    var tip = z.n + ": " + fmt(z.p) + " €/m², circa " + z.m + " min, sconto necessario " + Math.round(st.disc * 100) + "% (" + LAB[st.rank] + ")";
+    var tip = z.n + ": " + fmt(z.p) + " €/m², circa " + Math.round(z.m) + " min da " + z.r + " (" + z.h + "; affidabilità " + z.q + "), sconto necessario " + Math.round(st.disc * 100) + "% (" + LAB[st.rank] + ")";
     dots += '<circle cx="' + r1(x) + '" cy="' + r1(y) + '" r="5" style="fill:' + COL[st.rank] + ';stroke:var(--surface);stroke-width:1.5"><title>' + tip + '</title></circle>';
     if (z.c) {
-      var ly = 56 + 20 * ci++, tx = 444, ty = ly - 4, dx = tx - x, dy = ty - y, dl = Math.sqrt(dx * dx + dy * dy);
+      var ly = 56 + 20 * CORDER.indexOf(z.n), tx = 444, ty = ly - 4, dx = tx - x, dy = ty - y, dl = Math.sqrt(dx * dx + dy * dy);
       leaders += '<line x1="' + r1(x + dx / dl * 6) + '" y1="' + r1(y + dy / dl * 6) + '" x2="' + tx + '" y2="' + ty + '"/>';
-      labs += '<text x="448" y="' + ly + '">' + z.n + '</text>';
+      labs += '<text x="448" y="' + ly + '">' + z.l + '</text>';
     } else {
-      labs += '<text x="' + r1(x + z.d[0]) + '" y="' + r1(y + z.d[1]) + '" text-anchor="' + z.d[2] + '">' + z.n + '</text>';
+      labs += '<text x="' + r1(x + z.d[0]) + '" y="' + r1(y + z.d[1]) + '" text-anchor="' + z.d[2] + '">' + z.l + '</text>';
     }
   }
   s += '<g style="stroke:#B4B2A9;stroke-width:0.75;fill:none">' + leaders + '</g>' + dots;
@@ -195,7 +209,7 @@ function render() {
   var h = '<thead><tr><th>Zona</th><th class="num">€/m²</th><th class="num">Minuti</th><th class="num">Sconto</th><th>Esito</th></tr></thead><tbody>';
   for (i = 0; i < rows.length; i++) {
     var r = rows[i];
-    h += '<tr><td>' + r.z.n + '</td><td class="num">' + fmt(r.z.p) + '</td><td class="num">' + r.z.m + '</td><td class="num">' + Math.round(r.st.disc * 100) + '%</td><td><span class="dot" style="background:' + COL[r.st.rank] + '"></span>' + LAB[r.st.rank] + '</td></tr>';
+    h += '<tr><td>' + r.z.n + '<br><span class="sub">' + r.z.r + ' · ' + r.z.h + ' · affidabilità ' + r.z.q + '</span></td><td class="num">' + fmt(r.z.p) + '</td><td class="num">' + Math.round(r.z.m) + '</td><td class="num">' + Math.round(r.st.disc * 100) + '%</td><td><span class="dot" style="background:' + COL[r.st.rank] + '"></span>' + LAB[r.st.rank] + '</td></tr>';
   }
   el("tbl").innerHTML = h + '</tbody>';
 }
