@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Zone casa Milano</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: una colonna su telefono (parametri, grafico, schede zona); due colonne di schede da tablet in su.
+   Dettaglio del soggetto: le linee metro con i colori ufficiali ATM (M1 rossa, M2 verde, M3 gialla, M4 blu). */
+:root {
+  color-scheme: light;
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --fg: #14202e;
+  --muted: #566478;
+  --line: #d9dfe8;
+  --accent: #1e56a0;
+  --accent-fg: #ffffff;
+  --ok-bg: #dff3e4;
+  --ok-fg: #14532d;
+  --warn-bg: #fdf0c9;
+  --warn-fg: #6b4a00;
+  --bad-bg: #fbe0e0;
+  --bad-fg: #7f1d1d;
+  --bar: #1e56a0;
+  --limit: #c0392b;
+  --track: #e6ebf2;
+  --font-body: "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e141c;
+    --surface: #161e29;
+    --fg: #e8edf4;
+    --muted: #9aa8bb;
+    --line: #2a3646;
+    --accent: #6ea2ee;
+    --accent-fg: #0e141c;
+    --ok-bg: #12331f;
+    --ok-fg: #9be0b0;
+    --warn-bg: #3a2e0c;
+    --warn-fg: #f1d37a;
+    --bad-bg: #3b1616;
+    --bad-fg: #f4a3a3;
+    --bar: #6ea2ee;
+    --limit: #ff7b6b;
+    --track: #223043;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e141c;
+  --surface: #161e29;
+  --fg: #e8edf4;
+  --muted: #9aa8bb;
+  --line: #2a3646;
+  --accent: #6ea2ee;
+  --accent-fg: #0e141c;
+  --ok-bg: #12331f;
+  --ok-fg: #9be0b0;
+  --warn-bg: #3a2e0c;
+  --warn-fg: #f1d37a;
+  --bad-bg: #3b1616;
+  --bad-fg: #f4a3a3;
+  --bar: #6ea2ee;
+  --limit: #ff7b6b;
+  --track: #223043;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.wrap { max-width: 1080px; margin-inline: auto; padding-inline: 16px; padding-block: 20px 40px; display: grid; gap: 20px; }
+h1 { font-size: 1.7rem; line-height: 1.15; margin: 0; font-weight: 800; letter-spacing: -0.01em; text-wrap: balance; }
+h2 { font-size: 1.05rem; margin: 0; font-weight: 700; }
+p { margin: 0; }
+.lede { color: var(--muted); max-width: 62ch; margin-top: 6px; }
+.eyebrow { font-family: var(--font-data); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 14px; min-width: 0; }
+.params { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field label { font-size: 0.8rem; color: var(--muted); }
+.field input, .sort select {
+  font: inherit; font-family: var(--font-data); font-size: 0.95rem;
+  background: var(--bg); color: var(--fg);
+  border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; width: 100%; min-width: 0;
+}
+.field input:focus-visible, .sort select:focus-visible, .chip:focus-visible, a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hint { font-size: 0.78rem; color: var(--muted); }
+
+.linkrow { display: flex; gap: 8px; align-items: center; }
+.linkrow input { flex: 1 1 auto; }
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.stat .k { font-size: 0.78rem; color: var(--muted); }
+.stat .v { font-family: var(--font-data); font-size: 1.3rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font: inherit; font-size: 0.85rem; padding: 6px 12px; border-radius: 999px; cursor: pointer;
+  background: var(--surface); color: var(--fg); border: 1px solid var(--line);
+}
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.sort { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--muted); }
+.sort select { width: auto; font-family: var(--font-body); }
+
+.chart { display: grid; gap: 12px; }
+.crow { display: grid; gap: 4px; min-width: 0; }
+.cl { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; font-size: 0.85rem; }
+.cl .n { font-weight: 600; }
+.cl .p { font-family: var(--font-data); color: var(--muted); font-variant-numeric: tabular-nums; }
+.track { position: relative; height: 14px; background: var(--track); border-radius: 3px; }
+.bar { position: absolute; inset: 0 auto 0 0; background: var(--bar); border-radius: 3px; }
+.limit { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--limit); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.8rem; color: var(--muted); }
+.legend i { display: inline-block; width: 12px; height: 8px; margin-right: 6px; border-radius: 2px; vertical-align: baseline; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.card header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 12px; align-items: start; }
+.card h3 { margin: 0; font-size: 1.05rem; font-weight: 700; text-wrap: balance; min-width: 0; flex: 1 1 200px; }
+.pill { font-size: 0.78rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.pill.ok { background: var(--ok-bg); color: var(--ok-fg); }
+.pill.warn { background: var(--warn-bg); color: var(--warn-fg); }
+.pill.bad { background: var(--bad-bg); color: var(--bad-fg); }
+.conn { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 0.85rem; color: var(--muted); }
+.line { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 22px; padding-inline: 6px; border-radius: 11px; font-family: var(--font-data); font-size: 0.75rem; font-weight: 600; color: #fff; }
+.l-M1 { background: #d42027; }
+.l-M2 { background: #2e8b3e; }
+.l-M3 { background: #f2b705; color: #1a1a1a; }
+.l-M4 { background: #1e56a0; }
+.l-S { background: #5b6b7d; }
+.nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 10px 0; border-block: 1px solid var(--line); }
+.num .k { font-size: 0.72rem; color: var(--muted); line-height: 1.25; }
+.num .v { font-family: var(--font-data); font-size: 1rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.card p { font-size: 0.9rem; }
+.card .lbl { font-family: var(--font-data); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 2px; }
+.src { font-size: 0.78rem; color: var(--muted); }
+.empty { color: var(--muted); padding: 16px; text-align: center; border: 1px dashed var(--line); border-radius: 10px; }
+
+.notes { display: grid; gap: 10px; font-size: 0.88rem; }
+.notes ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; }
+.notes a { color: var(--accent); overflow-wrap: anywhere; }
+.foot { font-size: 0.8rem; color: var(--muted); }
+.gate { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; }
+.gate-box { width: 100%; max-width: 380px; }
+.btn { font: inherit; font-weight: 600; padding: 9px 16px; border-radius: 6px; cursor: pointer; background: var(--accent); color: var(--accent-fg); border: 1px solid var(--accent); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 420px) {
+  .nums { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .num .v { font-size: 0.92rem; }
+}
+</style>
+
+</head>
+<body>
+<div class="gate" id="gate">
+  <form class="panel gate-box" id="gate-form">
+    <h2>Zone casa Milano</h2>
+    <p class="lede">Pagina riservata alla famiglia. Inserisci la password per aprirla.</p>
+    <div class="field"><label for="gate-pw">Password</label><input id="gate-pw" type="password" autocomplete="current-password" autocapitalize="none"></div>
+    <button class="btn" type="submit">Apri</button>
+    <p class="hint" id="gate-msg" role="alert"></p>
+  </form>
+</div>
+<div id="app" hidden>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ricerca casa · Milano · ottobre 2026</div>
+    <h1>Zone entro 15 minuti dal Policlinico</h1>
+    <p class="lede" id="lede"></p>
+  </header>
+
+  <section class="panel" aria-labelledby="h-par">
+    <h2 id="h-par">Parametri</h2>
+    <div class="params">
+      <div class="field"><label for="in-mq">Metri quadri</label><input id="in-mq" type="number" inputmode="numeric" min="20" max="300" step="1" value="80"></div>
+      <div class="field"><label for="in-budget">Budget totale (€)</label><input id="in-budget" type="number" inputmode="numeric" min="0" step="5000" value="400000"></div>
+      <div class="field"><label for="in-spese">Spese di acquisto (€)</label><input id="in-spese" type="number" inputmode="numeric" min="0" step="1000" value="25000"></div>
+      <div class="field"><label for="in-sconto">Sconto realistico (%)</label><input id="in-sconto" type="number" inputmode="numeric" min="0" max="60" step="1" value="20"></div>
+    </div>
+    <p class="hint">Le spese (imposte, agenzia, notaio, circa 6-7%) sono una stima da verificare con il notaio. La ristrutturazione è esclusa.</p>
+    <p class="hint" id="example-note" hidden>Valori di esempio: inserisci il tuo budget oppure apri il link con i parametri.</p>
+    <div class="field"><label for="in-link">Link con i miei parametri</label><div class="linkrow"><input id="in-link" type="text" readonly><button type="button" class="chip" id="btn-copy">Copia</button></div></div>
+    <div class="summary" id="summary" aria-live="polite"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-chart">
+    <h2 id="h-chart">Prezzo medio richiesto per zona</h2>
+    <div class="chart" id="chart"></div>
+    <div class="legend"><span><i style="background:var(--bar)"></i>Prezzo medio richiesto (€/m²)</span><span><i style="background:var(--limit)"></i>Limite del budget (€/m²)</span></div>
+  </section>
+
+  <section style="display:grid;gap:14px" aria-labelledby="h-zone">
+    <h2 id="h-zone">Zone</h2>
+    <div class="controls">
+      <div class="chips" id="chips" role="group" aria-label="Filtra per esito"></div>
+      <div class="sort"><label for="sort">Ordina per</label>
+        <select id="sort">
+          <option value="prezzo-asc">Prezzo, dal più basso</option>
+          <option value="prezzo-desc">Prezzo, dal più alto</option>
+          <option value="min-asc">Tempo, dal più breve</option>
+        </select>
+      </div>
+    </div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <section class="panel notes" aria-labelledby="h-fonti">
+    <h2 id="h-fonti">Fonti e ipotesi</h2>
+    <ul>
+      <li>I prezzi sono medie dei prezzi richiesti a luglio 2026, non prezzi di vendita. I lotti d'asta partono spesso più bassi, ma hanno rischi (occupazione, difformità, arretrati condominiali).</li>
+      <li>I tempi sono stime da fermata Sforza-Policlinico a fermata. Per M3, M1 e M2 includono un cambio di circa 4 minuti (ipotesi di Claude): vanno verificati sul planner ATM.</li>
+      <li>Le descrizioni dei quartieri sono sintetiche e non verificate sul posto.</li>
+      <li>Prezzi: <a href="https://www.wikicasa.it/quotazione-immobili/milano/zona-quarto-oggiaro-euromilano/" target="_blank" rel="noopener">Wikicasa, quotazioni per zona</a>; <a href="https://www.wikicasa.it/quotazione-immobili/milano/zona-washington-wagner-sicilia/" target="_blank" rel="noopener">Wikicasa, Porta Romana e Sant'Ambrogio</a>; <a href="https://www.caasa.it/lombardia/milano/milano/vendita-65f77397-opinione.html" target="_blank" rel="noopener">Caasa, Città Studi</a>.</li>
+      <li>Metro M4: <a href="https://www.milanofree.it/milano/trasporti/metro-m4-milano-linea-blu-percorso-stazioni-frequenze-e-interscambi.html" target="_blank" rel="noopener">Milanofree, percorso e tempi</a>; <a href="https://www.sicurauto.it/news/attualita-e-curiosita/apertura-m4-milano-mappa-e-fermate-metro-operative-e-future/" target="_blank" rel="noopener">Sicurauto, interscambi</a>.</li>
+    </ul>
+    <p class="foot">Non è una consulenza legale o finanziaria. Per mutuo, imposte e aste conviene sentire un notaio o un mediatore creditizio.</p>
+  </section>
+</div>
+
+</div>
+
+<script>
+var ZONES = [
+  { nome: "Centro storico, Sant'Ambrogio", corto: "Centro, Sant'Ambrogio", lines: ["M4", "M2"], ferm: "M4 Santa Sofia, Vetra, De Amicis, Sant'Ambrogio (interscambio M2)", min: "2-6", minN: 6, prezzo: 11233, fonte: "Wikicasa, zona Cattolica-Sant'Ambrogio-Magenta-Brera", desc: "Cuore storico vicino all'Università Cattolica e alla Basilica di Sant'Ambrogio. Molto richiesto, tra i prezzi più alti della città.", ctrl: "Fuori portata per un trilocale da 80 m². Solo piccoli tagli o lotti d'asta eccezionali." },
+  { nome: "Porta Venezia, Dateo e Tricolore", corto: "Porta Venezia, Dateo", lines: ["M4", "M1"], ferm: "M4 Tricolore, Dateo (M1 Porta Venezia con cambio a San Babila)", min: "4-5", minN: 5, prezzo: 8087, fonte: "Wikicasa, zona Porta Venezia-Palestro-Monforte-Corridoni", desc: "Zona vivace intorno a Corso Buenos Aires, Porta Venezia e Corso XXII Marzo: negozi, locali, molti annunci. Prezzi molto alti nel cuore della zona.", ctrl: "Il prezzo di Tricolore e Porta Vittoria può differire dalla media indicata: verificare via per via." },
+  { nome: "Crocetta e Vigentina", corto: "Crocetta, Vigentina", lines: ["M4", "M3"], ferm: "M3 Crocetta (cambio a Missori con sottopasso pedonale)", min: "11", minN: 11, prezzo: 7924, fonte: "Wikicasa, zona Bianca di Savoia-Porta Vigentina-Gaetano Pini", desc: "Residenziale a ridosso del centro, vicino a Statale e Policlinico. Zona tranquilla e molto richiesta.", ctrl: "Prezzi alti: servono sconti molto forti. Il tempo include un cambio, da verificare sul planner ATM." },
+  { nome: "Porta Romana e Cinque Giornate", corto: "Porta Romana", lines: ["M4", "M3"], ferm: "M3 Porta Romana (cambio a Missori)", min: "13", minN: 13, prezzo: 7473, fonte: "Wikicasa, zona Porta Romana-Sabotino-Muratori-Cadore-Montenero-Cinque Giornate", desc: "Quartiere storico ricco di servizi, con mercato, vicino alla Bocconi e alle Terme Milano. Apprezzato per la vivibilità.", ctrl: "Fuori budget a prezzi medi. Considerare solo lotti molto scontati." },
+  { nome: "Navigli, Porta Genova e Darsena", corto: "Navigli, Porta Genova", lines: ["M4", "M2"], ferm: "M4 Coni Zugna (circa 8 min); M2 Porta Genova con cambio a Sant'Ambrogio (circa 12 min)", min: "8-12", minN: 12, prezzo: 6457, fonte: "Wikicasa, zona Porta Genova-Navigli-Darsena-San Gottardo-Ripa di Porta Ticinese", desc: "Zona della Darsena e dei Navigli, con case di ringhiera, locali e vita serale. Molto richiesta.", ctrl: "Servono immobili circa 19% sotto la media: da ristrutturare o lotti d'asta. Valutare rumore serale e stato dello stabile." },
+  { nome: "Città Studi, Susa e Argonne", corto: "Città Studi, Argonne", lines: ["M4"], ferm: "M4 Susa (circa 7 min), Argonne (circa 9 min)", min: "7-9", minN: 9, prezzo: 6030, fonte: "Caasa, richiesta media vicino a Viale Abruzzi (fonte diversa dalle altre zone)", desc: "Quartiere residenziale di famiglie e studenti (Politecnico, Statale), con verde e servizi. M4 Argonne e Susa lo collegano al Policlinico.", ctrl: "Dato di fonte diversa, meno confrontabile. La stima automatica Caasa per appartamenti simili nella zona OMI D12 è 4.885-5.362 €/m²: potrebbe stare nel budget. Da verificare con annunci reali." },
+  { nome: "Loreto e Pasteur", corto: "Loreto, Pasteur", lines: ["M4", "M1"], ferm: "M1 Loreto e Pasteur, con cambio a San Babila", min: "14", minN: 14, prezzo: 4674, fonte: "Wikicasa, zona Loreto-Rovereto-Pasteur-Nolo", desc: "Zona densa e ben servita tra Corso Buenos Aires e Loreto, con M1 e M2. È in corso un progetto di rigenerazione di Piazzale Loreto.", ctrl: "Con il cambio il percorso totale sfiora o supera i 20 minuti: verificare sul planner ATM." },
+  { nome: "Giambellino e Lorenteggio", corto: "Giambellino, Lorenteggio", lines: ["M4"], ferm: "M4 Bolivar, Tolstoj, Frattini, Gelsomini", min: "10-15", minN: 15, prezzo: 4872, fonte: "Wikicasa, zona Giambellino-Lorenteggio-San Cristoforo", desc: "Quartiere a sud-ovest in trasformazione, con piani di riqualificazione e l'arrivo della M4. Mix di edilizia pubblica e privata.", ctrl: "Controllare edificio per edificio (alloggi pubblici, stato del condominio). Il tempo regge solo a pochi passi dalla fermata." },
+  { nome: "Forlanini, Taliedo e Mecenate", corto: "Forlanini, Mecenate", lines: ["M4", "S"], ferm: "M4 Stazione Forlanini e Repetti; tram 27; stazione Forlanini (linee S)", min: "10-12", minN: 12, prezzo: 3829, fonte: "Wikicasa, zona Rogoredo-Forlanini-Corsica-Parco Monluè", desc: "Zona residenziale a est, vicino al Parco Forlanini, con servizi di quartiere. Prezzi più bassi.", ctrl: "Alcuni annunci sono a 10-15 minuti a piedi da Repetti: oltre 5 minuti il limite dei 20 totali non regge." }
+];
+
+var fmt = new Intl.NumberFormat("it-IT", { maximumFractionDigits: 0 });
+function eur(n) { return fmt.format(Math.round(n)) + " €"; }
+function el(id) { return document.getElementById(id); }
+
+var state = { mq: 80, budget: 400000, spese: 25000, sconto: 20, filter: "tutte", sort: "prezzo-asc" };
+var usingExample = true;
+try {
+  var saved = JSON.parse(localStorage.getItem("zone-casa-milano") || "null");
+  if (saved && typeof saved === "object") {
+    ["mq", "budget", "spese", "sconto"].forEach(function (k) { if (typeof saved[k] === "number" && isFinite(saved[k])) state[k] = saved[k]; });
+    if (typeof saved.budget === "number" && isFinite(saved.budget)) usingExample = false;
+    if (typeof saved.filter === "string") state.filter = saved.filter;
+    if (typeof saved.sort === "string") state.sort = saved.sort;
+  }
+} catch (e) {}
+try {
+  var P = {};
+  location.hash.replace(/^#/, "").split("&").forEach(function (kv) { var a = kv.split("="); if (a[0]) P[a[0]] = parseFloat(a[1]); });
+  var MAP = { m: "mq", b: "budget", s: "spese", d: "sconto" };
+  Object.keys(MAP).forEach(function (k) {
+    if (isFinite(P[k]) && P[k] >= 0) { state[MAP[k]] = P[k]; if (k === "b") usingExample = false; }
+  });
+} catch (e) {}
+function persist() { try { localStorage.setItem("zone-casa-milano", JSON.stringify(state)); } catch (e) {} }
+
+var FILTERS = [["tutte", "Tutte"], ["ok", "Nel budget"], ["warn", "Possibili"], ["bad", "Fuori budget"]];
+
+function compute() {
+  var mq = Math.max(1, state.mq);
+  var maxPrice = Math.max(0, state.budget - state.spese);
+  var maxM2 = maxPrice / mq;
+  var soglia = state.sconto / 100;
+  return ZONES.map(function (z) {
+    var disc = Math.max(0, 1 - maxM2 / z.prezzo);
+    var cls = disc === 0 ? "ok" : (disc <= soglia ? "warn" : "bad");
+    var label = cls === "ok" ? "Nel budget a prezzo medio" : (cls === "warn" ? "Possibile solo sotto la media" : "Fuori budget");
+    return Object.assign({}, z, { disc: disc, cls: cls, label: label, mqAcq: maxPrice / z.prezzo, prezzoMq: z.prezzo * mq });
+  }).concat([{ _meta: { mq: mq, maxPrice: maxPrice, maxM2: maxM2 } }]);
+}
+
+function render() {
+  var all = compute();
+  var meta = all.pop()._meta;
+  el("lede").textContent = "Trilocale di circa " + Math.round(meta.mq) + " m² con " + eur(state.budget) + " totali, senza mutuo. Cambia i parametri e le schede si ricalcolano.";
+  el("example-note").hidden = !usingExample;
+  el("in-link").value = location.href.split("#")[0] + "#b=" + state.budget + "&s=" + state.spese + "&m=" + state.mq + "&d=" + state.sconto;
+  el("summary").innerHTML =
+    '<div class="stat"><div class="k">Prezzo massimo di acquisto</div><div class="v">' + eur(meta.maxPrice) + '</div></div>' +
+    '<div class="stat"><div class="k">Prezzo massimo al m²</div><div class="v">' + eur(meta.maxM2) + '</div></div>' +
+    '<div class="stat"><div class="k">Zone nel budget / possibili</div><div class="v">' +
+    all.filter(function (z) { return z.cls === "ok"; }).length + ' / ' + all.filter(function (z) { return z.cls === "warn"; }).length + '</div></div>';
+
+  var scale = Math.max.apply(null, all.map(function (z) { return z.prezzo; }).concat([meta.maxM2])) * 1.05;
+  var chartRows = all.slice().sort(function (a, b) { return b.prezzo - a.prezzo; }).map(function (z) {
+    return '<div class="crow"><div class="cl"><span class="n">' + z.corto + '</span><span class="p">' + fmt.format(z.prezzo) + ' €/m²</span></div>' +
+      '<div class="track"><div class="bar" style="width:' + (z.prezzo / scale * 100).toFixed(1) + '%"></div>' +
+      '<div class="limit" style="left:' + (meta.maxM2 / scale * 100).toFixed(1) + '%"></div></div></div>';
+  }).join("");
+  el("chart").innerHTML = chartRows;
+
+  el("chips").innerHTML = FILTERS.map(function (f) {
+    var n = f[0] === "tutte" ? all.length : all.filter(function (z) { return z.cls === f[0]; }).length;
+    return '<button type="button" class="chip" data-f="' + f[0] + '" aria-pressed="' + (state.filter === f[0]) + '">' + f[1] + ' (' + n + ')</button>';
+  }).join("");
+
+  var list = all.filter(function (z) { return state.filter === "tutte" || z.cls === state.filter; });
+  list.sort(function (a, b) {
+    if (state.sort === "prezzo-desc") return b.prezzo - a.prezzo;
+    if (state.sort === "min-asc") return a.minN - b.minN || a.prezzo - b.prezzo;
+    return a.prezzo - b.prezzo;
+  });
+  if (!list.length) {
+    el("cards").innerHTML = '<div class="empty">Nessuna zona con questo esito. Prova a cambiare i parametri o il filtro.</div>';
+    return;
+  }
+  el("cards").innerHTML = list.map(function (z) {
+    var badges = z.lines.map(function (l) { return '<span class="line l-' + l + '">' + l + '</span>'; }).join("");
+    return '<article class="card"><header><h3>' + z.nome + '</h3><span class="pill ' + z.cls + '">' + z.label + '</span></header>' +
+      '<div class="conn">' + badges + '<span>' + z.ferm + ' · circa ' + z.min + ' min</span></div>' +
+      '<div class="nums">' +
+      '<div class="num"><div class="k">Prezzo medio richiesto</div><div class="v">' + fmt.format(z.prezzo) + ' €/m²</div></div>' +
+      '<div class="num"><div class="k">Sconto necessario</div><div class="v">' + Math.round(z.disc * 100) + '%</div></div>' +
+      '<div class="num"><div class="k">m² al prezzo medio</div><div class="v">' + Math.round(z.mqAcq) + ' m²</div></div>' +
+      '</div>' +
+      '<p>' + z.desc + '</p>' +
+      '<div><div class="lbl">Cosa controllare</div><p>' + z.ctrl + '</p></div>' +
+      '<div class="src">Fonte del prezzo: ' + z.fonte + '. Prezzo medio per ' + Math.round(meta.mq) + ' m²: ' + eur(z.prezzoMq) + '.</div></article>';
+  }).join("");
+}
+
+function bind(id, key) {
+  var input = el(id);
+  input.value = state[key];
+  input.addEventListener("input", function () {
+    var v = parseFloat(input.value);
+    if (isFinite(v) && v >= 0) { state[key] = v; usingExample = false; persist(); render(); }
+  });
+}
+bind("in-mq", "mq");
+bind("in-budget", "budget");
+bind("in-spese", "spese");
+bind("in-sconto", "sconto");
+
+el("sort").value = state.sort;
+el("sort").addEventListener("change", function () { state.sort = el("sort").value; persist(); render(); });
+el("chips").addEventListener("click", function (e) {
+  var b = e.target.closest("button[data-f]");
+  if (!b) return;
+  state.filter = b.getAttribute("data-f");
+  persist();
+  render();
+});
+el("btn-copy").addEventListener("click", function () {
+  var inp = el("in-link"), btn = el("btn-copy");
+  function done(t) { btn.textContent = t; setTimeout(function () { btn.textContent = "Copia"; }, 1800); }
+  function fallback() { inp.focus(); inp.select(); done("Seleziona e copia"); }
+  try { navigator.clipboard.writeText(inp.value).then(function () { done("Copiato"); }, fallback); } catch (e) { fallback(); }
+});
+
+var PASS_HASH = "90d67c7f8a324eb0d4cf9c981e77182923a00c80a281965e598e3879e1cee26a";
+function sha256hex(t) {
+  return crypto.subtle.digest("SHA-256", new TextEncoder().encode("zcm:" + t)).then(function (b) {
+    return Array.prototype.map.call(new Uint8Array(b), function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
+  });
+}
+function unlock() { el("gate").hidden = true; el("app").hidden = false; }
+try { if (localStorage.getItem("zone-casa-ok") === PASS_HASH) unlock(); } catch (e) {}
+el("gate-form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  var msg = el("gate-msg");
+  if (!(window.crypto && crypto.subtle)) { msg.textContent = "Questo browser non può verificare la password. Apri la pagina con https."; return; }
+  sha256hex(el("gate-pw").value).then(function (h) {
+    if (h === PASS_HASH) {
+      try { localStorage.setItem("zone-casa-ok", PASS_HASH); } catch (x) {}
+      unlock();
+    } else {
+      msg.textContent = "Password errata. Riprova.";
+      el("gate-pw").select();
+    }
+  });
+});
+
+render();
+</script>
+</body>
+</html>
