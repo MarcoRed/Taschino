@@ -30,6 +30,8 @@ p { margin: 0 0 12px; }
 .params { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 16px 0; }
 @media (max-width: 520px) { .params { grid-template-columns: 1fr; } }
 .params .field { margin: 0; }
+.kind { margin: 0 0 12px; }
+.field select { font: inherit; padding: 10px; border: 0.5px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg); width: 100%; }
 .adv { margin: 0 0 16px; font-size: 14px; color: var(--muted); }
 .adv summary { cursor: pointer; }
 .adv .field { max-width: 200px; margin-top: 8px; }
@@ -68,6 +70,14 @@ p { margin: 0 0 12px; }
     <div class="field"><label for="in-m">Superficie (m²)</label><input id="in-m" type="number" inputmode="numeric" min="20" step="5"></div>
     <div class="field"><label for="in-t">Minuti massimi</label><input id="in-t" type="number" inputmode="numeric" min="5" step="1"></div>
   </div>
+  <div class="field kind"><label for="in-k">Tipo di acquisto (cambia le spese stimate)</label>
+    <select id="in-k">
+      <option value="agenzia">Con agenzia (spese circa 7%)</option>
+      <option value="privati">Tra privati (spese circa 5%)</option>
+      <option value="asta">Asta giudiziaria (spese circa 3%)</option>
+      <option value="custom">Personalizzato (percentuale sotto)</option>
+    </select>
+  </div>
   <details class="adv">
     <summary>Impostazioni avanzate</summary>
     <div class="field"><label for="in-s">Spese di acquisto stimate (% del prezzo)</label><input id="in-s" type="number" inputmode="decimal" min="0" max="20" step="0.5"></div>
@@ -92,7 +102,7 @@ p { margin: 0 0 12px; }
   <p class="note"><b>Da fare:</b> caricare il dataset GTFS ufficiale ATM (<a href="https://dati.comune.milano.it/gtfs.zip">dati.comune.milano.it/gtfs.zip</a>, valido fino al 19 ottobre 2026, al momento non scaricabile) per ricalcolare tutti i tempi con gli orari veri, tram e bus inclusi.</p>
 
   <h2>Prezzi e limiti</h2>
-  <p>I valori sono prezzi di richiesta di vendita, medie per zona, da Wikicasa (settembre 2026). Non sono prezzi pagati. Il limite in €/m² si calcola così: budget diviso (1 + spese), diviso i m². Le linee punteggiate indicano lo sconto necessario rispetto al prezzo richiesto (-10% e -20%). La linea orizzontale è il tuo limite di minuti, e la fascia fino a 5 minuti oltre è la tolleranza.</p>
+  <p>I valori sono prezzi di richiesta di vendita, medie per zona, da Wikicasa (settembre 2026). Non sono prezzi pagati. Il limite in €/m² si calcola così: budget diviso (1 + spese), diviso i m². Le spese dipendono dal tipo di acquisto: con agenzia circa 7% (imposte, notaio, commissione), tra privati circa 5% (senza commissione), asta giudiziaria circa 3% (niente agenzia, ma restano imposte e compenso del professionista delegato). Sono percentuali indicative mie, da verificare con un notaio o con l'avviso di vendita del singolo lotto. Le linee punteggiate indicano lo sconto necessario rispetto al prezzo richiesto (-10% e -20%). La linea orizzontale è il tuo limite di minuti, e la fascia fino a 5 minuti oltre è la tolleranza.</p>
 
   <h2>Prossimo passo</h2>
   <p>Il prossimo grafico userà i valori OMI dell'Agenzia delle Entrate come riferimento più preciso, con un intervallo minimo-massimo per zona.</p>
@@ -129,7 +139,9 @@ var CORDER = ["Baggio", "Bicocca / Niguarda", "Lambrate / Ortica", "San Siro / Q
 var COL = ["#639922", "#EF9F27", "#D85A30", "#E24B4A"];
 var LAB = ["Entro i limiti", "Da valutare", "Trattativa difficile", "Fuori portata"];
 var DEF = { b: 400000, m: 80, t: 15, s: 7 };
-var state = { b: DEF.b, m: DEF.m, t: DEF.t, s: DEF.s };
+var state = { b: DEF.b, m: DEF.m, t: DEF.t, s: DEF.s, k: "agenzia" };
+var PRE = { agenzia: 7, privati: 5, asta: 3 };
+var KLAB = { agenzia: "acquisto con agenzia", privati: "acquisto tra privati", asta: "asta giudiziaria", custom: "percentuale personalizzata" };
 var MAP = { b: "b", m: "m", t: "t", s: "s" };
 var KEY = "zone-grafico-params";
 
@@ -204,7 +216,7 @@ function render() {
   var maxP = state.b / (1 + state.s / 100), counts = [0, 0, 0, 0], rows = [], i;
   for (i = 0; i < Z.length; i++) { var st = statusOf(Z[i], L); counts[st.rank]++; rows.push({ z: Z[i], st: st }); }
   rows.sort(function (a, b) { return a.st.rank - b.st.rank || a.z.p - b.z.p; });
-  el("summary").innerHTML = "Prezzo massimo d'acquisto circa <b>" + fmt(maxP) + " €</b> (budget meno spese al " + state.s + "%), cioè <b>" + fmt(L) + " €/m²</b> per " + state.m + " m². " +
+  el("summary").innerHTML = "Prezzo massimo d'acquisto circa <b>" + fmt(maxP) + " €</b> (budget meno spese al " + state.s + "%, " + KLAB[state.k] + "), cioè <b>" + fmt(L) + " €/m²</b> per " + state.m + " m². " +
     counts[0] + " zone entro i limiti, " + counts[1] + " da valutare, " + counts[2] + " con trattativa difficile, " + counts[3] + " fuori portata.";
   var h = '<thead><tr><th>Zona</th><th class="num">€/m²</th><th class="num">Minuti</th><th class="num">Sconto</th><th>Esito</th></tr></thead><tbody>';
   for (i = 0; i < rows.length; i++) {
@@ -221,22 +233,30 @@ function readInputs() {
   if (t > 0) state.t = Math.min(30, t);
   if (s >= 0) state.s = s;
 }
-function writeInputs() { el("in-b").value = state.b; el("in-m").value = state.m; el("in-t").value = state.t; el("in-s").value = state.s; }
-function hashStr() { return "#b=" + state.b + "&m=" + state.m + "&t=" + state.t + "&s=" + state.s; }
+function writeInputs() { el("in-b").value = state.b; el("in-m").value = state.m; el("in-t").value = state.t; el("in-s").value = state.s; el("in-k").value = state.k; }
+function hashStr() { return "#b=" + state.b + "&m=" + state.m + "&t=" + state.t + "&s=" + state.s + "&k=" + state.k; }
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
   try { history.replaceState(null, "", location.pathname + location.search + hashStr()); } catch (e) {}
 }
 function load() {
-  try { var o = JSON.parse(localStorage.getItem(KEY) || "null"); if (o) for (var k in MAP) if (o[k] > 0 || (k === "s" && o[k] >= 0)) state[k] = o[k]; } catch (e) {}
+  try { var o = JSON.parse(localStorage.getItem(KEY) || "null"); if (o) { for (var k in MAP) if (o[k] > 0 || (k === "s" && o[k] >= 0)) state[k] = o[k]; if (PRE[o.k] || o.k === "custom") state.k = o.k; } } catch (e) {}
   var hs = location.hash.replace(/^#/, "").split("&");
   for (var i = 0; i < hs.length; i++) {
     var kv = hs[i].split("="), v = parseFloat(kv[1]);
     if (MAP[kv[0]] && (v > 0 || (kv[0] === "s" && v >= 0))) state[kv[0]] = v;
+    if (kv[0] === "k" && (PRE[kv[1]] || kv[1] === "custom")) state.k = kv[1];
   }
+  if (PRE[state.k]) state.s = PRE[state.k];
 }
 ["in-b", "in-m", "in-t", "in-s"].forEach(function (id) {
-  el(id).addEventListener("input", function () { readInputs(); render(); save(); });
+  el(id).addEventListener("input", function () { readInputs(); if (id === "in-s") { state.k = "custom"; el("in-k").value = "custom"; } render(); save(); });
+});
+el("in-k").addEventListener("change", function () {
+  var v = el("in-k").value;
+  state.k = v;
+  if (PRE[v] !== undefined) { state.s = PRE[v]; el("in-s").value = state.s; }
+  render(); save();
 });
 el("btn-copy").addEventListener("click", function () {
   var url = location.origin + location.pathname + hashStr();
