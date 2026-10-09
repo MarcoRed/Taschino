@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Grafico zone casa Milano</title>
+<style>
+:root { --bg: #f3f5f8; --surface: #ffffff; --fg: #14202e; --muted: #566478; --line: #d9dfe8; --accent: #1e56a0; --accent-fg: #ffffff; --font: "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0e141c; --surface: #161e29; --fg: #e8edf4; --muted: #9aa8bb; --line: #2a3646; --accent: #6ea2ee; --accent-fg: #0e141c; } }
+:root[data-theme="dark"] { --bg: #0e141c; --surface: #161e29; --fg: #e8edf4; --muted: #9aa8bb; --line: #2a3646; --accent: #6ea2ee; --accent-fg: #0e141c; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+h1 { font-size: 22px; font-weight: 500; margin: 0 0 8px; }
+h2 { font-size: 18px; font-weight: 500; margin: 32px 0 8px; }
+p { margin: 0 0 12px; }
+.muted { color: var(--muted); font-size: 14px; }
+.panel { background: var(--surface); border: 0.5px solid var(--line); border-radius: 12px; padding: 16px; }
+.chart svg { display: block; width: 100%; height: auto; }
+.gate { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.gate-box { width: 100%; max-width: 360px; }
+.field { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+.field label { font-size: 14px; color: var(--muted); }
+.field input { font: inherit; padding: 10px; border: 0.5px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg); }
+.btn { font: inherit; padding: 10px 16px; border: 0; border-radius: 8px; background: var(--accent); color: var(--accent-fg); cursor: pointer; }
+.hint { color: var(--muted); font-size: 14px; min-height: 1em; }
+</style>
+</head>
+<body>
+<div class="gate" id="gate">
+  <form class="panel gate-box" id="gate-form">
+    <h1>Grafico zone casa Milano</h1>
+    <p class="muted">Pagina riservata alla famiglia. Inserisci la password per aprirla.</p>
+    <div class="field"><label for="gate-pw">Password</label><input id="gate-pw" type="password" autocomplete="current-password" autocapitalize="none"></div>
+    <button class="btn" type="submit">Apri</button>
+    <p class="hint" id="gate-msg" role="alert"></p>
+  </form>
+</div>
+
+<div id="app" hidden>
+<div class="wrap">
+  <h1>Zone di Milano: prezzo e tempo dal Policlinico</h1>
+  <p class="muted">Screening iniziale. Prezzi di richiesta Wikicasa (settembre 2026), minuti stimati.</p>
+
+  <div class="panel chart">
+    <svg viewBox="0 0 700 470" xmlns="http://www.w3.org/2000/svg" role="img" style="font-family:var(--font)">
+    <title>Zone di Milano: prezzo richiesto al m² e minuti dal Policlinico (stime)</title>
+    <desc>Dispersione di 21 zone con scala lineare. Il quadrante verde in basso a sinistra è entro 5.250 euro al m² e 15 minuti. Il colore di ogni punto è il limite più severo tra prezzo e tempo.</desc>
+    <rect x="90" y="252.9" width="162.3" height="167.1" style="fill:#639922;fill-opacity:0.08"/>
+    <line x1="90" y1="420" x2="660" y2="420" style="stroke:#c3c2b7;stroke-width:1"/>
+    <line x1="90" y1="30" x2="90" y2="420" style="stroke:#c3c2b7;stroke-width:1"/>
+    <line x1="252.3" y1="30" x2="252.3" y2="420" style="stroke:#888780;stroke-width:1.5;stroke-dasharray:6 4"/>
+    <line x1="286.7" y1="30" x2="286.7" y2="420" style="stroke:#B4B2A9;stroke-width:1;stroke-dasharray:2 4"/>
+    <line x1="329.7" y1="30" x2="329.7" y2="420" style="stroke:#B4B2A9;stroke-width:1;stroke-dasharray:2 4"/>
+    <line x1="90" y1="252.9" x2="660" y2="252.9" style="stroke:#888780;stroke-width:1.5;stroke-dasharray:6 4"/>
+    <line x1="90" y1="197.1" x2="660" y2="197.1" style="stroke:#B4B2A9;stroke-width:1;stroke-dasharray:2 4"/>
+    <g style="fill:var(--muted);font-size:11px">
+    <text x="256" y="26">5.250 €/m²</text>
+    <text x="290" y="40">-10%</text>
+    <text x="333" y="40">-20%</text>
+    <text x="656" y="247" text-anchor="end">15 min</text>
+    <text x="656" y="191" text-anchor="end">20 min</text>
+    <text x="119.5" y="436" text-anchor="middle">3.000</text>
+    <text x="237.5" y="436" text-anchor="middle">5.000</text>
+    <text x="355.5" y="436" text-anchor="middle">7.000</text>
+    <text x="473.5" y="436" text-anchor="middle">9.000</text>
+    <text x="591.5" y="436" text-anchor="middle">11.000</text>
+    <text x="82" y="424" text-anchor="end">0</text>
+    <text x="82" y="368" text-anchor="end">5</text>
+    <text x="82" y="312" text-anchor="end">10</text>
+    <text x="82" y="256" text-anchor="end">15</text>
+    <text x="82" y="200" text-anchor="end">20</text>
+    <text x="82" y="145" text-anchor="end">25</text>
+    <text x="82" y="89" text-anchor="end">30</text>
+    <text x="82" y="34" text-anchor="end">35</text>
+    </g>
+    <g style="stroke:#B4B2A9;stroke-width:0.75;fill:none">
+    <line x1="144" y1="85" x2="444" y2="52"/>
+    <line x1="164" y1="140" x2="444" y2="72"/>
+    <line x1="226" y1="140" x2="444" y2="92"/>
+    <line x1="215" y1="152" x2="444" y2="112"/>
+    <line x1="199" y1="174" x2="444" y2="132"/>
+    <line x1="213" y1="186" x2="444" y2="152"/>
+    <line x1="207" y1="196" x2="444" y2="172"/>
+    <line x1="206" y1="218" x2="444" y2="192"/>
+    </g>
+    <g>
+    <circle cx="588.8" cy="353.1" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="516.9" cy="286.3" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="424.5" cy="369.9" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="451.1" cy="364.3" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="412.8" cy="297.4" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="382.5" cy="275.1" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="323.1" cy="308.6" r="5" style="fill:#D85A30;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="304.1" cy="286.3" r="5" style="fill:#D85A30;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="290.2" cy="330.9" r="5" style="fill:#D85A30;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="258" cy="264" r="5" style="fill:#EF9F27;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="220" cy="264" r="5" style="fill:#639922;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="226" cy="280.7" r="5" style="fill:#639922;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="167.6" cy="297.4" r="5" style="fill:#639922;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="201.3" cy="219.4" r="5" style="fill:#EF9F27;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="202.3" cy="197.1" r="5" style="fill:#EF9F27;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="208.2" cy="186" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="209.5" cy="152.6" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="193.8" cy="174.9" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="220.7" cy="141.4" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="158.1" cy="141.4" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
+    <circle cx="138.2" cy="85.7" r="5" style="fill:#E24B4A;stroke:var(--surface);stroke-width:1.5"/>
+    </g>
+    <g style="fill:var(--fg);font-size:12px">
+    <text x="589" y="338" text-anchor="middle">Centro / Brera</text>
+    <text x="525" y="290">Porta Nuova / Garibaldi</text>
+    <text x="416" y="386" text-anchor="end">Porta Venezia</text>
+    <text x="459" y="368">Crocetta / Policlinico</text>
+    <text x="405" y="301" text-anchor="end">Bianca di Savoia</text>
+    <text x="382" y="258" text-anchor="middle">Porta Romana</text>
+    <text x="315" y="313" text-anchor="end">Porta Genova / Navigli</text>
+    <text x="296" y="282" text-anchor="end">Isola</text>
+    <text x="282" y="335" text-anchor="end">Città Studi</text>
+    <text x="258" y="254" text-anchor="middle">Calvairate</text>
+    <text x="212" y="268" text-anchor="end">Loreto</text>
+    <text x="218" y="285" text-anchor="end">Giambellino</text>
+    <text x="168" y="314" text-anchor="middle">Forlanini</text>
+    <text x="448" y="56">Baggio</text>
+    <text x="448" y="76">Affori / Comasina</text>
+    <text x="448" y="96">Lambrate / Ortica</text>
+    <text x="448" y="116">San Siro / QT8</text>
+    <text x="448" y="136">Bicocca / Niguarda</text>
+    <text x="448" y="156">Bovisa / Dergano</text>
+    <text x="448" y="176">Precotto / Turro</text>
+    <text x="448" y="196">Corvetto / Porto di Mare</text>
+    </g>
+    <text x="375" y="458" text-anchor="middle" style="fill:var(--muted);font-size:13px">Prezzo richiesto €/m² (stima Wikicasa, settembre 2026)</text>
+    <text transform="translate(18,225) rotate(-90)" text-anchor="middle" style="fill:var(--muted);font-size:13px">Minuti dal Policlinico (stima)</text>
+    </svg>
+  </div>
+
+  <h2>Come sono stimati i minuti</h2>
+  <p>I minuti dal Policlinico sono una stima, non un tempo misurato. Il punto di partenza è la fermata Sforza-Policlinico (M3). Per ogni zona ho contato le fermate sulla linea più diretta, circa 1,5–2 minuti per fermata in metropolitana, circa 4 minuti per ogni cambio, più 3–5 minuti tra attesa e tratto a piedi o in tram e bus. Non ho considerato orari di punta né ritardi. Per le zone oltre i 20 minuti la stima è meno precisa.</p>
+  <p>Prima di scegliere una zona, i tempi vanno verificati con un'app di percorsi, partendo dal Policlinico in un giorno feriale nell'orario di punta.</p>
+
+  <h2>Prezzi</h2>
+  <p>I valori sono prezzi di richiesta di vendita, medie per zona, da Wikicasa (settembre 2026). Non sono prezzi pagati. Le linee tratteggiate indicano i limiti: 5.250 €/m² per restare in budget con 450.000 € e 80 m², 15 minuti per lo screening. Le linee punteggiate in grigio chiaro segnano lo sconto necessario: -10% e -20% rispetto al prezzo richiesto.</p>
+
+  <h2>Prossimo passo</h2>
+  <p>Il prossimo grafico userà i valori OMI dell'Agenzia delle Entrate come riferimento più preciso, con un intervallo minimo-massimo per zona. I punti potranno essere affiancati da una tabella sotto il grafico, così i valori sono leggibili uno per uno.</p>
+</div>
+</div>
+
+<script>
+var PASS_HASH = "e727d6e2924403c2be751219ed797b696fb67165ab8719c72a5391b9d86fedcd";
+var GATE_KEY = "zone-grafico-ok";
+function el(id) { return document.getElementById(id); }
+function sha256hex(t) {
+  return crypto.subtle.digest("SHA-256", new TextEncoder().encode("zcm:" + t)).then(function (b) {
+    return Array.prototype.map.call(new Uint8Array(b), function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
+  });
+}
+function unlock() { el("gate").hidden = true; el("app").hidden = false; }
+try { if (localStorage.getItem(GATE_KEY) === PASS_HASH) unlock(); } catch (e) {}
+el("gate-form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  var msg = el("gate-msg");
+  if (!(window.crypto && crypto.subtle)) { msg.textContent = "Questo browser non può verificare la password. Apri la pagina con https."; return; }
+  sha256hex(el("gate-pw").value).then(function (h) {
+    if (h === PASS_HASH) {
+      try { localStorage.setItem(GATE_KEY, PASS_HASH); } catch (x) {}
+      unlock();
+    } else {
+      msg.textContent = "Password errata. Riprova.";
+      el("gate-pw").select();
+    }
+  });
+});
+</script>
+</body>
+</html>
