@@ -366,7 +366,7 @@ el("btn-copy").addEventListener("click", function () {
   try { navigator.clipboard.writeText(inp.value).then(function () { done("Copiato"); }, fallback); } catch (e) { fallback(); }
 });
 
-var PASS_HASH = "e727d6e2924403c2be751219ed797b696fb67165ab8719c72a5391b9d86fedcd";
+var PASS_HASH = "52be8483c18acbb07e92963f4c27655b03faf836a832fe038da32ba54e11d7d8";
 function sha256hex(t) {
   return crypto.subtle.digest("SHA-256", new TextEncoder().encode("zcm:" + t)).then(function (b) {
     return Array.prototype.map.call(new Uint8Array(b), function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
