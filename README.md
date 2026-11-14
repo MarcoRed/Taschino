@@ -40,6 +40,12 @@ taschino/
 
 Ogni `index.html` è autonomo (nessun file di build) e ha nell'`<head>` gli stessi tag PWA: `manifest`, `theme-color`, `icon`, `apple-touch-icon` e `apple-mobile-web-app-*`.
 
+### Navigazione tra i tool
+
+- Ogni tool ha in alto il link `‹ 🗃️ Taschino` che torna alla home, da cui si apre un altro tool.
+- I `manifest.json` dei tool hanno `"scope": "../"`: anche da app installata, passare a un altro tool resta nella stessa finestra.
+- Passaggio di testo: da `screenshot-md` il pulsante "Leggi nel Lettore vocale" salva il testo in `localStorage` (chiave `taschino_passa_testo`) e apre `lettore-vocale/?da=screenshot-md`, che lo carica e cancella la chiave. Un nuovo tool può usare lo stesso meccanismo.
+
 ## Come aggiornare il sito
 
 Basta fare push su `main`: GitHub Pages pubblica automaticamente dalla branch principale.

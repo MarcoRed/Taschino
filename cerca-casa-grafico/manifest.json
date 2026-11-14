@@ -3,7 +3,7 @@
   "short_name": "Grafico casa",
   "description": "Grafico prezzo e minuti delle zone di Milano",
   "start_url": "./index.html",
-  "scope": "./",
+  "scope": "../",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f3f5f8",

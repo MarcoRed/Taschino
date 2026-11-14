@@ -248,9 +248,12 @@
     font-weight: 600;
   }
   .drive-exit:active { background: rgba(255,255,255,0.1); }
+  .tz-home { display: inline-block; margin: 0 0 10px; padding: 4px 0; font-size: .9rem; color: inherit; opacity: .7; text-decoration: none; }
 </style>
 </head>
 <body>
+
+<a class="tz-home" href="../">‹ 🗃️ Taschino</a>
 
 <div class="top">
   <h1>🔊 Lettore Vocale</h1>
@@ -1343,6 +1346,16 @@ tocCloseBtn.addEventListener('click', () => {
     updatePlayIcon();
   }
 });
+
+// Testo passato da un'altra app di Taschino (es. Screenshot → Markdown)
+(() => {
+  let t = null;
+  try { t = localStorage.getItem('taschino_passa_testo'); localStorage.removeItem('taschino_passa_testo'); } catch (e) {}
+  if (!t || !new URLSearchParams(location.search).has('da')) return;
+  textInput.value = t;
+  statusLine.textContent = 'Testo ricevuto da Screenshot → Markdown ✓';
+  try { history.replaceState(null, '', location.pathname); } catch (e) {}
+})();
 
 // Stato iniziale
 onTextChanged();

@@ -59,10 +59,12 @@
              border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); }
   #status { color: var(--muted); font-size: .9rem; min-height: 1.4em; }
   .hint { font-size: .85rem; color: var(--muted); margin: 6px 0 0; }
+  .tz-home { display: inline-block; margin: 0 0 10px; padding: 4px 0; font-size: .9rem; color: inherit; opacity: .7; text-decoration: none; }
 </style>
 </head>
 <body>
 <main>
+  <a class="tz-home" href="../">‹ 🗃️ Taschino</a>
   <h1>Screenshot → Markdown</h1>
 
   <section class="card">
@@ -102,6 +104,7 @@
       <button id="share">Condividi / Salva su Drive</button>
       <button id="shareTxt" class="secondary" hidden>Condividi testo vocale</button>
       <button id="copy" class="secondary">Copia</button>
+      <button id="toReader" class="secondary">🔊 Leggi nel Lettore vocale</button>
     </div>
     <textarea id="out" readonly></textarea>
   </section>
@@ -533,6 +536,13 @@ async function condividi(testo, nome, tipo) {
 
 $("share").addEventListener("click", () => condividi(ultimoMd, nomeFile(".md"), "text/markdown"));
 $("shareTxt").addEventListener("click", () => condividi(ultimoTxt, nomeFile(".txt"), "text/plain"));
+// Passa il testo al Lettore vocale (stessa origine: localStorage condiviso), senza i commenti HTML
+$("toReader").addEventListener("click", () => {
+  const t = ultimoMd.replace(/<!--[\s\S]*?-->/g, "").replace(/\n{3,}/g, "\n\n").trim();
+  try { localStorage.setItem("taschino_passa_testo", t); }
+  catch { $("status").textContent = "Testo troppo lungo da passare: usa Copia e incollalo nel Lettore."; return; }
+  location.href = "../lettore-vocale/?da=screenshot-md";
+});
 $("copy").addEventListener("click", async () => {
   try { await navigator.clipboard.writeText(ultimoMd); $("status").textContent = "Copiato."; }
   catch { $("out").select(); }

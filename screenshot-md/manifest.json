@@ -3,7 +3,7 @@
   "short_name": "Screenshot MD",
   "description": "Trascrive in Markdown screenshot o PDF di pagine di giornale",
   "start_url": "./index.html",
-  "scope": "./",
+  "scope": "../",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f6f5f2",

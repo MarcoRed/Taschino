@@ -3,7 +3,7 @@
   "short_name": "Zone casa",
   "description": "Confronto delle zone di Milano per prezzo, tempi e metri quadri",
   "start_url": "./index.html",
-  "scope": "./",
+  "scope": "../",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f3f5f8",
