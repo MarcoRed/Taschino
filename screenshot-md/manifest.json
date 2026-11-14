@@ -1,7 +1,7 @@
 {
   "name": "Screenshot in Markdown",
   "short_name": "Screenshot MD",
-  "description": "Trascrive in Markdown gli screenshot di pagine di giornale",
+  "description": "Trascrive in Markdown screenshot o PDF di pagine di giornale",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

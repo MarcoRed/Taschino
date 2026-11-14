@@ -29,7 +29,7 @@ taschino/
 │   ├── manifest.json
 │   ├── icon-192.png
 │   └── icon-512.png
-├── screenshot-md/          # tool: screenshot di pagine → Markdown (OpenRouter)
+├── screenshot-md/          # tool: screenshot o PDF di pagine → Markdown (OpenRouter)
 │   ├── index.html
 │   ├── manifest.json
 │   ├── icon-192.png
