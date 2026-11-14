@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screenshot in Markdown</title>
+<style>
+  :root {
+    --bg: #f6f5f2; --card: #ffffff; --text: #1d1d1f; --muted: #6b6b70;
+    --line: #e2e0db; --accent: #1f5fae; --accent-text: #ffffff;
+    --ok: #2e7d32; --err: #b3261e; --run: #a86400;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151517; --card: #1f1f22; --text: #ececee; --muted: #9a9aa2;
+      --line: #33333a; --accent: #6ea8ff; --accent-text: #0b1a2e;
+      --ok: #7fd18a; --err: #ff8a80; --run: #f0b35a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #151517; --card: #1f1f22; --text: #ececee; --muted: #9a9aa2;
+    --line: #33333a; --accent: #6ea8ff; --accent-text: #0b1a2e;
+    --ok: #7fd18a; --err: #ff8a80; --run: #f0b35a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.35rem; margin: 4px 0 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+          padding: 16px; margin-bottom: 14px; }
+  label { display: block; margin-bottom: 12px; font-size: .9rem; color: var(--muted); }
+  input[type=password], input[type=text] {
+    display: block; width: 100%; margin-top: 4px; padding: 10px 12px; font-size: 1rem;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); }
+  .check { display: flex; gap: 10px; align-items: center; color: var(--text); font-size: 1rem; margin: 0; }
+  .check input { width: 22px; height: 22px; }
+  button, .file-btn {
+    font: inherit; font-weight: 600; padding: 12px 16px; border-radius: 10px; border: 0;
+    background: var(--accent); color: var(--accent-text); cursor: pointer; }
+  button.secondary { background: transparent; color: var(--accent); border: 1px solid var(--line); }
+  button:disabled { opacity: .45; cursor: default; }
+  .file-btn { display: inline-block; }
+  #files { display: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  ol { padding-left: 22px; margin: 14px 0; }
+  li { margin: 4px 0; word-break: break-word; }
+  li span { font-size: .85rem; margin-left: 6px; }
+  .s-ok { color: var(--ok); } .s-err { color: var(--err); } .s-run { color: var(--run); }
+  .s-wait { color: var(--muted); }
+  textarea { width: 100%; min-height: 320px; margin-top: 12px; padding: 12px; font: 14px/1.4 ui-monospace, monospace;
+             border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); }
+  #status { color: var(--muted); font-size: .9rem; min-height: 1.4em; }
+  .hint { font-size: .85rem; color: var(--muted); margin: 6px 0 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Screenshot → Markdown</h1>
+
+  <section class="card">
+    <label>Chiave OpenRouter
+      <input id="key" type="password" autocomplete="off" placeholder="sk-or-…">
+    </label>
+    <label>Modello
+      <input id="model" type="text" value="google/gemini-3.1-flash-lite" autocapitalize="off" spellcheck="false">
+    </label>
+    <label class="check"><input type="checkbox" id="parlato"> Versione per lettura vocale</label>
+    <p class="hint">La chiave resta salvata solo su questo dispositivo.</p>
+  </section>
+
+  <section class="card">
+    <div class="row">
+      <label class="file-btn" for="files">Scegli screenshot</label>
+      <input type="file" id="files" accept="image/*" multiple>
+      <button id="go" disabled>Trascrivi</button>
+    </div>
+    <p class="hint">Puoi sceglierli dalla Galleria o da Google Drive. Vengono ordinati per nome.</p>
+    <ol id="list"></ol>
+    <p id="status"></p>
+  </section>
+
+  <section class="card" id="outCard" hidden>
+    <div class="row">
+      <button id="share">Condividi / Salva su Drive</button>
+      <button id="shareTxt" class="secondary" hidden>Condividi testo vocale</button>
+      <button id="copy" class="secondary">Copia</button>
+    </div>
+    <textarea id="out" readonly></textarea>
+  </section>
+</main>
+
+<script>
+const API = "https://openrouter.ai/api/v1/chat/completions";
+
+const SYSTEM_INSTRUCTION = `Sei un assistente specializzato nella trascrizione accurata di pagine di giornali e quotidiani finanziari in formato Markdown.
+
+Regole da seguire:
+1. Riconosci la struttura della pagina: testata, data, numero di pagina, titoli principali (#), sottotitoli (## o ###), occhielli, catenacci e autore dell'articolo.
+2. Gestisci il layout multi-articolo e a colonne: trascrivi un articolo alla volta in modo sequenziale e coerente, separando gli articoli distinti con una linea orizzontale (---).
+3. Tabelle e grafici: converti qualsiasi tabella o riquadro contenente dati numerici/statistici in tabelle Markdown formattate correttamente.
+4. Box laterali / rubriche (es. interviste, opinioni, rubriche legali): trascrivili con un'apposita intestazione o racchiudili in un blocco evidenziato (> citazione/box).
+5. Trascrivi il testo integrale parola per parola, senza riassumere né omettere paragrafi.`;
+
+const PROMPT_PAGINA = "Trascrivi fedelmente l'intera pagina mostrata in questa immagine in formato Markdown. " +
+  "Mantieni tutti i titoli, sottotitoli, autori, box laterali, tabelle e paragrafi nell'ordine logico di lettura.";
+
+const PROMPT_PARLATO = `Sei un editor che prepara testi di riviste finanziarie italiane per la lettura ad alta voce da parte di un software di sintesi vocale.
+
+Ricevi il testo di UNA pagina (può essere già in Markdown). Può contenere righe spezzate a metà frase, riquadri laterali mescolati al testo, tabelle ridotte a righe di celle, indici, intestazioni correnti e numeri di pagina.
+
+Regole:
+1. Conserva tutto il contenuto informativo: non riassumere, non omettere fatti, cifre o nomi, non aggiungere nulla che non sia nel testo.
+2. Elimina solo ciò che non si ascolta utilmente: numeri di pagina, intestazioni correnti, indici tipo "In questo numero", URL, crediti di riproduzione, codici ISIN.
+3. Ricomponi i paragrafi spezzati dall'impaginazione in frasi e paragrafi completi.
+4. Riscrivi le tabelle come frasi brevi e naturali, ad esempio: "Carrefour, 13,84 euro: il consiglio passa da mantieni a vendi."
+5. Introduci i riquadri laterali con una breve frase di transizione (es. "Nel riquadro:"), senza cambiarne il contenuto.
+6. Mantieni i titoli di articolo e i sottotitoli come righe a sé che iniziano con "# " (titolo di articolo) o "## " (sottotitolo o titolo di sezione). Non riscriverli e non aggiungerne di nuovi. Non usare altri simboli markdown (*, -, |, >, →). Le cifre restano cifre.
+7. Rispondi solo con il testo pulito, senza premesse né commenti.`;
+
+const $ = id => document.getElementById(id);
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
+
+let pagine = [];        // { file, nome, testo, stato }
+let ultimoMd = "", ultimoTxt = "";
+
+// ---- impostazioni ricordate
+$("key").value = store.get("s2m_key") || "";
+$("model").value = store.get("s2m_model") || $("model").value;
+$("parlato").checked = store.get("s2m_parlato") === "1";
+$("key").addEventListener("change", e => store.set("s2m_key", e.target.value.trim()));
+$("model").addEventListener("change", e => store.set("s2m_model", e.target.value.trim()));
+$("parlato").addEventListener("change", e => {
+  store.set("s2m_parlato", e.target.checked ? "1" : "0");
+  pagine.forEach(p => { if (p.stato === "ok") { p.stato = "attesa"; p.testo = null; } });
+  disegnaLista();
+});
+
+// ---- scelta file
+$("files").addEventListener("change", e => {
+  const files = [...e.target.files].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }));
+  pagine = files.map(f => ({ file: f, nome: f.name, testo: null, stato: "attesa" }));
+  disegnaLista();
+  $("go").disabled = pagine.length === 0;
+  $("outCard").hidden = true;
+});
+
+function disegnaLista() {
+  const etichette = { attesa: ["in attesa", "s-wait"], corso: ["in corso…", "s-run"],
+                      ok: ["fatta", "s-ok"], errore: ["errore", "s-err"] };
+  $("list").innerHTML = "";
+  pagine.forEach(p => {
+    const li = document.createElement("li");
+    li.textContent = p.nome;
+    const s = document.createElement("span");
+    const [txt, cls] = etichette[p.stato];
+    s.textContent = p.errore ? `${txt}: ${p.errore}` : txt;
+    s.className = cls;
+    li.appendChild(s);
+    $("list").appendChild(li);
+  });
+}
+
+// ---- immagine -> JPEG data URL (lato lungo max 2400 px)
+async function aDataUrl(file) {
+  const bmp = await createImageBitmap(file);
+  const scala = Math.min(1, 2400 / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas");
+  c.width = Math.round(bmp.width * scala);
+  c.height = Math.round(bmp.height * scala);
+  c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+  bmp.close?.();
+  return c.toDataURL("image/jpeg", 0.9);
+}
+
+const pausa = ms => new Promise(r => setTimeout(r, ms));
+
+async function chiama(messaggi, maxTokens) {
+  const key = $("key").value.trim(), model = $("model").value.trim();
+  for (let n = 1; n <= 4; n++) {
+    let r;
+    try {
+      r = await fetch(API, {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + key, "Content-Type": "application/json",
+                   "X-Title": "Taschino Screenshot MD" },
+        body: JSON.stringify({ model, messages: messaggi, max_tokens: maxTokens }),
+      });
+    } catch (e) {
+      if (n < 4) { await pausa(5000 * 2 ** (n - 1)); continue; }
+      throw new Error("connessione non riuscita");
+    }
+    if (r.status === 402) throw new Error("credito esaurito (402)");
+    if (r.status === 401) throw new Error("chiave non valida (401)");
+    if ([429, 500, 502, 503, 504].includes(r.status) && n < 4) {
+      $("status").textContent = `Errore ${r.status}, riprovo…`;
+      await pausa(5000 * 2 ** (n - 1));
+      continue;
+    }
+    if (!r.ok) throw new Error(`errore ${r.status}`);
+    const j = await r.json();
+    if (j.error) throw new Error(j.error.message || "errore del modello");
+    const c = j.choices?.[0];
+    const testo = c?.message?.content?.trim();
+    if (!testo) throw new Error("risposta vuota");
+    if (c.finish_reason && !["stop", "end_turn"].includes(c.finish_reason))
+      throw new Error(`risposta incompleta (${c.finish_reason})`);
+    return testo;
+  }
+  throw new Error("tentativi esauriti");
+}
+
+// ---- elaborazione
+$("go").addEventListener("click", async () => {
+  if (!$("key").value.trim()) { $("status").textContent = "Inserisci la chiave OpenRouter."; return; }
+  store.set("s2m_key", $("key").value.trim());
+  const parlato = $("parlato").checked;
+  $("go").disabled = true;
+  let wake = null;
+  try { wake = await navigator.wakeLock?.request("screen"); } catch {}
+
+  for (let i = 0; i < pagine.length; i++) {
+    const p = pagine[i];
+    if (p.stato === "ok") continue;               // già fatte: non si ripagano
+    p.stato = "corso"; p.errore = null; disegnaLista();
+    $("status").textContent = `Pagina ${i + 1} di ${pagine.length}…`;
+    try {
+      const img = await aDataUrl(p.file);
+      let testo = await chiama([
+        { role: "system", content: SYSTEM_INSTRUCTION },
+        { role: "user", content: [
+          { type: "text", text: PROMPT_PAGINA },
+          { type: "image_url", image_url: { url: img } },
+        ] },
+      ], 32768);
+      if (parlato) {
+        testo = await chiama([
+          { role: "system", content: PROMPT_PARLATO },
+          { role: "user", content: testo },
+        ], 16000);
+      }
+      p.testo = testo; p.stato = "ok";
+    } catch (e) {
+      p.stato = "errore"; p.errore = e.message;
+      if (e.message.includes("402") || e.message.includes("401")) { disegnaLista(); break; }
+    }
+    disegnaLista();
+  }
+
+  try { await wake?.release(); } catch {}
+  componi(parlato);
+  const fallite = pagine.filter(p => p.stato !== "ok").length;
+  $("status").textContent = fallite
+    ? `${fallite} pagine non completate: premi di nuovo Trascrivi per riprovare solo quelle.`
+    : "Fatto.";
+  $("go").disabled = false;
+});
+
+function componi(parlato) {
+  const fatte = pagine.filter(p => p.stato === "ok");
+  if (!fatte.length) return;
+  ultimoMd = parlato
+    ? fatte.map(p => p.testo).join("\n\n") + "\n"
+    : fatte.map(p => `<!-- Pagina: ${p.nome} -->\n\n${p.testo}\n`).join("\n\n---\n\n");
+  ultimoTxt = ultimoMd.replace(/^#{1,6}\s+/gm, "");
+  $("out").value = ultimoMd;
+  $("outCard").hidden = false;
+  $("shareTxt").hidden = !parlato;
+}
+
+function nomeFile(ext) {
+  const d = new Date().toISOString().slice(0, 10);
+  return `trascrizione_${d}${ext}`;
+}
+
+async function condividi(testo, nome, tipo) {
+  const file = new File([testo], nome, { type: tipo });
+  if (navigator.canShare?.({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: nome }); return; }
+    catch (e) { if (e.name === "AbortError") return; }
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(file);
+  a.download = nome;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+$("share").addEventListener("click", () => condividi(ultimoMd, nomeFile(".md"), "text/markdown"));
+$("shareTxt").addEventListener("click", () => condividi(ultimoTxt, nomeFile(".txt"), "text/plain"));
+$("copy").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(ultimoMd); $("status").textContent = "Copiato."; }
+  catch { $("out").select(); }
+});
+</script>
+</body>
+</html>

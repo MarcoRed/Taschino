@@ -10,9 +10,24 @@ Piccola collezione di mini-app HTML personali, pubblicate come sito statico via 
 taschino/
 ├── index.html              # home page con l'elenco dei tool
 ├── manifest.json           # PWA manifest per la home
-└── lettore-vocale/
-    └── index.html          # tool: lettore vocale (testo, link o file → voce)
+├── icon-192.png            # icone della home
+├── icon-512.png
+├── lettore-vocale/         # tool: lettore vocale (testo, link o file → voce)
+│   ├── index.html
+│   ├── manifest.json       # PWA manifest del tool
+│   ├── icon-192.png
+│   └── icon-512.png
+├── cerca-casa/             # tool: zone di Milano per prezzo, tempi e metri quadri
+│   ├── index.html
+│   └── grafico/
+│       └── index.html      # grafico del confronto
+├── screenshot-md/          # tool: screenshot di pagine → Markdown (OpenRouter)
+│   └── index.html
+└── tools/                  # script di supporto, non pubblicati come tool
+    └── merge_project.sh    # unisce i file di un progetto in un unico .txt
 ```
+
+Le cartelle dei tool non contengono file di build: ogni `index.html` è autonomo.
 
 ## Come aggiornare il sito
 
@@ -25,6 +40,17 @@ git push
 ```
 
 Il sito si aggiorna in 1-2 minuti.
+
+## Script di supporto
+
+`tools/merge_project.sh` unisce tutti i file di testo di una cartella in un unico file, con intestazioni per percorso. Serve per caricare il progetto nella project knowledge di Claude:
+
+```bash
+./tools/merge_project.sh ~/taschino                  # output: project_merged.txt
+./tools/merge_project.sh ~/taschino merged.md        # nome output personalizzato
+```
+
+Il file generato (`project_merged.txt`) è in `.gitignore` e non va committato.
 
 ## Aggiungere un nuovo tool
 
