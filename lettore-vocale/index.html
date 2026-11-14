@@ -1304,7 +1304,6 @@ prevSectionBtn.addEventListener('click', () => {
 nextSectionBtn.addEventListener('click', () => goToSection(secIdx + 1));
 
 // ===== Indice =====
-let tocResumeOnClose = false;
 
 function openToc(fromPlayer) {
   let list = sections;
@@ -1326,7 +1325,6 @@ function openToc(fromPlayer) {
     btn.appendChild(idxSpan);
     btn.appendChild(document.createTextNode(s.title));
     btn.addEventListener('click', () => {
-      tocResumeOnClose = false;
       tocSheet.classList.remove('active');
       if (fromPlayer && isReading) goToSection(i);
       else startReading(i);
@@ -1334,10 +1332,7 @@ function openToc(fromPlayer) {
     tocList.appendChild(btn);
   });
   tocTitle.textContent = 'Indice (' + list.length + (list.length === 1 ? ' sezione' : ' sezioni') + ')';
-  if (fromPlayer && isReading && !isPaused && !waitingNext) {
-    pauseReading();
-    tocResumeOnClose = true;
-  }
+  // La lettura continua mentre si sfoglia l'indice: cambia sezione solo se si tocca una voce
   tocSheet.classList.add('active');
 }
 
@@ -1345,12 +1340,6 @@ tocOpenBtn.addEventListener('click', () => openToc(false));
 indexBtn.addEventListener('click', () => openToc(true));
 tocCloseBtn.addEventListener('click', () => {
   tocSheet.classList.remove('active');
-  if (tocResumeOnClose && isReading) {
-    tocResumeOnClose = false;
-    isPaused = false;
-    speakSentence(sentIdx);
-    updatePlayIcon();
-  }
 });
 
 // Testo passato da un'altra app di Taschino (es. Screenshot → Markdown)
