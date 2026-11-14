@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Screenshot in Markdown</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1f5fae">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Screenshot MD">
 <style>
   :root {
     --bg: #f6f5f2; --card: #ffffff; --text: #1d1d1f; --muted: #6b6b70;
@@ -229,14 +236,19 @@ $("go").addEventListener("click", async () => {
     p.stato = "corso"; p.errore = null; disegnaLista();
     $("status").textContent = `Pagina ${i + 1} di ${pagine.length}…`;
     try {
-      const img = await aDataUrl(p.file);
-      let testo = await chiama([
-        { role: "system", content: SYSTEM_INSTRUCTION },
-        { role: "user", content: [
-          { type: "text", text: PROMPT_PAGINA },
-          { type: "image_url", image_url: { url: img } },
-        ] },
-      ], 32768);
+      // La trascrizione grezza viene salvata: se fallisce il passo "lettura vocale" o si cambia
+      // l'opzione, non si rifà l'OCR (costo e tempo) della pagina.
+      if (!p.raw) {
+        const img = await aDataUrl(p.file);
+        p.raw = await chiama([
+          { role: "system", content: SYSTEM_INSTRUCTION },
+          { role: "user", content: [
+            { type: "text", text: PROMPT_PAGINA },
+            { type: "image_url", image_url: { url: img } },
+          ] },
+        ], 32768);
+      }
+      let testo = p.raw;
       if (parlato) {
         testo = await chiama([
           { role: "system", content: PROMPT_PARLATO },

@@ -6,28 +6,39 @@ Piccola collezione di mini-app HTML personali, pubblicate come sito statico via 
 
 ## Struttura
 
+Ogni tool è una cartella con esattamente gli stessi quattro file:
+
 ```
 taschino/
 ├── index.html              # home page con l'elenco dei tool
-├── manifest.json           # PWA manifest per la home
+├── manifest.json           # PWA manifest della home
 ├── icon-192.png            # icone della home
 ├── icon-512.png
 ├── lettore-vocale/         # tool: lettore vocale (testo, link o file → voce)
 │   ├── index.html
-│   ├── manifest.json       # PWA manifest del tool
+│   ├── manifest.json
 │   ├── icon-192.png
 │   └── icon-512.png
 ├── cerca-casa/             # tool: zone di Milano per prezzo, tempi e metri quadri
 │   ├── index.html
-│   └── grafico/
-│       └── index.html      # grafico del confronto
+│   ├── manifest.json
+│   ├── icon-192.png
+│   └── icon-512.png
+├── cerca-casa-grafico/     # tool: grafico prezzo/minuti delle zone (collegato da cerca-casa)
+│   ├── index.html
+│   ├── manifest.json
+│   ├── icon-192.png
+│   └── icon-512.png
 ├── screenshot-md/          # tool: screenshot di pagine → Markdown (OpenRouter)
-│   └── index.html
+│   ├── index.html
+│   ├── manifest.json
+│   ├── icon-192.png
+│   └── icon-512.png
 └── tools/                  # script di supporto, non pubblicati come tool
     └── merge_project.sh    # unisce i file di un progetto in un unico .txt
 ```
 
-Le cartelle dei tool non contengono file di build: ogni `index.html` è autonomo.
+Ogni `index.html` è autonomo (nessun file di build) e ha nell'`<head>` gli stessi tag PWA: `manifest`, `theme-color`, `icon`, `apple-touch-icon` e `apple-mobile-web-app-*`.
 
 ## Come aggiornare il sito
 
@@ -41,6 +52,16 @@ git push
 
 Il sito si aggiorna in 1-2 minuti.
 
+## Aggiungere un nuovo tool
+
+1. Copia una cartella esistente (es. `lettore-vocale/`) in `nuovo-tool/` e sostituisci `index.html`. Così restano anche `manifest.json` e le icone.
+2. Nel `manifest.json` cambia `name`, `short_name`, `description` e `theme_color`.
+3. Nell'`<head>` dell'`index.html` aggiorna `<title>`, `theme-color` e `apple-mobile-web-app-title`.
+4. Aggiungi una card nella home page (`index.html` principale) che punta a `nuovo-tool/`.
+5. `git add . && git commit -m "Nuovo tool: ..." && git push`
+
+Le icone copiate vanno sostituite con quelle del nuovo tool, se ne vuoi di proprie.
+
 ## Script di supporto
 
 `tools/merge_project.sh` unisce tutti i file di testo di una cartella in un unico file, con intestazioni per percorso. Serve per caricare il progetto nella project knowledge di Claude:
@@ -51,16 +72,6 @@ Il sito si aggiorna in 1-2 minuti.
 ```
 
 Il file generato (`project_merged.txt`) è in `.gitignore` e non va committato.
-
-## Aggiungere un nuovo tool
-
-1. Crea una nuova cartella, es. `nuovo-tool/`, con dentro un `index.html`.
-2. Aggiungi una card nella home page (`index.html` principale) che punta a `nuovo-tool/`.
-3. Per renderlo installabile come app (icona propria, schermo intero, no barra Chrome):
-   - Crea `nuovo-tool/manifest.json` (copia quello di `lettore-vocale/` e cambia nome/descrizione)
-   - Aggiungi due icone `icon-192.png` e `icon-512.png` nella cartella
-   - Nell'`<head>` dell'`index.html` del tool, aggiungi gli stessi tag `<link rel="manifest">`, `<meta name="theme-color">`, `<link rel="apple-touch-icon">` presenti in `lettore-vocale/index.html`
-4. `git add . && git commit -m "Nuovo tool: ..." && git push`
 
 ## Installare un tool come app sul telefono
 
