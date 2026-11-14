@@ -327,7 +327,7 @@
         <option value="3">### (livello 3)</option>
         <option value="4">#### (livello 4)</option>
       </select>
-      <div class="note">Se il testo ha dei titoli, viene letto per capitoli con indice. Altrimenti la lettura è continua.</div>
+      <div class="note">Se il testo ha dei titoli, viene letto per capitoli con indice. Automatico usa il primo livello con almeno 2 titoli; se il livello scelto qui ne ha meno di 2, si usa comunque l'automatico.</div>
     </div>
 
     <div class="field toggle-row">
@@ -790,13 +790,17 @@ function parseSections(text, level) {
 
 // Automatico: il primo livello (1-4) con almeno 2 titoli. Manuale: quel livello, se ha almeno 1 titolo.
 // Se non ci sono titoli, lettura continua come unica sezione.
+// Se il livello scelto a mano ha meno di 2 titoli in questo testo, si torna all'automatico
+// (evita di ritrovarsi con 1-2 capitoli per un'impostazione rimasta da un altro file).
 function analyzeText(text) {
   const manual = parseInt(levelSelect.value, 10);
-  const levels = manual ? [manual] : [1, 2, 3, 4];
-  const minHeadings = manual ? 1 : 2;
-  for (const lv of levels) {
+  if (manual) {
+    const r = parseSections(text, manual);
+    if (r.headings >= 2) return { sections: r.sections, chapters: true, level: manual, manual: true };
+  }
+  for (const lv of [1, 2, 3, 4]) {
     const r = parseSections(text, lv);
-    if (r.headings >= minHeadings) return { sections: r.sections, chapters: true };
+    if (r.headings >= 2) return { sections: r.sections, chapters: true, level: lv, manual: false };
   }
   return { sections: [{ title: '', body: text }], chapters: false };
 }
@@ -806,7 +810,8 @@ function updateChapterHint() {
   if (!text) { tocOpenBtn.hidden = true; return; }
   const a = analyzeText(text);
   if (!a.chapters) { tocOpenBtn.hidden = true; return; }
-  tocOpenBtn.textContent = '📑 Indice · ' + a.sections.length + (a.sections.length === 1 ? ' capitolo' : ' capitoli');
+  tocOpenBtn.textContent = '📑 Indice · ' + a.sections.length + (a.sections.length === 1 ? ' capitolo' : ' capitoli') +
+    ' (titoli ' + '#'.repeat(a.level) + (a.manual ? '' : ', automatico') + ')';
   tocOpenBtn.hidden = false;
 }
 

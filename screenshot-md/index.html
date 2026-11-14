@@ -113,30 +113,50 @@
 <script>
 const API = "https://openrouter.ai/api/v1/chat/completions";
 
-const SYSTEM_INSTRUCTION = `Sei un assistente specializzato nella trascrizione accurata di pagine di giornali e quotidiani finanziari in formato Markdown.
+const SYSTEM_INSTRUCTION = `Sei un assistente specializzato nella trascrizione accurata di pagine di giornali e riviste finanziarie in Markdown. Il testo sarà ascoltato con un lettore vocale che usa i titoli "# " come capitoli navigabili: la gerarchia dei titoli deve essere rigorosa e identica in tutte le pagine.
 
-Regole da seguire:
-1. Riconosci la struttura della pagina: testata, data, numero di pagina, titoli principali (#), sottotitoli (## o ###), occhielli, catenacci e autore dell'articolo.
-2. Gestisci il layout multi-articolo e a colonne: trascrivi un articolo alla volta in modo sequenziale e coerente, separando gli articoli distinti con una linea orizzontale (---).
-3. Tabelle e grafici: converti qualsiasi tabella o riquadro contenente dati numerici/statistici in tabelle Markdown formattate correttamente.
-4. Box laterali / rubriche (es. interviste, opinioni, rubriche legali): trascrivili con un'apposita intestazione o racchiudili in un blocco evidenziato (> citazione/box).
-5. Trascrivi il testo integrale parola per parola, senza riassumere né omettere paragrafi.`;
+Gerarchia dei titoli (obbligatoria):
+- "# " solo per il titolo vero di un articolo (anche intervista, editoriale, commento). Uno per articolo.
+- "## " solo per sezioni interne brevi di un articolo: sottotitoli di paragrafo, titolo di un riquadro, di una tabella o di un grafico. Al massimo una riga corta.
+- Nessun altro livello: niente "###" o oltre.
 
-const PROMPT_PAGINA = "Trascrivi fedelmente l'intera pagina mostrata in questa immagine in formato Markdown. " +
-  "Mantieni tutti i titoli, sottotitoli, autori, box laterali, tabelle e paragrafi nell'ordine logico di lettura.";
+NON sono titoli e vanno scritti come righe di testo normali, senza grassetto:
+- testata, data, numero di pagina, intestazioni correnti;
+- nome della rubrica o della sezione del giornale (es. "L'ultima settimana", "I vostri soldi"): scrivilo come riga "Rubrica: <nome>." subito dopo il titolo dell'articolo. Solo se l'articolo non ha un titolo proprio (es. un editoriale con il solo nome della rubrica) usa il nome della rubrica come titolo "# ";
+- occhiello e catenaccio: righe di testo subito dopo il titolo;
+- autore: riga "di Nome Cognome.".
+
+Altre regole:
+1. Layout a colonne e più articoli: trascrivi un articolo alla volta, completo e nell'ordine logico di lettura, prima di passare al successivo.
+2. Se la pagina inizia con il seguito di un articolo cominciato nella pagina precedente, non mettere alcun titolo: comincia direttamente con il testo.
+3. Tabelle di dati: tabella Markdown, preceduta dal suo titolo come "## ".
+4. Riquadri e box: titolo "## " (se ne hanno uno) seguito dal testo.
+5. Elimina completamente pubblicità, inserzioni, promozioni di eventi, corsi o prodotti, avvertenze legali e disclaimer: non trascriverli e non segnalarli.
+6. Trascrivi tutto il resto parola per parola, senza riassumere né omettere paragrafi.`;
+
+const PROMPT_PAGINA = "Trascrivi fedelmente l'intera pagina mostrata in questa immagine in formato Markdown, " +
+  "seguendo la gerarchia dei titoli indicata e nell'ordine logico di lettura.";
+
+// Contesto dalla pagina precedente: evita che il seguito di un articolo riceva un titolo inventato
+function promptPagina(titoloPrec) {
+  return PROMPT_PAGINA + (titoloPrec
+    ? `\n\nL'ultimo articolo della pagina precedente si intitola «${titoloPrec}». Se questa pagina comincia con il suo seguito, non ripetere né inventare un titolo per quel testo.`
+    : "");
+}
 
 const PROMPT_PARLATO = `Sei un editor che prepara testi di riviste finanziarie italiane per la lettura ad alta voce da parte di un software di sintesi vocale.
 
-Ricevi il testo di UNA pagina (può essere già in Markdown). Può contenere righe spezzate a metà frase, riquadri laterali mescolati al testo, tabelle ridotte a righe di celle, indici, intestazioni correnti e numeri di pagina.
+Ricevi il testo di UNA pagina in Markdown. Può contenere righe spezzate a metà frase, riquadri laterali mescolati al testo, tabelle, indici, intestazioni correnti e numeri di pagina.
 
 Regole:
 1. Conserva tutto il contenuto informativo: non riassumere, non omettere fatti, cifre o nomi, non aggiungere nulla che non sia nel testo.
-2. Elimina solo ciò che non si ascolta utilmente: numeri di pagina, intestazioni correnti, indici tipo "In questo numero", URL, crediti di riproduzione, codici ISIN.
+2. Elimina solo ciò che non si ascolta utilmente: numeri di pagina, intestazioni correnti, indici tipo "In questo numero", URL, crediti di riproduzione, codici ISIN, e qualsiasi pubblicità, promozione o avvertenza legale rimasta.
 3. Ricomponi i paragrafi spezzati dall'impaginazione in frasi e paragrafi completi.
 4. Riscrivi le tabelle come frasi brevi e naturali, ad esempio: "Carrefour, 13,84 euro: il consiglio passa da mantieni a vendi."
 5. Introduci i riquadri laterali con una breve frase di transizione (es. "Nel riquadro:"), senza cambiarne il contenuto.
-6. Mantieni i titoli di articolo e i sottotitoli come righe a sé che iniziano con "# " (titolo di articolo) o "## " (sottotitolo o titolo di sezione). Non riscriverli e non aggiungerne di nuovi. Non usare altri simboli markdown (*, -, |, >, →). Le cifre restano cifre.
-7. Rispondi solo con il testo pulito, senza premesse né commenti.`;
+6. Titoli: mantieni esattamente le righe che iniziano con "# " (titolo di articolo) e "## " (sezione interna), con lo stesso livello e lo stesso testo. Non aggiungerne, non trasformare in titolo righe che non lo sono, non usare "###". Le righe "Rubrica: ..." e "di Nome Cognome." restano righe normali.
+7. Non usare altri simboli markdown (*, -, |, >, →). Le cifre restano cifre.
+8. Rispondi solo con il testo pulito, senza premesse né commenti.`;
 
 const $ = id => document.getElementById(id);
 const store = {
@@ -475,7 +495,7 @@ $("go").addEventListener("click", async () => {
         p.raw = await chiama([
           { role: "system", content: SYSTEM_INSTRUCTION },
           { role: "user", content: [
-            { type: "text", text: PROMPT_PAGINA },
+            { type: "text", text: promptPagina(titoloPrecedente(i)) },
             { type: "image_url", image_url: { url: img } },
           ] },
         ], 32768);
@@ -504,12 +524,56 @@ $("go").addEventListener("click", async () => {
   $("go").disabled = false;
 });
 
+// ==== NORMALIZZA MD ====
+// Titolo "# " dell'ultimo articolo della pagina precedente (per dare contesto al modello)
+function titoloPrecedente(i) {
+  const prec = pagine[i - 1];
+  const t = prec && (prec.raw || prec.testo);
+  if (!t) return "";
+  const tit = [...t.matchAll(/^#\s+(.+)$/gm)].pop();
+  return tit ? tit[1].replace(/[*_]/g, "").trim() : "";
+}
+
+// Pulizia finale, uguale per screenshot e PDF e indipendente dal modello, perché i "# " siano
+// esattamente gli articoli (capitoli del lettore vocale) e i "## " le loro sezioni interne.
+function normalizzaMd(t) {
+  const righe = t.split("\n"), out = [], visti = new Set();
+  const autore = s => /^(di|by|a cura di)\s+\p{Lu}[\p{L}'’.-]*(\s+\p{Lu}[\p{L}'’.-]*){0,3}\.?$/u.test(s);
+  let inFence = false, rubrica = null;
+  for (let i = 0; i < righe.length; i++) {
+    let r = righe[i];
+    if (/^\s*```/.test(r)) inFence = !inFence;
+    if (inFence) { out.push(r); continue; }
+    r = r.replace(/^\s*(\*\*|__)(.+?)\1\s*$/, "$2");              // riga tutta in grassetto -> testo
+    const m = r.match(/^(#{1,6})\s+(.*?)\s*#*\s*$/);
+    if (!m) { out.push(r); continue; }
+    const liv = Math.min(m[1].length, 2);                          // ### e oltre -> ##
+    const tit = m[2].replace(/\*\*|__/g, "").trim();
+    if (!tit) continue;
+    if (autore(tit)) { out.push(/\.$/.test(tit) ? tit : tit + "."); continue; }   // "## di Nome" -> riga
+    if (tit.length > 90) { out.push(tit); continue; }              // catenaccio lungo -> paragrafo
+    if (liv === 1) {
+      const k = tit.toLowerCase().replace(/\s+/g, " ");
+      if (visti.has(k)) continue;                                  // titolo ripetuto: testata o seguito
+      visti.add(k);
+      let j = i + 1;
+      while (j < righe.length && !righe[j].trim()) j++;
+      if (j < righe.length && /^#\s+/.test(righe[j])) { rubrica = tit; continue; }  // "# rubrica" + "# articolo"
+    }
+    out.push("#".repeat(liv) + " " + tit);
+    if (liv === 1 && rubrica) { out.push("", "Rubrica: " + rubrica + "."); rubrica = null; }
+  }
+  return out.join("\n").replace(/\n{3,}/g, "\n\n");
+}
+// ==== FINE NORMALIZZA MD ====
+
 function componi(parlato) {
   const fatte = pagine.filter(p => p.stato === "ok");
   if (!fatte.length) return;
   ultimoMd = parlato
     ? fatte.map(p => p.testo).join("\n\n") + "\n"
     : fatte.map(p => `<!-- Pagina: ${p.nome} -->\n\n${p.testo}\n`).join("\n\n---\n\n");
+  ultimoMd = normalizzaMd(ultimoMd);
   ultimoTxt = ultimoMd.replace(/^#{1,6}\s+/gm, "");
   $("out").value = ultimoMd;
   $("outCard").hidden = false;
