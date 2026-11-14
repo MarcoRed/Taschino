@@ -48,7 +48,7 @@
   button.secondary { background: transparent; color: var(--accent); border: 1px solid var(--line); }
   button:disabled { opacity: .45; cursor: default; }
   .file-btn { display: inline-block; }
-  #files { display: none; }
+  #files, #filesDoc { display: none; }
   .row { display: flex; flex-wrap: wrap; gap: 10px; }
   ol { padding-left: 22px; margin: 14px 0; }
   li { margin: 4px 0; word-break: break-word; }
@@ -85,11 +85,14 @@
 
   <section class="card">
     <div class="row">
-      <label class="file-btn" for="files">Scegli screenshot o PDF</label>
-      <input type="file" id="files" accept="image/*,application/pdf,.pdf" multiple>
+      <label class="file-btn" for="files">📷 Screenshot</label>
+      <input type="file" id="files" accept="image/*" multiple>
+      <label class="file-btn" for="filesDoc">📄 File o PDF</label>
+      <input type="file" id="filesDoc" multiple>
       <button id="go" disabled>Trascrivi</button>
+      <button id="clear" class="secondary" hidden>Svuota</button>
     </div>
-    <p class="hint">Immagini o PDF da Galleria, memoria del dispositivo o Google Drive. I file vengono ordinati per nome; ogni pagina di un PDF viene trascritta a parte.</p>
+    <p class="hint"><b>Screenshot</b> apre la Galleria. <b>File o PDF</b> apre il selettore di file: per le cartelle del dispositivo tocca ☰ in alto a sinistra e scegli <i>Download</i> o il nome del tablet (se manca: ⋮ → <i>Mostra memoria interna</i>); da lì c'è anche Drive. Le scelte si sommano; i file sono ordinati per nome e ogni pagina di un PDF viene trascritta a parte.</p>
     <ol id="list"></ol>
     <p id="status"></p>
   </section>
@@ -163,13 +166,17 @@ $("pdfMode").addEventListener("change", e => {
 // ---- scelta file
 const isPdf = f => f.type === "application/pdf" || /\.pdf$/i.test(f.name);
 
-$("files").addEventListener("change", async e => {
-  const files = [...e.target.files].sort((a, b) =>
-    a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }));
+async function aggiungiFile(e) {
+  const scelti = [...e.target.files].filter(f => isPdf(f) || f.type.startsWith("image/") || /\.(jpe?g|png|webp|heic|gif|bmp)$/i.test(f.name));
+  const scartati = e.target.files.length - scelti.length;
+  e.target.value = "";             // permette di riscegliere gli stessi file
+  if (!scelti.length) { $("status").textContent = scartati ? "Scegli immagini o PDF." : ""; return; }
   $("go").disabled = true;
   $("outCard").hidden = true;
-  pagine = [];
-  for (const f of files) {
+  // si aggiungono a quelli già scelti (ignorando i doppioni) e si riordina tutto per nome
+  const gia = new Set(pagine.map(p => p.file.name + "|" + p.file.size));
+  const nuovi = scelti.filter(f => !gia.has(f.name + "|" + f.size));
+  for (const f of nuovi) {
     if (!isPdf(f)) { pagine.push({ file: f, nome: f.name, testo: null, stato: "attesa" }); continue; }
     try {
       $("status").textContent = `Apro ${f.name}…`;
@@ -181,10 +188,18 @@ $("files").addEventListener("change", async e => {
                     errore: "PDF non leggibile (" + (err.message || err) + ")" });
     }
   }
-  e.target.value = "";             // permette di riscegliere gli stessi file
-  $("status").textContent = "";
+  const coll = (a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
+  pagine.sort((a, b) => coll(a.file.name, b.file.name) || (a.pdfPag || 0) - (b.pdfPag || 0));
+  $("status").textContent = scartati ? `${scartati} file ignorati (non sono immagini o PDF).` : "";
   disegnaLista();
   $("go").disabled = !pagine.some(p => p.stato === "attesa");
+}
+$("files").addEventListener("change", aggiungiFile);
+$("filesDoc").addEventListener("change", aggiungiFile);
+$("clear").addEventListener("click", () => {
+  pagine = []; pdfAperti.clear();
+  $("outCard").hidden = true; $("status").textContent = "";
+  $("go").disabled = true; disegnaLista();
 });
 
 // ---- PDF: pdf.js caricato solo alla prima apertura di un PDF
@@ -223,6 +238,7 @@ async function pdfPaginaDataUrl(file, n) {
 }
 
 function disegnaLista() {
+  $("clear").hidden = pagine.length === 0;
   const etichette = { attesa: ["in attesa", "s-wait"], corso: ["in corso…", "s-run"],
                       ok: ["fatta", "s-ok"], errore: ["errore", "s-err"] };
   $("list").innerHTML = "";
