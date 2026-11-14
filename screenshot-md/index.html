@@ -132,7 +132,11 @@ Altre regole:
 3. Tabelle di dati: tabella Markdown, preceduta dal suo titolo come "## ".
 4. Riquadri e box: titolo "## " (se ne hanno uno) seguito dal testo.
 5. Elimina completamente pubblicità, inserzioni, promozioni di eventi, corsi o prodotti, avvertenze legali e disclaimer: non trascriverli e non segnalarli.
-6. Trascrivi tutto il resto parola per parola, senza riassumere né omettere paragrafi.`;
+6. Ordine dentro un articolo, anche se nell'impaginazione è diverso: prima il titolo "# ", poi rubrica, occhiello, catenaccio e autore, poi il testo. Il titolo non va mai dopo il testo dell'articolo.
+7. Rubriche di notizie brevi (più trafiletti con un piccolo titolo ciascuno): il nome della rubrica è il titolo "# " e ogni notizia ha il suo titolo "## ".
+8. Non trascrivere testata, data e numero di pagina; non inserire immagini o segnaposto di immagine: trascrivi solo le didascalie come testo.
+9. Ricomponi le parole spezzate a fine riga (es. "mol-te" diventa "molte") e separa quelle incollate.
+10. Trascrivi tutto il resto parola per parola, senza riassumere né omettere paragrafi.`;
 
 const PROMPT_PAGINA = "Trascrivi fedelmente l'intera pagina mostrata in questa immagine in formato Markdown, " +
   "seguendo la gerarchia dei titoli indicata e nell'ordine logico di lettura.";
@@ -534,10 +538,74 @@ function titoloPrecedente(i) {
   return tit ? tit[1].replace(/[*_]/g, "").trim() : "";
 }
 
+// Pulizia di UNA pagina: riordina autore, rubrica, occhiello e catenaccio che l'impaginazione mette
+// sopra il titolo (finirebbero nel capitolo precedente) e riporta il titolo prima del testo quando
+// la pagina comincia con l'autore ma il modello ha messo il titolo dopo il corpo dell'articolo.
+function normalizzaPagina(t) {
+  const pulisci = x => x.trim().replace(/^(\*\*|__|\*|_)(.+)\1$/s, "$2").trim();
+  // blocco di testata: numero di pagina e/o data, eventualmente con il nome del giornale in maiuscolo
+  const DATA_PAG = /^(\d{1,3}|pagina\s+\d{1,3}|\d{1,2}\s+\p{L}+\s+\d{4})$/iu;
+  const testataPagina = rr => rr.length <= 4 && rr.some(r => DATA_PAG.test(r)) &&
+    rr.every(r => DATA_PAG.test(r) || (r.length <= 40 && r === r.toUpperCase() && !/[.!?]$/.test(r)));
+  const AUT = /^(di|by|a cura di)\s+\p{Lu}[\p{L}'’.-]*(\s+\p{Lu}[\p{L}'’.-]*){0,3}\.?$/u;
+  // blocchi separati da righe vuote; ogni titolo è un blocco a sé
+  const blocchi = t.replace(/^(#{1,6} .*)$/gm, "\n$1\n").split(/\n\s*\n/).map(b => b.trim()).filter(Boolean)
+    .filter(b => /^\|/.test(b) || !testataPagina(b.split("\n").flatMap(r => r.split(/\s+\|\s+/)).map(pulisci)));
+  const tipo = b => {
+    if (/^<!--/.test(b) || /^(-{3,}|\*{3,}|_{3,})$/.test(b)) return "conf";
+    const h = b.match(/^(#{1,6}) /);
+    if (h) return h[1].length === 1 ? "h1" : "h2";
+    const x = pulisci(b.replace(/\*\*/g, ""));
+    if (AUT.test(x)) return "aut";
+    if (!/\n/.test(b) && x.length <= 40 && !/[.!?]$/.test(x) && x === x.toUpperCase() && /\p{L}/u.test(x)) return "meta"; // FOCUS, MERCATI/2
+    if (/^(\*|_)[^*_][\s\S]*\1$/.test(b) && b.length < 600) return "meta";           // catenaccio in corsivo
+    if (/^\*\*[^*]+\*\*\s*\|/.test(b)) return "meta";                                 // **AUTOMOBILI** | ...
+    return "testo";
+  };
+  const comeRiga = b => { const x = pulisci(b.replace(/^#{1,6}\s+/, "").replace(/\*\*/g, "")); return /[.!?:»"]$/.test(x) ? x : x + "."; };
+  let B = blocchi.map(b => ({ b, t: tipo(b) }));
+
+  // Regola B: autore tra i primi blocchi della pagina, poi testo, poi il primo "# " -> il titolo va prima dell'autore
+  const primi = B.map((x, i) => i).filter(i => B[i].t !== "conf").slice(0, 2);
+  const ia = primi.find(i => B[i].t === "aut");
+  if (ia !== undefined) {
+    const ih = B.findIndex((x, i) => i > ia && /^h/.test(x.t));
+    if (ih > 0 && B[ih].t === "h1" && B.slice(ia + 1, ih).some(x => x.t === "testo")) {
+      let k = ih; while (k - 1 > ia && (B[k - 1].t === "meta" || B[k - 1].t === "conf")) k--;
+      const blocco = B.slice(k, ih + 1).filter(x => x.t !== "conf");
+      B.splice(k, ih + 1 - k);
+      const tit = blocco.pop();
+      B.splice(ia, 0, tit, ...blocco);
+    }
+  }
+  // Regola A: blocchi "di contorno" subito prima di un "# " (dall'ultimo separatore) vanno dopo il titolo
+  for (let i = 0; i < B.length; i++) {
+    if (B[i].t !== "h1") continue;
+    let k = i;
+    while (k - 1 >= 0 && ["aut", "meta", "h2"].includes(B[k - 1].t)) k--;
+    // catenaccio non in corsivo tra etichette e titolo (es. FOCUS / MERCATI/2 / testo breve / # titolo)
+    if (k - 1 >= 0 && B[k - 1].t === "testo" && B[k - 1].b.length < 600 && k - 2 >= 0 && B[k - 2].t === "meta") {
+      k -= 1; while (k - 1 >= 0 && ["aut", "meta", "h2"].includes(B[k - 1].t)) k--;
+    }
+    if (k === i) continue;
+    // i "##" spostati restano titoli solo se non stanno davanti al titolo: diventano righe di testo
+    const sposta = B.slice(k, i).map(x => ({ b: x.t === "testo" ? x.b : comeRiga(x.b), t: "testo" }));
+    const tit = B[i];
+    B.splice(k, i - k + 1, tit, ...sposta);
+    i = k + sposta.length;
+  }
+  return B.map(x => x.b).join("\n\n");
+}
+
 // Pulizia finale, uguale per screenshot e PDF e indipendente dal modello, perché i "# " siano
 // esattamente gli articoli (capitoli del lettore vocale) e i "## " le loro sezioni interne.
 function normalizzaMd(t) {
-  const righe = t.split("\n"), out = [], visti = new Set();
+  t = t.replace(/^\s*!\[[^\]]*\]\([^)]*\)\s*$/gm, "").replace(/!\[[^\]]*\]\([^)]*\)/g, "");   // immagini
+  // righe brevi ripetute 3+ volte (testata, rubrica corrente): rumore di impaginazione
+  const conta = new Map();
+  for (const r of t.split("\n")) { const k = r.replace(/[*_]/g, "").trim(); if (k && k.length <= 40 && !/^(#|\||<!--|-{3,})/.test(k)) conta.set(k, (conta.get(k) || 0) + 1); }
+  const rumore = new Set([...conta].filter(([, n]) => n >= 3).map(([k]) => k));
+  const righe = t.split("\n").filter(r => !rumore.has(r.replace(/[*_]/g, "").trim())), out = [], visti = new Set();
   const autore = s => /^(di|by|a cura di)\s+\p{Lu}[\p{L}'’.-]*(\s+\p{Lu}[\p{L}'’.-]*){0,3}\.?$/u.test(s);
   let inFence = false, rubrica = null;
   for (let i = 0; i < righe.length; i++) {
@@ -571,8 +639,8 @@ function componi(parlato) {
   const fatte = pagine.filter(p => p.stato === "ok");
   if (!fatte.length) return;
   ultimoMd = parlato
-    ? fatte.map(p => p.testo).join("\n\n") + "\n"
-    : fatte.map(p => `<!-- Pagina: ${p.nome} -->\n\n${p.testo}\n`).join("\n\n---\n\n");
+    ? fatte.map(p => normalizzaPagina(p.testo)).join("\n\n") + "\n"
+    : fatte.map(p => `<!-- Pagina: ${p.nome} -->\n\n${normalizzaPagina(p.testo)}\n`).join("\n\n---\n\n");
   ultimoMd = normalizzaMd(ultimoMd);
   ultimoTxt = ultimoMd.replace(/^#{1,6}\s+/gm, "");
   $("out").value = ultimoMd;

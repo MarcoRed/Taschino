@@ -793,6 +793,7 @@ function parseSections(text, level) {
 // Se il livello scelto a mano ha meno di 2 titoli in questo testo, si torna all'automatico
 // (evita di ritrovarsi con 1-2 capitoli per un'impostazione rimasta da un altro file).
 function analyzeText(text) {
+  text = text.replace(/<!--[\s\S]*?-->/g, '');   // commenti HTML (es. "Pagina: ..."): non si leggono
   const manual = parseInt(levelSelect.value, 10);
   if (manual) {
     const r = parseSections(text, manual);
