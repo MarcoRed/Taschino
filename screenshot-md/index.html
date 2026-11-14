@@ -37,7 +37,7 @@
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
           padding: 16px; margin-bottom: 14px; }
   label { display: block; margin-bottom: 12px; font-size: .9rem; color: var(--muted); }
-  input[type=password], input[type=text] {
+  input[type=password], input[type=text], select {
     display: block; width: 100%; margin-top: 4px; padding: 10px 12px; font-size: 1rem;
     border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); }
   .check { display: flex; gap: 10px; align-items: center; color: var(--text); font-size: 1rem; margin: 0; }
@@ -71,6 +71,13 @@
     </label>
     <label>Modello
       <input id="model" type="text" value="google/gemini-3.1-flash-lite" autocapitalize="off" spellcheck="false">
+    </label>
+    <label>Pagine PDF
+      <select id="pdfMode">
+        <option value="auto">Automatico: testo diretto se la pagina è semplice, altrimenti IA</option>
+        <option value="ia">Sempre IA (immagine della pagina)</option>
+        <option value="testo">Sempre testo diretto (gratis, nessuna chiamata)</option>
+      </select>
     </label>
     <label class="check"><input type="checkbox" id="parlato"> Versione per lettura vocale</label>
     <p class="hint">La chiave resta salvata solo su questo dispositivo.</p>
@@ -145,6 +152,13 @@ $("parlato").addEventListener("change", e => {
   pagine.forEach(p => { if (p.stato === "ok") { p.stato = "attesa"; p.testo = null; } });
   disegnaLista();
 });
+$("pdfMode").value = store.get("s2m_pdfmode") || "auto";
+$("pdfMode").addEventListener("change", e => {
+  store.set("s2m_pdfmode", e.target.value);
+  // le pagine PDF vanno rifatte con il nuovo metodo
+  pagine.forEach(p => { if (p.pdfPag) { p.raw = null; p.metodo = null; if (p.stato === "ok") { p.stato = "attesa"; p.testo = null; } } });
+  disegnaLista();
+});
 
 // ---- scelta file
 const isPdf = f => f.type === "application/pdf" || /\.pdf$/i.test(f.name);
@@ -217,12 +231,148 @@ function disegnaLista() {
     li.textContent = p.nome;
     const s = document.createElement("span");
     const [txt, cls] = etichette[p.stato];
-    s.textContent = p.errore ? `${txt}: ${p.errore}` : txt;
+    const met = p.metodo ? ` · ${p.metodo}` : "";
+    s.textContent = p.errore ? `${txt}: ${p.errore}` : txt + met;
     s.className = cls;
     li.appendChild(s);
     $("list").appendChild(li);
   });
 }
+
+// ==== ANALISI PDF ====
+// Decide se una pagina PDF si può convertire leggendo direttamente il suo testo (gratis) o se serve
+// l'IA sull'immagine. Serve l'IA se la pagina: non ha testo (scansione), ha testo ruotato,
+// ha più colonne o tabelle (corridoio verticale vuoto tra blocchi di testo), contiene immagini
+// grandi (foto, grafici, ritagli di articoli incollati come immagine) o riquadri disegnati.
+// forza = true: usa il testo diretto comunque, salvo che la pagina non ne abbia.
+async function analizzaPaginaPdf(pag, forza) {
+  const vp = pag.getViewport({ scale: 1 });
+  const W = vp.width, H = vp.height;
+  const tc = await pag.getTextContent();
+  const voci = [];
+  let caratteri = 0, ruotati = 0;
+  for (const it of tc.items) {
+    const s = it.str;
+    if (!s || !s.trim()) continue;
+    const [a, b, c, d, e, f] = it.transform;
+    const n = s.trim().length;
+    caratteri += n;
+    if (Math.abs(b) > 0.01 * Math.abs(a) || Math.abs(c) > 0.01 * Math.abs(d)) { ruotati += n; continue; }
+    const size = Math.abs(d) || it.height || 10;
+    voci.push({ s, x: e, x2: e + it.width, y: f, size });
+  }
+  if (caratteri < 200) return { metodo: "ia", motivo: "poco o nessun testo, forse una scansione" };
+  if (forza) return { metodo: "testo", motivo: "scelta manuale", testo: componiTesto(raggruppaRighe(voci)) };
+  if (ruotati > 0.1 * caratteri) return { metodo: "ia", motivo: "testo ruotato" };
+
+  const righe = raggruppaRighe(voci);
+  const gr = grafica(await pag.getOperatorList(), W * H, W, H);
+  if (gr.immagini > 0.08) return { metodo: "ia", motivo: "immagini o ritagli nella pagina" };
+  if (gr.riquadri > 0) return { metodo: "ia", motivo: "riquadri o tabelle disegnati" };
+  if (haCorridoio(righe)) return { metodo: "ia", motivo: "più colonne o tabella" };
+  return { metodo: "testo", motivo: "una colonna", testo: componiTesto(righe) };
+}
+
+// Voci di testo -> righe (stessa linea di base), dall'alto in basso; ogni riga divisa in segmenti
+// dove c'è uno spazio orizzontale grande (oltre 1,5 volte il corpo del carattere).
+function raggruppaRighe(voci) {
+  voci.sort((p, q) => q.y - p.y || p.x - q.x);
+  const righe = [];
+  for (const v of voci) {
+    const r = righe[righe.length - 1];
+    if (r && Math.abs(r.y - v.y) < 0.5 * Math.min(r.size, v.size)) { r.voci.push(v); r.size = Math.max(r.size, v.size); }
+    else righe.push({ y: v.y, size: v.size, voci: [v] });
+  }
+  for (const r of righe) {
+    r.voci.sort((p, q) => p.x - q.x);
+    r.seg = [];
+    for (const v of r.voci) {
+      const s = r.seg[r.seg.length - 1];
+      if (s && v.x - s.x2 < 1.5 * r.size) {
+        const spazio = v.x - s.x2 > 0.15 * r.size && !/\s$/.test(s.testo) && !/^\s/.test(v.s);
+        s.testo += (spazio ? " " : "") + v.s; s.x2 = Math.max(s.x2, v.x2);
+      } else r.seg.push({ x: v.x, x2: v.x2, testo: v.s });
+    }
+  }
+  return righe;
+}
+
+// Più colonne o tabelle: nella fascia centrale del blocco di testo c'è una striscia verticale che quasi
+// nessuna riga attraversa, con molto testo sia a sinistra sia a destra.
+function haCorridoio(righe) {
+  if (righe.length < 6) return false;
+  let x0 = Infinity, x1 = -Infinity;
+  for (const r of righe) for (const s of r.seg) { x0 = Math.min(x0, s.x); x1 = Math.max(x1, s.x2); }
+  const N = 100, larg = (x1 - x0) / N;
+  if (!(larg > 0)) return false;
+  const cop = new Array(N).fill(0);
+  for (const r of righe) for (const s of r.seg) {
+    const i0 = Math.max(0, Math.floor((s.x - x0) / larg)), i1 = Math.min(N - 1, Math.floor((s.x2 - x0) / larg));
+    for (let i = i0; i <= i1; i++) cop[i]++;
+  }
+  const max = Math.max(...cop);
+  for (let i = 15; i < 85; i++) {
+    if (cop[i] > 0.1 * max) continue;
+    const sx = Math.max(...cop.slice(0, i)), dx = Math.max(...cop.slice(i + 1));
+    if (sx > 0.4 * max && dx > 0.4 * max) return true;
+  }
+  return false;
+}
+
+// Operazioni grafiche: area delle immagini (frazione della pagina) e numero di riquadri disegnati
+// (rettangoli o tracciati riempiti/contornati abbastanza grandi, esclusi sfondo pagina, filetti e clip).
+function grafica(ops, areaPagina, W, H) {
+  const O = pdfjsLib.OPS;
+  const IMG = new Set([O.paintImageXObject, O.paintInlineImageXObject, O.paintImageMaskXObject]);
+  const NON_DISEGNO = new Set([O.clip, O.eoClip, O.endPath]);
+  let m = [1, 0, 0, 1, 0, 0];
+  const pila = [];
+  const per = (p, q) => [p[0]*q[0] + p[1]*q[2], p[0]*q[1] + p[1]*q[3], p[2]*q[0] + p[3]*q[2],
+                         p[2]*q[1] + p[3]*q[3], p[4]*q[0] + p[5]*q[2] + q[4], p[4]*q[1] + p[5]*q[3] + q[5]];
+  let immagini = 0, riquadri = 0;
+  const { fnArray: fn, argsArray: args } = ops;
+  for (let i = 0; i < fn.length; i++) {
+    const op = fn[i];
+    if (op === O.save) pila.push(m);
+    else if (op === O.restore) m = pila.pop() || [1, 0, 0, 1, 0, 0];
+    else if (op === O.transform) m = per(args[i], m);
+    else if (op === O.paintFormXObjectBegin) { pila.push(m); if (args[i]?.[0]) m = per(args[i][0], m); }
+    else if (op === O.paintFormXObjectEnd) m = pila.pop() || [1, 0, 0, 1, 0, 0];
+    else if (IMG.has(op)) immagini += Math.abs(m[0] * m[3] - m[1] * m[2]) / areaPagina;
+    else if (op === O.constructPath && !NON_DISEGNO.has(fn[i + 1])) {
+      const mm = args[i]?.[2];
+      if (!mm || !isFinite(mm[0])) continue;
+      const w = (mm[2] - mm[0]) * Math.hypot(m[0], m[1]), h = (mm[3] - mm[1]) * Math.hypot(m[2], m[3]);
+      if (w > 0.15 * W && h > 0.08 * H && w * h < 0.9 * areaPagina) riquadri++;
+    }
+  }
+  return { immagini, riquadri };
+}
+
+// Righe -> Markdown: titoli dal corpo del carattere, paragrafi dagli spazi verticali, sillabazione ricucita.
+function componiTesto(righe) {
+  const corpi = [];
+  for (const r of righe) for (const s of r.seg) for (let k = 0; k < s.testo.length; k += 20) corpi.push(r.size);
+  corpi.sort((p, q) => p - q);
+  const corpo = corpi[Math.floor(corpi.length / 2)] || 10;
+  const blocchi = [];
+  let cur = null, prec = null;
+  for (const r of righe) {
+    const testo = r.seg.map(s => s.testo.trim()).join("   ").replace(/\s+/g, " ").trim();
+    if (!testo) continue;
+    const liv = r.size >= 1.6 * corpo ? 1 : r.size >= 1.2 * corpo ? 2 : 0;
+    const distacco = prec && (prec.y - r.y) > 1.6 * Math.max(prec.size, r.size);
+    if (!cur || liv !== cur.liv || distacco || (liv === 0 && prec && prec.size >= 1.2 * corpo)) {
+      cur = { liv, testo };
+      blocchi.push(cur);
+    } else if (/[A-Za-zÀ-ÿ]-$/.test(cur.testo) && /^[a-zà-ÿ]/.test(testo)) {
+      cur.testo = cur.testo.slice(0, -1) + testo;
+    } else cur.testo += " " + testo;
+    prec = r;
+  }
+  return blocchi.map(b => (b.liv ? "#".repeat(b.liv) + " " : "") + b.testo).join("\n\n");
+}
+// ==== FINE ANALISI PDF ====
 
 // ---- immagine -> JPEG data URL (lato lungo max 2400 px)
 async function aDataUrl(file) {
@@ -275,9 +425,11 @@ async function chiama(messaggi, maxTokens) {
 
 // ---- elaborazione
 $("go").addEventListener("click", async () => {
-  if (!$("key").value.trim()) { $("status").textContent = "Inserisci la chiave OpenRouter."; return; }
-  store.set("s2m_key", $("key").value.trim());
   const parlato = $("parlato").checked;
+  const pdfMode = $("pdfMode").value;
+  const serveChiave = parlato || pdfMode !== "testo" || pagine.some(p => !p.pdfPag && p.stato !== "ok");
+  if (serveChiave && !$("key").value.trim()) { $("status").textContent = "Inserisci la chiave OpenRouter."; return; }
+  store.set("s2m_key", $("key").value.trim());
   $("go").disabled = true;
   let wake = null;
   try { wake = await navigator.wakeLock?.request("screen"); } catch {}
@@ -290,7 +442,16 @@ $("go").addEventListener("click", async () => {
     try {
       // La trascrizione grezza viene salvata: se fallisce il passo "lettura vocale" o si cambia
       // l'opzione, non si rifà l'OCR (costo e tempo) della pagina.
+      // Pagina PDF: prima si valuta se basta il testo già presente nel PDF (gratis e istantaneo)
+      if (!p.raw && p.pdfPag && pdfMode !== "ia") {
+        const pag = await (await apriPdf(p.file)).getPage(p.pdfPag);
+        const a = await analizzaPaginaPdf(pag, pdfMode === "testo");
+        pag.cleanup();
+        if (a.metodo === "testo") { p.raw = a.testo; p.metodo = `testo diretto (${a.motivo})`; }
+        else p.metodo = `IA (${a.motivo})`;
+      }
       if (!p.raw) {
+        if (p.pdfPag && pdfMode === "ia") p.metodo = "IA";
         const img = p.pdfPag ? await pdfPaginaDataUrl(p.file, p.pdfPag) : await aDataUrl(p.file);
         p.raw = await chiama([
           { role: "system", content: SYSTEM_INSTRUCTION },
